@@ -1,42 +1,29 @@
-package enviromine;
+package enviromine.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
+import enviromine.EnviroPotion;
+import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
+import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFlower;
-import net.minecraft.block.BlockSnow;
-import net.minecraft.block.BlockSnowBlock;
-import net.minecraft.block.BlockIce;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.event.entity.item.ItemExpireEvent;
 
 public class EM_StatusManager
 {
@@ -569,7 +556,7 @@ public class EM_StatusManager
 			}
 		}
 		
-		if(biome.isHighHumidity() && isDay)
+		if(biome.getIntRainfall() == 0 && isDay)
 		{
 			dehydrateBonus += 0.05F;
 			if(animalHostility == 0)
@@ -598,7 +585,7 @@ public class EM_StatusManager
 		data[4] = dropSpeed;
 		data[5] = riseSpeed;
 		data[6] = animalHostility;
-		data[7] = sanityRate;
+		data[7] = sanityRate/2;
 		return data;
 	}
 	

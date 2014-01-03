@@ -1,26 +1,22 @@
-package enviromine;
+package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-
-import net.minecraft.client.Minecraft;
+import enviromine.EnviroDamageSource;
+import enviromine.EnviroPotion;
+import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
+import enviromine.handlers.EM_StatusManager;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntitySheep;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.WorldServer;
 
 public class EnviroDataTracker
 {
@@ -79,7 +75,6 @@ public class EnviroDataTracker
 		}
 		
 		int i = MathHelper.floor_double(trackedEntity.posX);
-		int j = MathHelper.floor_double(trackedEntity.posY);
 		int k = MathHelper.floor_double(trackedEntity.posZ);
 		
 		if(!trackedEntity.worldObj.getChunkFromBlockCoords(i, k).isChunkLoaded)
@@ -264,10 +259,10 @@ public class EnviroDataTracker
 	
 	public void fixFloatinfPointErrors()
 	{
-		airQuality = new BigDecimal(new String().valueOf(airQuality)).setScale(2, RoundingMode.HALF_UP).floatValue();
-		bodyTemp = new BigDecimal(new String().valueOf(bodyTemp)).setScale(2, RoundingMode.HALF_UP).floatValue();
-		hydration = new BigDecimal(new String().valueOf(hydration)).setScale(2, RoundingMode.HALF_UP).floatValue();
-		sanity = new BigDecimal(new String().valueOf(sanity)).setScale(2, RoundingMode.HALF_UP).floatValue();
+		airQuality = new BigDecimal(String.valueOf(airQuality)).setScale(2, RoundingMode.HALF_UP).floatValue();
+		bodyTemp = new BigDecimal(String.valueOf(bodyTemp)).setScale(2, RoundingMode.HALF_UP).floatValue();
+		hydration = new BigDecimal(String.valueOf(hydration)).setScale(2, RoundingMode.HALF_UP).floatValue();
+		sanity = new BigDecimal(String.valueOf(sanity)).setScale(2, RoundingMode.HALF_UP).floatValue();
 	}
 	
 	public static boolean isLegalType(EntityLivingBase entity)

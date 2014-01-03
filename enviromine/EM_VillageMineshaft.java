@@ -6,8 +6,6 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.WeightedRandomChestContent;
-import net.minecraft.village.Village;
-import net.minecraft.village.VillageCollection;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -20,7 +18,7 @@ import net.minecraft.world.gen.structure.StructureMineshaftPieces;
 public class EM_VillageMineshaft extends ComponentVillage
 {
     private int averageGroundLevel = -1;
-    private int maxDistance;
+    private int maxDistance = 120;
 
     public EM_VillageMineshaft()
     {
@@ -194,7 +192,7 @@ public class EM_VillageMineshaft extends ComponentVillage
         		
         		loop += 1;
         		continue;
-        	} else if(curX >= 120 || curZ >= 120)
+        	} else if(curX >= maxDistance || curZ >= maxDistance)
         	{
         		curX = preX;
         		curZ = preZ;

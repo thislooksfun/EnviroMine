@@ -3,7 +3,6 @@ package enviromine;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.StatCollector;
 
 public class EnviroDamageSource extends DamageSource
 {

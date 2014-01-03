@@ -1,23 +1,18 @@
-package enviromine;
+package enviromine.core;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.Configuration;
 
 public class EM_Settings
 {
 	//Mod Data
-	public static final String Version = "1.0.13";
+	public static final String Version = "1.0.14";
 	public static final String ID = "EnviroMine";
 	public static final String Channel = "EM_CH";
 	public static final String Name = "EnviroMine";
-	public static final String Proxy = "enviromine";
+	public static final String Proxy = "enviromine.core.proxies";
 	
 	public static boolean useFarenheit = false;
 	public static boolean enablePhysics = true;
@@ -36,9 +31,9 @@ public class EM_Settings
 	public static int insanityPotionID = 52;
 	
 	//Properties
-	public static HashMap<Integer,Object[]> armorProperties = new HashMap();
-	public static HashMap<Integer,Object[]> blockProperties = new HashMap();
-	public static HashMap<String,Object[]> livingProperties = new HashMap();
+	public static HashMap<Integer,Object[]> armorProperties = new HashMap<Integer,Object[]>();
+	public static HashMap<Integer,Object[]> blockProperties = new HashMap<Integer,Object[]>();
+	public static HashMap<String,Object[]> livingProperties = new HashMap<String,Object[]>();
     
 	public static void LoadConfig(File file)
 	{
@@ -66,17 +61,17 @@ public class EM_Settings
 		config.addCustomCategoryComment("EntityLiving Properties", "Add properties for custom living entities here. Add the entity name to 'Custom Objects' before creating the property here. \nProperty Format: <EntityName(E.G. EntityPigZombie)>, <Dehydrate(T/F)>, <BodyTemp?(T/F)>, <AirQuality?(T/F)>");
         config.addCustomCategoryComment("Custom Objects", "Lists of objects that have envionmental properties");
         
-        useFarenheit = config.get(config.CATEGORY_GENERAL, "Use Farenheit instead of Celsius", false).getBoolean(false);
-        enablePhysics = config.get(config.CATEGORY_GENERAL, "Enable Physics", true).getBoolean(true);
-        enableSanity = config.get(config.CATEGORY_GENERAL, "Enable Sanity", true).getBoolean(true);
-        enableHydrate = config.get(config.CATEGORY_GENERAL, "Enable Hydration", true).getBoolean(true);
-        enableBodyTemp = config.get(config.CATEGORY_GENERAL, "Enable Body Temperature", true).getBoolean(true);
-        enableAirQ = config.get(config.CATEGORY_GENERAL, "Enable Air Quality", true).getBoolean(true);
-        saddleRecipe = config.get(config.CATEGORY_GENERAL, "Enable Saddle Recipe", true).getBoolean(true);
+        useFarenheit = config.get(Configuration.CATEGORY_GENERAL, "Use Farenheit instead of Celsius", false).getBoolean(false);
+        enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true).getBoolean(true);
+        enableSanity = config.get(Configuration.CATEGORY_GENERAL, "Enable Sanity", true).getBoolean(true);
+        enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Enable Hydration", true).getBoolean(true);
+        enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Enable Body Temperature", true).getBoolean(true);
+        enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Enable Air Quality", true).getBoolean(true);
+        saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true).getBoolean(true);
         
-        dirtBottleID = config.get(config.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
-        saltBottleID = config.get(config.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
-        coldBottleID = config.get(config.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
+        dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
+        saltBottleID = config.get(Configuration.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
+        coldBottleID = config.get(Configuration.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
         
         frostBitePotionID = config.get("Potions", "Frostbite", 50).getInt(50);
         dehydratePotionID = config.get("Potions", "Dehydration", 51).getInt(51);
@@ -138,8 +133,8 @@ public class EM_Settings
 			{
 				continue;
 			}
-			System.out.println("Loaded custom properties for armor '" + customLiving[i] + "'");
-			addLivingPropToHash(customLiving[i], config.get("Armor Properties", customLiving[i], "").getString());
+			System.out.println("Loaded custom properties for entity '" + customLiving[i] + "'");
+			addLivingPropToHash(customLiving[i], config.get("Entity Properties", customLiving[i], "").getString());
 		}
 	}
 	

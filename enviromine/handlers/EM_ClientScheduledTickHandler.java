@@ -1,8 +1,6 @@
-package enviromine;
+package enviromine.handlers;
 
 import java.util.EnumSet;
-import java.util.concurrent.TimeUnit;
-
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 

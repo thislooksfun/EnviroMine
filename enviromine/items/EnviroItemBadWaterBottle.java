@@ -1,7 +1,9 @@
-package enviromine;
+package enviromine.items;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import enviromine.handlers.EM_StatusManager;
+import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
@@ -14,7 +16,7 @@ import net.minecraft.potion.PotionHelper;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
-public class EnviroItemColdWaterBottle extends Item
+public class EnviroItemBadWaterBottle extends Item
 {
     @SideOnly(Side.CLIENT)
     private Icon field_94591_c;
@@ -23,7 +25,7 @@ public class EnviroItemColdWaterBottle extends Item
     @SideOnly(Side.CLIENT)
     private Icon field_94592_ct;
     
-	public EnviroItemColdWaterBottle(int id)
+	public EnviroItemBadWaterBottle(int id)
 	{
 		super(id);
 		setTextureName("potion");
@@ -40,19 +42,22 @@ public class EnviroItemColdWaterBottle extends Item
         {
         	EnviroDataTracker tracker = EM_StatusManager.lookupTracker(par3EntityPlayer);
         	
+        	if(par3EntityPlayer.getRNG().nextInt(4) == 0)
+        	{
+        		par3EntityPlayer.addPotionEffect(new PotionEffect(Potion.hunger.id, 600));
+        	}
+        	if(par3EntityPlayer.getRNG().nextInt(4) == 0)
+        	{
+        		par3EntityPlayer.addPotionEffect(new PotionEffect(Potion.poison.id, 200));
+        	}
+        	
         	if(tracker != null)
         	{
-            	if(tracker.bodyTemp >= 0)
-            	{
-            		if(tracker.bodyTemp >= 30)
-            		{
-            			tracker.bodyTemp -= 10F;
-            		} else
-            		{
-            			tracker.bodyTemp -= 5F;
-            		}
-                	tracker.hydrate(25F);
-            	}
+				if(tracker.bodyTemp > 30F)
+				{
+					tracker.bodyTemp -= 5F;
+				}
+        		tracker.hydrate(25F);
         	}
         }
 
@@ -66,6 +71,31 @@ public class EnviroItemColdWaterBottle extends Item
             par3EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.glassBottle));
         }
 
+        return par1ItemStack;
+    }
+
+    /**
+     * returns the action that specifies what animation to play when the items is being used
+     */
+    public EnumAction getItemUseAction(ItemStack par1ItemStack)
+    {
+        return EnumAction.drink;
+    }
+
+    /**
+     * How long it takes to use or consume an item
+     */
+    public int getMaxItemUseDuration(ItemStack par1ItemStack)
+    {
+        return 32;
+    }
+
+    /**
+     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
+     */
+    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
+    {
+    	par3EntityPlayer.setItemInUse(par1ItemStack, this.getMaxItemUseDuration(par1ItemStack));
         return par1ItemStack;
     }
 
@@ -100,35 +130,10 @@ public class EnviroItemColdWaterBottle extends Item
         return par2 > 0 ? 16777215 : this.getColorFromDamage(par1ItemStack.getItemDamage());
     }
 
-    /**
-     * returns the action that specifies what animation to play when the items is being used
-     */
-    public EnumAction getItemUseAction(ItemStack par1ItemStack)
-    {
-        return EnumAction.drink;
-    }
-
-    /**
-     * How long it takes to use or consume an item
-     */
-    public int getMaxItemUseDuration(ItemStack par1ItemStack)
-    {
-        return 32;
-    }
-
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()
     {
         return true;
-    }
-
-    /**
-     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
-     */
-    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
-    {
-    	par3EntityPlayer.setItemInUse(par1ItemStack, this.getMaxItemUseDuration(par1ItemStack));
-        return par1ItemStack;
     }
 
     @SideOnly(Side.CLIENT)

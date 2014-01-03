@@ -1,19 +1,14 @@
-package enviromine;
+package enviromine.handlers;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import enviromine.core.EM_Settings;
+import enviromine.trackers.EnviroDataTracker;
 
 public class EnviroPacketHandler implements IPacketHandler
 {
@@ -28,10 +23,7 @@ public class EnviroPacketHandler implements IPacketHandler
 	
 	public void handleEnviroPacket(Packet250CustomPayload packet)
 	{
-		DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.data));
-		
 		String[] data;
-		boolean isPlayer;
 		EnviroDataTracker tracker;
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -49,11 +41,9 @@ public class EnviroPacketHandler implements IPacketHandler
 		try
 		{
 			tracker = EM_StatusManager.lookupTrackerFromID(Integer.parseInt(data[0]));
-			isPlayer = false;
 		} catch(NumberFormatException e)
 		{
 			tracker = EM_StatusManager.lookupPlayerTrackerFromName(data[0]);
-			isPlayer = true;
 		}
 		
 		if(tracker != null)

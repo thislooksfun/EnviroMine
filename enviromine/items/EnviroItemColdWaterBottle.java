@@ -1,25 +1,20 @@
-package enviromine;
-
-import java.util.Iterator;
-import java.util.List;
+package enviromine.items;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
+import enviromine.handlers.EM_StatusManager;
+import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityPotion;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionHelper;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
-public class EnviroItemBadWaterBottle extends Item
+public class EnviroItemColdWaterBottle extends Item
 {
     @SideOnly(Side.CLIENT)
     private Icon field_94591_c;
@@ -28,7 +23,7 @@ public class EnviroItemBadWaterBottle extends Item
     @SideOnly(Side.CLIENT)
     private Icon field_94592_ct;
     
-	public EnviroItemBadWaterBottle(int id)
+	public EnviroItemColdWaterBottle(int id)
 	{
 		super(id);
 		setTextureName("potion");
@@ -45,22 +40,19 @@ public class EnviroItemBadWaterBottle extends Item
         {
         	EnviroDataTracker tracker = EM_StatusManager.lookupTracker(par3EntityPlayer);
         	
-        	if(par3EntityPlayer.getRNG().nextInt(4) == 0)
-        	{
-        		par3EntityPlayer.addPotionEffect(new PotionEffect(Potion.hunger.id, 600));
-        	}
-        	if(par3EntityPlayer.getRNG().nextInt(4) == 0)
-        	{
-        		par3EntityPlayer.addPotionEffect(new PotionEffect(Potion.poison.id, 200));
-        	}
-        	
         	if(tracker != null)
         	{
-				if(tracker.bodyTemp > 30F)
-				{
-					tracker.bodyTemp -= 5F;
-				}
-        		tracker.hydrate(25F);
+            	if(tracker.bodyTemp >= 0)
+            	{
+            		if(tracker.bodyTemp >= 30)
+            		{
+            			tracker.bodyTemp -= 10F;
+            		} else
+            		{
+            			tracker.bodyTemp -= 5F;
+            		}
+                	tracker.hydrate(25F);
+            	}
         	}
         }
 
@@ -74,31 +66,6 @@ public class EnviroItemBadWaterBottle extends Item
             par3EntityPlayer.inventory.addItemStackToInventory(new ItemStack(Item.glassBottle));
         }
 
-        return par1ItemStack;
-    }
-
-    /**
-     * returns the action that specifies what animation to play when the items is being used
-     */
-    public EnumAction getItemUseAction(ItemStack par1ItemStack)
-    {
-        return EnumAction.drink;
-    }
-
-    /**
-     * How long it takes to use or consume an item
-     */
-    public int getMaxItemUseDuration(ItemStack par1ItemStack)
-    {
-        return 32;
-    }
-
-    /**
-     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
-     */
-    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
-    {
-    	par3EntityPlayer.setItemInUse(par1ItemStack, this.getMaxItemUseDuration(par1ItemStack));
         return par1ItemStack;
     }
 
@@ -133,10 +100,35 @@ public class EnviroItemBadWaterBottle extends Item
         return par2 > 0 ? 16777215 : this.getColorFromDamage(par1ItemStack.getItemDamage());
     }
 
+    /**
+     * returns the action that specifies what animation to play when the items is being used
+     */
+    public EnumAction getItemUseAction(ItemStack par1ItemStack)
+    {
+        return EnumAction.drink;
+    }
+
+    /**
+     * How long it takes to use or consume an item
+     */
+    public int getMaxItemUseDuration(ItemStack par1ItemStack)
+    {
+        return 32;
+    }
+
     @SideOnly(Side.CLIENT)
     public boolean requiresMultipleRenderPasses()
     {
         return true;
+    }
+
+    /**
+     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
+     */
+    public ItemStack onItemRightClick(ItemStack par1ItemStack, World par2World, EntityPlayer par3EntityPlayer)
+    {
+    	par3EntityPlayer.setItemInUse(par1ItemStack, this.getMaxItemUseDuration(par1ItemStack));
+        return par1ItemStack;
     }
 
     @SideOnly(Side.CLIENT)

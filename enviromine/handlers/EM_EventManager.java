@@ -1,22 +1,13 @@
-package enviromine;
+package enviromine.handlers;
 
-import static net.minecraftforge.common.ForgeDirection.EAST;
-import static net.minecraftforge.common.ForgeDirection.NORTH;
-import static net.minecraftforge.common.ForgeDirection.SOUTH;
-import static net.minecraftforge.common.ForgeDirection.WEST;
-
-import java.io.File;
-import java.util.Random;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
+import enviromine.EnviroPotion;
+import enviromine.core.EnviroMine;
+import enviromine.trackers.EnviroDataTracker;
+import enviromine.trackers.Hallucination;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityEnderman;
@@ -24,16 +15,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemAppleGold;
-import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.src.ModLoader;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -42,18 +28,14 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.Event.Result;
-import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
-import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.event.world.WorldEvent.Unload;
 
@@ -393,6 +375,10 @@ public class EM_EventManager
         		coords[1] -= 1;
         		break;
         	}
+        	case UNKNOWN:
+        	{
+        		break;
+        	}
         }
         
         return coords;
@@ -423,6 +409,22 @@ public class EM_EventManager
 			if(event.entityLiving.getRNG().nextInt(5) == 0)
 			{
 				EM_StatusManager.createFX(event.entityLiving);
+			}
+			
+			if(event.entityLiving instanceof EntityPlayer && EnviroMine.proxy.isClient())
+			{
+				if(event.entityLiving.isPotionActive(EnviroPotion.insanity))
+				{
+					if(event.entityLiving.getRNG().nextInt(5) == 0)
+					{
+						if(EnviroMine.proxy.isClient())
+						{
+							new Hallucination(event.entityLiving);
+						}
+					}
+				}
+				
+				Hallucination.update();
 			}
 			return;
 		}
@@ -574,41 +576,5 @@ public class EM_EventManager
         }
         Vec3 vec31 = vec3.addVector((double)f7 * d3, (double)f6 * d3, (double)f8 * d3);
         return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
-    }
-
-    private void tryToCatchBlockOnFire(World par1World, int par2, int par3, int par4, int par5, Random par6Random, int par7, ForgeDirection face)
-    {
-        int j1 = 0;
-        Block block = Block.blocksList[par1World.getBlockId(par2, par3, par4)];
-        if (block != null)
-        {
-            j1 = block.getFlammability(par1World, par2, par3, par4, par1World.getBlockMetadata(par2, par3, par4), face);
-        }
-
-        if (par6Random.nextInt(par5) < j1)
-        {
-            boolean flag = par1World.getBlockId(par2, par3, par4) == Block.tnt.blockID;
-
-            if (par6Random.nextInt(par7 + 10) < 5 && !par1World.canLightningStrikeAt(par2, par3, par4))
-            {
-                int k1 = par7 + par6Random.nextInt(5) / 4;
-
-                if (k1 > 15)
-                {
-                    k1 = 15;
-                }
-
-                par1World.setBlock(par2, par3, par4, Block.fire.blockID, k1, 3);
-            }
-            else
-            {
-                par1World.setBlockToAir(par2, par3, par4);
-            }
-
-            if (flag)
-            {
-                Block.tnt.onBlockDestroyedByPlayer(par1World, par2, par3, par4, 1);
-            }
-        }
     }
 }

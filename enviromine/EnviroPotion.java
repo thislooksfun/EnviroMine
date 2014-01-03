@@ -1,21 +1,17 @@
 package enviromine;
 
-import java.util.Collection;
-
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
+import enviromine.core.EnviroMine;
+import enviromine.handlers.EM_StatusManager;
+import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.packet.Packet62LevelSound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 
 public class EnviroPotion extends Potion
@@ -26,7 +22,7 @@ public class EnviroPotion extends Potion
 	
 	public static ResourceLocation textureResource = new ResourceLocation("enviromine", "textures/gui/bars.png");
 	
-	protected EnviroPotion(int par1, boolean par2, int par3)
+	public EnviroPotion(int par1, boolean par2, int par3)
 	{
 		super(par1, par2, par3);
 	}
@@ -37,8 +33,6 @@ public class EnviroPotion extends Potion
 		{
 			return;
 		}
-		
-		Collection effects = entityLiving.getActivePotionEffects();
 		
 		if(entityLiving.isPotionActive(frostbite))
 		{
@@ -70,7 +64,7 @@ public class EnviroPotion extends Potion
 				entityLiving.removePotionEffect(insanity.id);
 			}
 			
-			if(entityLiving.getRNG().nextInt(10) == 0)
+			if(entityLiving.getRNG().nextInt(50) == 0)
 			{
 				if(effect.getAmplifier() >= 2)
 				{
@@ -78,7 +72,7 @@ public class EnviroPotion extends Potion
 				}
 			}
 			
-			if(entityLiving.getRNG().nextInt(10) == 0)
+			if(entityLiving.getRNG().nextInt(50) == 0)
 			{
 				if(effect.getAmplifier() >= 1)
 				{
@@ -88,7 +82,7 @@ public class EnviroPotion extends Potion
 			}
 			
 			String sound = "";
-			if(entityLiving.getRNG().nextInt(20) == 0 && entityLiving instanceof EntityPlayer)
+			if(entityLiving.getRNG().nextInt(50) == 0 && entityLiving instanceof EntityPlayer)
 			{
 				switch(entityLiving.getRNG().nextInt(10))
 				{

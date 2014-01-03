@@ -1,9 +1,10 @@
-package enviromine;
+package enviromine.handlers;
 
 import java.util.EnumSet;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
+import enviromine.core.EM_Settings;
 
 public class EM_ServerScheduledTickHandler implements ITickHandler
 {

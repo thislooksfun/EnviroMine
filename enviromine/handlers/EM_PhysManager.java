@@ -1,21 +1,14 @@
-package enviromine;
+package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
+import enviromine.core.EM_Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBed;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockEndPortal;
 import net.minecraft.block.BlockEndPortalFrame;
-import net.minecraft.block.BlockEnderChest;
-import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.BlockGlowStone;
 import net.minecraft.block.BlockGravel;
 import net.minecraft.block.BlockLadder;
@@ -163,8 +156,6 @@ public class EM_PhysManager
     		int dropMeta = -1;//block.damageDropped(block.getDamageValue(world, x, y, z));
     		int dropNum = -1;
     		int dropType = 0;
-    		
-    		boolean validItem;
     		
     		boolean isCustom = false;
     		Object[] blockProps = null;

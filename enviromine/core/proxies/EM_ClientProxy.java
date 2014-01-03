@@ -1,9 +1,11 @@
-package enviromine;
+package enviromine.core.proxies;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
+import enviromine.gui.EM_GuiEnviroMeters;
+import enviromine.handlers.EM_ClientScheduledTickHandler;
 
 public class EM_ClientProxy extends EM_CommonProxy
 {
