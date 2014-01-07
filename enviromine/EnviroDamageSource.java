@@ -30,7 +30,7 @@ public class EnviroDamageSource extends DamageSource
         	return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" died of thirst").toString());
         } else if(this.damageType == "shockWave")
         {
-        	return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" electrocuted in lightning").toString());
+        	return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" was electrocuted by lightning").toString());
         } else
         {
         	return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" died from enviromental causes").toString());

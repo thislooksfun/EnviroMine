@@ -10,6 +10,7 @@ public class BlockProperties
 	
 	int minFall;
 	int maxFall;
+	int supportDist;
 	
 	int dropID;
 	int dropMeta;
@@ -19,7 +20,7 @@ public class BlockProperties
 	
 	float temp;
 	
-	public BlockProperties(int id, int meta, boolean hasPhys, boolean ignoreMeta, int minFall, int maxFall, int dropID, int dropMeta, int dropNum, boolean enableTemp, float temp)
+	public BlockProperties(int id, int meta, boolean hasPhys, boolean ignoreMeta, int minFall, int maxFall, int supportDist, int dropID, int dropMeta, int dropNum, boolean enableTemp, float temp)
 	{
 		this.id = id;
 		this.meta = meta;
@@ -27,6 +28,7 @@ public class BlockProperties
 		this.ignoreMeta = ignoreMeta;
 		this.minFall = minFall;
 		this.maxFall = maxFall;
+		this.supportDist = supportDist;
 		this.dropID = dropID;
 		this.dropMeta = dropMeta;
 		this.dropNum = dropNum;

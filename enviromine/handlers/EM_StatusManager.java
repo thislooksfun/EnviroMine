@@ -585,7 +585,7 @@ public class EM_StatusManager
 		data[4] = dropSpeed;
 		data[5] = riseSpeed;
 		data[6] = animalHostility;
-		data[7] = sanityRate/2;
+		data[7] = sanityRate/10;
 		return data;
 	}
 	

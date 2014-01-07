@@ -36,6 +36,10 @@ public class EnviroDataTracker
 	public boolean isDisabled = false;
 	public int itemUse = 0;
 	
+	public int frostBiteTime = 0;
+	public boolean frozenHands = false;
+	public boolean frozenLegs = false;
+	
 	public EnviroDataTracker(EntityLivingBase entity)
 	{
 		trackedEntity = entity;

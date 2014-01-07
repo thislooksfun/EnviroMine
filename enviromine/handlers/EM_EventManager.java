@@ -1,5 +1,6 @@
 package enviromine.handlers;
 
+import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EnviroMine;
 import enviromine.trackers.EnviroDataTracker;
@@ -8,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityEnderman;
@@ -35,6 +37,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.event.world.WorldEvent.Unload;
@@ -63,6 +66,13 @@ public class EM_EventManager
 					EM_StatusManager.syncMultiplayerTracker(emTrack);
 				}
 			}
+		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote)
+		{
+			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
+			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata);
+			oldSand.setDead();
+			event.world.spawnEntityInWorld(newSand);
+			//event.world.setBlock((int)oldSand.prevPosX, (int)oldSand.prevPosY, (int)oldSand.prevPosZ, 0);
 		}
 	}
 	
@@ -111,10 +121,10 @@ public class EM_EventManager
 			{
 				if(attacker instanceof EntityZombie)
 				{
-					tracker.sanity -= 5F;
+					tracker.sanity -= 1F;
 				} else if(attacker instanceof EntityEnderman)
 				{
-					tracker.sanity -= 10F;
+					tracker.sanity -= 5F;
 				}
 			}
 		}
@@ -415,7 +425,7 @@ public class EM_EventManager
 			{
 				if(event.entityLiving.isPotionActive(EnviroPotion.insanity))
 				{
-					if(event.entityLiving.getRNG().nextInt(5) == 0)
+					if(event.entityLiving.getRNG().nextInt(75) == 0)
 					{
 						if(EnviroMine.proxy.isClient())
 						{
@@ -429,30 +439,22 @@ public class EM_EventManager
 			return;
 		}
 		
-		/*if(event.entityLiving.isBurning())
-		{
-			int X = (int)event.entityLiving.posX + event.entityLiving.getRNG().nextInt(3);
-			int Y = (int)event.entityLiving.posY + event.entityLiving.getRNG().nextInt(3);
-			int Z = (int)event.entityLiving.posZ + event.entityLiving.getRNG().nextInt(3);
-			int id0 = event.entityLiving.worldObj.getBlockId(X, Y-1, Z);
-			int id1 = event.entityLiving.worldObj.getBlockId(X, Y, Z);
-			int id2 = event.entityLiving.worldObj.getBlockId(X, Y+1, Z);
-			int id3 = event.entityLiving.worldObj.getBlockId(X, Y+1, Z);
-			
-			if(id0 != 0)
-			{
-				if(Block.blocksList[id0].blockMaterial == Material.cloth || Block.blocksList[id0].blockMaterial == Material.plants || Block.blocksList[id0].blockMaterial == Material.leaves || Block.blocksList[id0].blockMaterial == Material.tnt || Block.blocksList[id0].blockMaterial == Material.wood)
-				{
-					event.entityLiving.worldObj.setBlock(X, Y, Z, Block.fire.blockID);
-				}
-			}
-		}*/
-		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
 			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
 			ItemStack item = null;
 			int itemUse = 0;
+			
+			if(((EntityPlayer)event.entityLiving).isPlayerSleeping())
+			{
+				if(((EntityPlayer)event.entityLiving).isPlayerFullyAsleep())
+				{
+					tracker.sanity += 5.0F;
+				} else
+				{
+					tracker.sanity += 1.0F;
+				}
+			}
 			
 			if(((EntityPlayer)event.entityLiving).isUsingItem())
 			{

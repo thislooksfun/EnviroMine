@@ -1,14 +1,10 @@
 package enviromine.core;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -56,8 +52,6 @@ public class EnviroMine
 		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("saltWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("coldWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		
-		extendPotionList(event);
-		
 		VillagerRegistry.instance().registerVillageCreationHandler(new EnviroShaftCreationHandler());
 		MapGenStructureIO.func_143031_a(EM_VillageMineshaft.class, "ViMS");
 	}
@@ -93,35 +87,5 @@ public class EnviroMine
 	@EventHandler
 	public static void postInit(FMLPostInitializationEvent event)
 	{
-	}
-	
-	public static void extendPotionList(FMLPreInitializationEvent event)
-	{
-		Potion[] potionTypes = null;
-
-		for (Field f : Potion.class.getDeclaredFields())
-		{
-			f.setAccessible(true);
-			
-			try
-			{
-				if (f.getName().equals("potionTypes") || f.getName().equals("field_76425_a"))
-				{
-					Field modfield = Field.class.getDeclaredField("modifiers");
-					modfield.setAccessible(true);
-					modfield.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-
-					potionTypes = (Potion[])f.get(null);
-					final Potion[] newPotionTypes = new Potion[256];
-					System.arraycopy(potionTypes, 0, newPotionTypes, 0, potionTypes.length);
-					f.set(null, newPotionTypes);
-				}
-			}
-			catch (Exception e)
-			{
-				System.err.println("[ERROR] Failed to extend potion list for EnviroMine");
-				System.err.println(e);
-			}
-		}
 	}
 }

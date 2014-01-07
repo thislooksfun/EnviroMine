@@ -86,7 +86,7 @@ public class EM_PhysManager
 		}
 	}
 	
-	private static void updateSurroundingWithExclusions(World world, int x, int y, int z, boolean updateSelf)
+	public static void updateSurroundingWithExclusions(World world, int x, int y, int z, boolean updateSelf)
 	{
 		if(world.isRemote)
 		{
@@ -237,6 +237,7 @@ public class EM_PhysManager
         	
     		int minThreshold = 10;
     		int maxThreshold = 15;
+    		int supportDist = 1;
     		
     		if(isCustom)
     		{
@@ -246,17 +247,19 @@ public class EM_PhysManager
     		{
     			minThreshold = 22;
     			maxThreshold = 25;
+        		supportDist = 5;
     		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block instanceof BlockIce || block instanceof BlockLeaves)
     		{
         		minThreshold = 15;
         		maxThreshold = 22;
+        		supportDist = 3;
     		}
     		
     		int missingBlocks = 0;
     		
     		for(int i = -1; i < 2; i++)
     		{
-    			for(int j = -1; j < 2; j++)
+    			for(int j = -1; j < 1; j++)
     			{
     				for(int k = -1; k < 2; k++)
     				{
@@ -274,12 +277,21 @@ public class EM_PhysManager
     			}
     		}
     		
+    		missingBlocks += 9;
+    		
+    		int dropChance = maxThreshold - missingBlocks;
+    		
+    		if(dropChance <= 0)
+    		{
+    			dropChance = 1;
+    		}
+    		
+    		boolean supported = hasSupports(world, x, y, z, supportDist);
     		//missingBlocks total = 25 - 26
     		
-    		if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z))
+    		if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z) && !supported)
     		{
-    			
-    			if (!world.isRemote && ((missingBlocks > minThreshold && world.rand.nextBoolean()) || missingBlocks >= maxThreshold))
+    			if (!world.isRemote && ((missingBlocks > minThreshold && world.rand.nextInt(dropChance) == 0) || missingBlocks >= maxThreshold))
     			{
     	        	if(dropType == 2 && block.quantityDropped(world.rand) > 0 && !(block instanceof BlockOre || block instanceof BlockRedstoneOre))
     	        	{
@@ -351,7 +363,156 @@ public class EM_PhysManager
 	}
 	
 
-    protected static void dropItemstack(World par1World, int par2, int par3, int par4, ItemStack par5ItemStack)
+    public static boolean hasSupports(World world, int x, int y, int z, int dist)
+	{
+    	for(int i = x + 1; i <= x + dist; i++)
+    	{
+        	int k = z;
+        	
+    		boolean cancel = false;
+    		
+    		for(int j = y - 1; j <= y; j++)
+    		{
+    			if(j == y)
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				cancel = true;
+	    				break;
+	    			} else
+	    			{
+	    				continue;
+	    			}
+    			} else
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				continue;
+	    			} else
+	    			{
+	    				return true;
+	    			}
+    			}
+    		}
+    		
+    		if(cancel)
+    		{
+    			break;
+    		}
+    	}
+    	
+    	for(int i = x - 1; i >= x - dist; i--)
+    	{
+        	int k = z;
+        	
+    		boolean cancel = false;
+    		
+    		for(int j = y - 1; j <= y; j++)
+    		{
+    			if(j == y)
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				cancel = true;
+	    				break;
+	    			} else
+	    			{
+	    				continue;
+	    			}
+    			} else
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				continue;
+	    			} else
+	    			{
+	    				return true;
+	    			}
+    			}
+    		}
+    		
+    		if(cancel)
+    		{
+    			break;
+    		}
+    	}
+    	
+    	for(int k = z + 1; k <= z + dist; k++)
+    	{
+        	int i = x;
+        	
+    		boolean cancel = false;
+    		
+    		for(int j = y - 1; j <= y; j++)
+    		{
+    			if(j == y)
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				cancel = true;
+	    				break;
+	    			} else
+	    			{
+	    				continue;
+	    			}
+    			} else
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				continue;
+	    			} else
+	    			{
+	    				return true;
+	    			}
+    			}
+    		}
+    		
+    		if(cancel)
+    		{
+    			break;
+    		}
+    	}
+    	
+    	for(int k = z - 1; k >= z - dist; k--)
+    	{
+        	int i = x;
+        	
+    		boolean cancel = false;
+    		
+    		for(int j = y - 1; j <= y; j++)
+    		{
+    			if(j == y)
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				cancel = true;
+	    				break;
+	    			} else
+	    			{
+	    				continue;
+	    			}
+    			} else
+    			{
+	    			if(blockNotSolid(world, i, j, k))
+	    			{
+	    				continue;
+	    			} else
+	    			{
+	    				return true;
+	    			}
+    			}
+    		}
+    		
+    		if(cancel)
+    		{
+    			break;
+    		}
+    	}
+    	
+    	return false;
+	}
+
+	protected static void dropItemstack(World par1World, int par2, int par3, int par4, ItemStack par5ItemStack)
     {
         if (!par1World.isRemote && par1World.getGameRules().getGameRuleBooleanValue("doTileDrops"))
         {

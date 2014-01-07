@@ -26,9 +26,9 @@ public class EM_Settings
 	public static int saltBottleID = 5002;
 	public static int coldBottleID = 5003;
 	
-	public static int frostBitePotionID = 50;
-	public static int dehydratePotionID = 51;
-	public static int insanityPotionID = 52;
+	public static int frostBitePotionID = 29;
+	public static int dehydratePotionID = 30;
+	public static int insanityPotionID = 31;
 	
 	//Properties
 	public static HashMap<Integer,Object[]> armorProperties = new HashMap<Integer,Object[]>();
@@ -73,9 +73,9 @@ public class EM_Settings
         saltBottleID = config.get(Configuration.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
         coldBottleID = config.get(Configuration.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
         
-        frostBitePotionID = config.get("Potions", "Frostbite", 50).getInt(50);
-        dehydratePotionID = config.get("Potions", "Dehydration", 51).getInt(51);
-        insanityPotionID = config.get("Potions", "Insanity", 52).getInt(52);
+        frostBitePotionID = config.get("Potions", "Frostbite", 29).getInt(50);
+        dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(51);
+        insanityPotionID = config.get("Potions", "Insanity", 31).getInt(52);
         
         loadArmorProperties(config);
         loadBlockProperties(config);

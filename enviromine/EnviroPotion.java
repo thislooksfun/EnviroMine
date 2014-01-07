@@ -178,4 +178,15 @@ public class EnviroPotion extends Potion
     	Minecraft.getMinecraft().renderEngine.bindTexture(textureResource);
         return true;
     }
+	
+	@Override
+    @SideOnly(Side.CLIENT)
+
+    /**
+     * This method returns true if the potion effect is bad - negative - for the entity.
+     */
+    public boolean isBadEffect()
+    {
+        return true;
+    }
 }
