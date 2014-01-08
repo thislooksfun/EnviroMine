@@ -621,17 +621,11 @@ public class EM_StatusManager
 	
 	public static void saveTracker(EnviroDataTracker tracker)
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
-		{
-			if(trackerList.get(i) == tracker)
-			{
-				NBTTagCompound tags = tracker.trackedEntity.getEntityData();
-				tags.setFloat("ENVIRO_AIR", tracker.airQuality);
-				tags.setFloat("ENVIRO_HYD", tracker.hydration);
-				tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
-				tags.setFloat("ENVIRO_SAN", tracker.sanity);
-			}
-		}
+		NBTTagCompound tags = tracker.trackedEntity.getEntityData();
+		tags.setFloat("ENVIRO_AIR", tracker.airQuality);
+		tags.setFloat("ENVIRO_HYD", tracker.hydration);
+		tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
+		tags.setFloat("ENVIRO_SAN", tracker.sanity);
 	}
 	
 	public static void removeAllTrackers()

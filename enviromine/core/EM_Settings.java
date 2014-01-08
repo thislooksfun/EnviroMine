@@ -25,6 +25,7 @@ public class EM_Settings
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
 	public static int coldBottleID = 5003;
+	public static int camelPackID = 5004;
 	
 	public static int frostBitePotionID = 29;
 	public static int dehydratePotionID = 30;

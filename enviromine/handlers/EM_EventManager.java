@@ -69,10 +69,9 @@ public class EM_EventManager
 		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote)
 		{
 			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
-			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata);
+			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata, true);
 			oldSand.setDead();
 			event.world.spawnEntityInWorld(newSand);
-			//event.world.setBlock((int)oldSand.prevPosX, (int)oldSand.prevPosY, (int)oldSand.prevPosZ, 0);
 		}
 	}
 	

@@ -259,6 +259,7 @@ public class EnviroDataTracker
 		
 		EnviroPotion.checkAndApplyEffects(trackedEntity);
 		this.fixFloatinfPointErrors();
+		EM_StatusManager.saveTracker(this);
 	}
 	
 	public void fixFloatinfPointErrors()

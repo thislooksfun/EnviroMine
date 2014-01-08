@@ -1,11 +1,15 @@
 package enviromine.core;
 
 import java.io.File;
+
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.EnumArmorMaterial;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.EnumHelper;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -22,6 +26,7 @@ import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
+import enviromine.items.EnviroArmor;
 import enviromine.items.EnviroItemBadWaterBottle;
 import enviromine.items.EnviroItemColdWaterBottle;
 import enviromine.items.EnviroItemSaltWaterBottle;
@@ -34,6 +39,9 @@ public class EnviroMine
 	public static Item badWaterBottle;
 	public static Item saltWaterBottle;
 	public static Item coldWaterBottle;
+	
+	public static EnumArmorMaterial camelPackMaterial;
+	public static ItemArmor camelPack;
 	
 	@Instance("EM_Instance")
     public static EnviroMine instance;
@@ -51,6 +59,10 @@ public class EnviroMine
 		badWaterBottle = new EnviroItemBadWaterBottle(EM_Settings.dirtBottleID).setMaxStackSize(1).setUnlocalizedName("dirtyWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("saltWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("coldWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
+		
+		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{0,0,0,0}, 0);
+		
+		//coldWaterBottle = new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial).setTextureName("camel_pack").setIconIndex(4);
 		
 		VillagerRegistry.instance().registerVillageCreationHandler(new EnviroShaftCreationHandler());
 		MapGenStructureIO.func_143031_a(EM_VillageMineshaft.class, "ViMS");

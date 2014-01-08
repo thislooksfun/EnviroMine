@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Random;
 
 import enviromine.EntityPhysicsBlock;
+import enviromine.handlers.EM_PhysManager;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentProtection;
 import net.minecraft.entity.Entity;
@@ -103,11 +104,7 @@ public class Explosion
                             if (f1 > 0.0F && (this.exploder == null || this.exploder.shouldExplodeBlock(this, this.worldObj, l, i1, j1, k1, f1)))
                             {
                                 hashset.add(new ChunkPosition(l, i1, j1));
-                            } else if(!done)
-                            {
-                            	EntityPhysicsBlock physBlock = new EntityPhysicsBlock(this.worldObj, l, i1, j1, k1, this.worldObj.getBlockMetadata(l, i1, j1));
-                            	this.worldObj.spawnEntityInWorld(physBlock);
-                            	this.worldObj.setBlock(l, i1, j1, 0);
+                                EM_PhysManager.schedulePhysUpdate(this.worldObj, l, i1, j1, true, true);
                             }
 
                             d0 += d3 * (double)f2;
@@ -149,22 +146,10 @@ public class Explosion
                     d2 /= d8;
                     double d9 = (double)this.worldObj.getBlockDensity(vec3, entity.boundingBox);
                     double d10 = (1.0D - d7) * d9;
-                    double d11;
-                    if(!(entity instanceof EntityPhysicsBlock))
-                    {
-                    	entity.attackEntityFrom(DamageSource.setExplosionSource(this), (float)((int)((d10 * d10 + d10) / 2.0D * 8.0D * (double)this.explosionSize + 1.0D)));
-
-                        d11 = EnchantmentProtection.func_92092_a(entity, d10);
-                        entity.motionX += d0 * d11;
-                        entity.motionY += d1 * d11;
-                        entity.motionZ += d2 * d11;
-                    } else
-                    {
-                        d11 = EnchantmentProtection.func_92092_a(entity, d10);
-                        entity.motionX += d0 * d11 * 2;
-                        entity.motionY += d1 * d11 * 2;
-                        entity.motionZ += d2 * d11 * 2;
-                    }
+                    double d11 = EnchantmentProtection.func_92092_a(entity, d10);
+                    entity.motionX += d0 * d11;
+                    entity.motionY += d1 * d11;
+                    entity.motionZ += d2 * d11;
 
                     if (entity instanceof EntityPlayer)
                     {

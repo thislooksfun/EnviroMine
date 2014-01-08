@@ -2,6 +2,7 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
@@ -23,12 +24,13 @@ import net.minecraft.block.BlockObsidian;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class EM_PhysManager
 {
@@ -145,9 +147,54 @@ public class EM_PhysManager
 	
 	public static void callPhysUpdate(World world, int x, int y, int z, Block block, int meta)
 	{
-		if(world.isRemote)
+		if(world.isRemote || block == null)
 		{
 			return;
+		}
+
+        boolean waterLogged = false;
+		
+		Chunk chunk = world.getChunkFromBlockCoords(x, z);
+        if(chunk != null)
+        {
+        	waterLogged = chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining();
+        }
+        
+		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48)))
+		{
+    		if(block.blockID == Block.dirt.blockID)
+    		{
+	    		for(int i = -1; i < 2; i++)
+	    		{
+	    			for(int j = -1; j < 1; j++)
+	    			{
+	    				for(int k = -1; k < 2; k++)
+	    				{
+	    					if(world.getBlockId(i + x, j + y, k + z) == Block.glowStone.blockID)
+	    					{
+	    						return;
+	    					}
+	    				}
+	    			}
+	    		}
+    		}
+			int slideID = block.blockID;
+			int slideMeta = meta;
+			
+			int[] pos = new int[]{x,y,z};
+			int[] npos =  slideDirection(world, pos);
+			
+			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]))
+			{
+				world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
+				world.setBlock(x, y, z, 0);
+				
+				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0]+0.5, npos[1]+0.5, npos[2]+0.5, slideID, slideMeta, false);
+				physBlock.isLandSlide = true;
+				world.spawnEntityInWorld(physBlock);
+        		EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false);
+				return;
+			}
 		}
 		
 		if(isLegalType(world, x, y, z))
@@ -263,7 +310,7 @@ public class EM_PhysManager
     			{
     				for(int k = -1; k < 2; k++)
     				{
-    					if(blockNotSolid(world, i + x, j + y, k + z) && !(i == 0 && j < 1 && k == 0))
+    					if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i, j, k) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
     					{
         					missingBlocks++;
     					} else if(i == 0 && j == 1 && k == 0 && (block.blockMaterial == Material.rock || block.blockMaterial == Material.ground))
@@ -339,15 +386,15 @@ public class EM_PhysManager
     	        	
     	        	world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
     	        	
-    				EntityFallingSand entityfallingsand;
+    				EntityPhysicsBlock entityphysblock;
     				if(isCustom && dropMeta != -1)
     				{
-    					entityfallingsand = new EntityFallingSand(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, dropMeta);
+    					entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, dropMeta, false);
         			} else
     				{
-    					entityfallingsand = new EntityFallingSand(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z));
+        				entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z), false);
     				}
-    				world.spawnEntityInWorld(entityfallingsand);
+    				world.spawnEntityInWorld(entityphysblock);
     				
     				schedulePhysUpdate(world, x, y, z, false, true);
 
@@ -375,7 +422,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -385,7 +432,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -411,7 +458,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -421,7 +468,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -447,7 +494,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -457,7 +504,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -483,7 +530,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -493,7 +540,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k))
+	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -616,5 +663,71 @@ public class EM_PhysManager
 		{
 			excluded.clear();
 		}
+	}
+	
+	public static int[] slideDirection(World world, int[] pos)
+	{
+		if(pos.length != 3)
+		{
+			return pos;
+		}
+		
+		int[] npos = new int[3];
+		
+		int x = pos[0];
+		int y = pos[1];
+		int z = pos[2];
+		
+		npos[0] = x;
+		npos[1] = y;
+		npos[2] = z;
+		
+    	ArrayList<String> canSlideDir = new ArrayList<String>();
+    	
+    	if(world.getBlockId(x + 1, y, z) == 0 && world.getBlockId(x + 1, y - 1, z) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0)
+    	{
+    		canSlideDir.add("X+");
+    	}
+    	if(world.getBlockId(x - 1, y, z) == 0 && world.getBlockId(x - 1, y - 1, z) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0)
+    	{
+    		canSlideDir.add("X-");
+    	}
+    	if(world.getBlockId(x, y, z + 1) == 0 && world.getBlockId(x, y - 1, z + 1) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0)
+    	{
+    		canSlideDir.add("Z+");
+    	}
+    	if(world.getBlockId(x, y, z - 1) == 0 && world.getBlockId(x, y - 1, z - 1) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z - 1, x + 1, y, z)).size() <= 0)
+    	{
+    		canSlideDir.add("Z-");
+    	}
+    	
+    	if(canSlideDir.size() >= 1)
+    	{
+    		String slideDir = "";
+    		
+    		if(canSlideDir.size() == 1)
+    		{
+    			slideDir = canSlideDir.get(0);
+    		} else
+    		{
+    			slideDir = canSlideDir.get(world.rand.nextInt(canSlideDir.size() - 1));
+    		}
+    		
+    		if(slideDir == "X+")
+    		{
+    			npos[0] = x + 1;
+    		} else if(slideDir == "X-")
+    		{
+    			npos[0] = x - 1;
+    		} else if(slideDir == "Z+")
+    		{
+    			npos[2] = z + 1;
+    		} else if(slideDir == "Z-")
+    		{
+    			npos[2] = z - 1;
+    		}
+    	}
+    	
+    	return npos;
 	}
 }
