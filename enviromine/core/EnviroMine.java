@@ -9,6 +9,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.EnumHelper;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -52,10 +53,10 @@ public class EnviroMine
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event)
 	{
-		File configFile = event.getSuggestedConfigurationFile();
-		System.out.println("Attempting to load config: "+configFile.getAbsolutePath());
-		EM_Settings.LoadConfig(configFile);
-		
+		// Load Configuration files And Custom files
+		 EM_ConfigHandler.initConfig();
+		 
+		// Create Items
 		badWaterBottle = new EnviroItemBadWaterBottle(EM_Settings.dirtBottleID).setMaxStackSize(1).setUnlocalizedName("dirtyWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("saltWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("coldWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);

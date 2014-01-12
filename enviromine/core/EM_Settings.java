@@ -57,36 +57,45 @@ public class EM_Settings
 		
         config.load();
         
-        config.addCustomCategoryComment("Armor Properties", "Add properties for custom armors here. Add the armor name to 'Custom Objects' before creating the property here. \nProperty Format: <ItemID>, <AddTempAtNight>, <AddTempInShade>, <AddTempInSun>, <AirTempMultiplyer>, <F/C (Farenheit or Celcius)>");
-        config.addCustomCategoryComment("Block Properties", "Add properties for custom blocks here. Add the block name to 'Custom Objects' before creating the property here. \nProperty Format: <BlockID>, <BlockMeta(-1 to ignore)>, <DropID>, <DropMeta(-1 to ignore)>, <DropNum>, <BlockTemp>, <SanityPerSecond>, <AirQualityPerSecond>, <CanFallThreshold(0-26)>, <MustFallThreshold(0-26)>, <F/C (Farenheit or Celcius)>");
+        // Comments in Config File
+        config.addCustomCategoryComment("Armor Properties", "Add properties for custom armors here. Add the armor name to 'Custom Objects' before creating the property here. \nArmour Properties Explained: \nItemID - The ID of the armour item \nAddTempAtNight - How much it adds/takes from the surrounding air temperature at night \nAddTempInShade - How much it adds/takes from the surrounding air temperature in the day but not in direct sunlight \nAddTempInSun - How much it adds/takes from the surrounding air temperature in the day and in direct sunlight \nAirTempMultiplier - How much the outside air temp is multiplied when wearing this armour \nF/C - Set whether the configuration temperatures are in Fahrenheit or Celsius \n Property Format: ItemID, AddTempAtNight, AddTempInShade, AddTempInSun, AirTempMultiplyer, F/C (Farenheit or Celcius)");
+        config.addCustomCategoryComment("Block Properties", "Add properties for custom blocks here. Add the block name to 'Custom Objects' before creating the property here. \nBlockID - The ID of the block you wish to edit \nBlockMeta - The metadata(such as a variation of wool). -1 makes it affect all subtypes in the same way. \nDropID - The ID of the dropped Block/Item \nDropMeta - The metadata of the dropped item. -1 makes it affect all subtypes in the same way.\nDropNum - Number of items/blocks dropped (0 <= tries to drop as block) \nBlockTemp - The temperature of the block (affect surrounding air temperature) \nSanityPerSecond - How much sanity the block takes/adds per second \nAirQualityPerSecond - How much air quality the block takes/adds per second \nCanFallThreshold - How many attached blocks have to be missing for it to have a chance to fall (0-26)\n MustFallThreshold - How many attached blocks have to be missing for it to fall guaranteed (0-26)\n F/C - Set whether the configuration temperatures is in Fahrenheit or Celsius \n Property Format: BlockID, BlockMeta, DropID, DropMeta, DropNum, BlockTemp, SanityPerSecond, AirQualityPerSecond, CanFallThreshold(0-26)>, <MustFallThreshold(0-26)>, Farenheit or Celcius(F/C)> \n Example: S:SnowBlock= 78, -1, 78, -1, 0, 30.0, 0.0, 0.0, 1, 1, C");
 		config.addCustomCategoryComment("EntityLiving Properties", "Add properties for custom living entities here. Add the entity name to 'Custom Objects' before creating the property here. \nProperty Format: <EntityName(E.G. EntityPigZombie)>, <Dehydrate(T/F)>, <BodyTemp?(T/F)>, <AirQuality?(T/F)>");
         config.addCustomCategoryComment("Custom Objects", "Lists of objects that have envionmental properties");
         
-        useFarenheit = config.get(Configuration.CATEGORY_GENERAL, "Use Farenheit instead of Celsius", false).getBoolean(false);
-        enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true).getBoolean(true);
-        enableSanity = config.get(Configuration.CATEGORY_GENERAL, "Enable Sanity", true).getBoolean(true);
-        enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Enable Hydration", true).getBoolean(true);
-        enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Enable Body Temperature", true).getBoolean(true);
-        enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Enable Air Quality", true).getBoolean(true);
-        saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true).getBoolean(true);
         
+        //General Settings
+        useFarenheit = config.get(Configuration.CATEGORY_GENERAL, "Use Farenheit instead of Celsius", false, "Will display either Farenhit or Celcius on GUI").getBoolean(false);
+        enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
+        enableSanity = config.get(Configuration.CATEGORY_GENERAL, "Allow Sanity", true).getBoolean(true);
+        enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Allow Hydration", true).getBoolean(true);
+        enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
+        enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
+        saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true , "True will allow you to build Saddles for horses.").getBoolean(true);
+        
+        // Config Item ID's
         dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
         saltBottleID = config.get(Configuration.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
         coldBottleID = config.get(Configuration.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
         
+        // Potion ID's
         frostBitePotionID = config.get("Potions", "Frostbite", 29).getInt(50);
         dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(51);
         insanityPotionID = config.get("Potions", "Insanity", 31).getInt(52);
         
+        // Load Custom Objects
         loadArmorProperties(config);
         loadBlockProperties(config);
         loadEntityLivingProperties(config);
         
+
         config.save();
         
         System.out.println("Successfully loaded EnviroMine configs");
 	}
 
+	
+	// This Pulls an armor id from "Custom Objects" string array and than grabs that armors data from "Armor Properties" 
 	public static void loadArmorProperties(Configuration config)
 	{
 		loadDefaultArmorProperties(config);
@@ -238,17 +247,19 @@ public class EM_Settings
 			
 			if(rawData.length != 11)
 			{
-				System.out.println("Invalid property format for custom block: " + name);
+				System.out.println("Invalid property format for custom block: " + name +" - "+ rawData.length +" - ");
 				return;
 			}
 			
 			Object[] blockProps = new Object[11];
+		
+			/* Object[][] blockProps = new Object[11][]; */
+			Integer metaData = Integer.valueOf((String)rawData[1]);
 			
 			for(int i = 10; i >= 0; i--)
 			{
 				blockProps[i] = rawData[i];
 			}
-	    	
 			for(int i = 0; i < 10; i++)
 			{
 				if(i < 5 || i > 7)
