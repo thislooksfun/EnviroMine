@@ -2,12 +2,14 @@ package enviromine.core;
 
 import java.io.File;
 
+import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.EnumHelper;
@@ -25,6 +27,7 @@ import cpw.mods.fml.common.registry.VillagerRegistry;
 import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
+import enviromine.handlers.CamelPackRefillHandler;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.items.EnviroArmor;
@@ -63,7 +66,7 @@ public class EnviroMine
 		
 		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{0,0,0,0}, 0);
 		
-		//coldWaterBottle = new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial).setTextureName("camel_pack").setIconIndex(4);
+		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
 		
 		VillagerRegistry.instance().registerVillageCreationHandler(new EnviroShaftCreationHandler());
 		MapGenStructureIO.func_143031_a(EM_VillageMineshaft.class, "ViMS");
@@ -75,6 +78,7 @@ public class EnviroMine
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
+		LanguageRegistry.addName(camelPack, "Camel Pack");
 		
 		EnviroPotion.frostbite = (EnviroPotion)new EnviroPotion(EM_Settings.frostBitePotionID, true, 8171462).setPotionName("potion.frostbite").setIconIndex(0, 0);
 		EnviroPotion.dehydration = (EnviroPotion)new EnviroPotion(EM_Settings.dehydratePotionID, true, 3035801).setPotionName("potion.dehydration").setIconIndex(1, 0);
@@ -87,10 +91,8 @@ public class EnviroMine
 		GameRegistry.addSmelting(badWaterBottle.itemID, new ItemStack(ItemPotion.potion.itemID, 1, 0), 0.0F);
 		GameRegistry.addSmelting(saltWaterBottle.itemID, new ItemStack(ItemPotion.potion.itemID, 1, 0), 0.0F);
 		GameRegistry.addShapelessRecipe(new ItemStack(coldWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Item.snowball, 1));
-		if(EM_Settings.saddleRecipe)
-		{
-			GameRegistry.addRecipe(new ItemStack(Item.saddle), "xxx", "x x", "y y", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.ingotIron));
-		}
+		
+		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
 		
 		System.out.println("Registering Handlers for EnviroMine");
 		proxy.registerTickHandlers();
