@@ -2,6 +2,7 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import enviromine.EnviroDamageSource;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -14,6 +15,8 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MathHelper;
@@ -206,6 +209,26 @@ public class EnviroDataTracker
 		if(!EM_Settings.enableSanity || !(trackedEntity instanceof EntityPlayer))
 		{
 			sanity = 100F;
+		}
+		
+		// Camel Pack Stuff
+		ItemStack plate = trackedEntity.getCurrentItemOrArmor(3);
+		
+		if(plate != null)
+		{
+			if(plate.itemID == EnviroMine.camelPack.itemID)
+			{
+				if(plate.getItemDamage() < plate.getMaxDamage() && hydration <= 99F)
+				{
+					plate.setItemDamage(plate.getItemDamage() + 1);
+					hydration += 1F;
+					
+					if(bodyTemp >= 21F)
+					{
+						bodyTemp -= 1F;
+					}
+				}
+			}
 		}
 		
 		// Fix floating point errors
