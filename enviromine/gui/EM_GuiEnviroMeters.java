@@ -111,22 +111,181 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/new_ui.png"));
 			
-			//Draw bars
 			
-			this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*3, 0, 24, barWidth, meterHeight);
-			this.drawTexturedModalRect(xPos + preheatBar - 4, (height - yPos) - meterHeight*3, 32, 64, 8, 8);
-			this.drawTexturedModalRect(xPos + heatBar - 2, (height - yPos) - meterHeight*3 + 2, 20, 64, 4, 4);
 			
-			this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*1, 0, 0, barWidth, meterHeight);
-			this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*1, 64, 0, waterBar, meterHeight);
-			this.drawTexturedModalRect(xPos + waterBar - 2, (height - yPos) - meterHeight*1 + 2, 16, 64, 4, 4);
 			
-			this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*3, 0, 8, barWidth, meterHeight);
-			this.drawTexturedModalRect((width - xPos) - barWidth + airBar - 2, (height - yPos) - meterHeight*3 + 2, 8, 64, 4, 4);
+			// Static Vars for Bar Positions..
 			
-			this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*1, 0, 16, barWidth, meterHeight);
-			this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*1, 64, 16, sanityBar, meterHeight);
-			this.drawTexturedModalRect((width - xPos) - barWidth + sanityBar - 2, (height - yPos) - meterHeight*1 + 2, 28, 64, 4, 4);
+			int Top_Left_X = xPos;
+			int Top_Left_Y = yPos;
+			
+			int Top_Right_X = (width - xPos) - barWidth;
+			int Top_Right_Y = yPos;
+			
+			int Top_Center_X = ((width/2) - xPos) - (barWidth/2);
+			int Top_Center_Y = yPos;
+			
+			int Bottom_Center_Left_X = ((width/2) - xPos) - (barWidth/2) - barWidth + 2;
+			int Bottom_Center_Left_Y = (height - yPos) - 50;
+			
+			int Bottom_Center_Right_X = ((width/2) - xPos) - (barWidth/2) + barWidth - 2;
+			int Bottom_Center_Right_Y = (height - yPos) - 50;
+			
+			int Bottom_Left_X = xPos;
+			int Bottom_Left_Y = (height - yPos);
+			
+			int Bottom_Right_X = (width - xPos) - barWidth;
+			int Bottom_Right_Y = (height - yPos);
+			
+			
+			// Add Bars to String Array for looping
+			String[] barPos = new String[4];
+			barPos[0] = (String) EM_Settings.sanityBarPos_actual.toString();
+			barPos[1] = (String) EM_Settings.oxygenBarPos_actual.toString();
+			barPos[2] = (String) EM_Settings.waterBarPos_actual.toString();
+			barPos[3] = (String) EM_Settings.heatBarPos_actual.toString();
+			
+			// Cnt for Each section of screen
+			int BL = -1;	 int BR = -1;
+			int BCR = -1; 	 int BCL = -1;
+			int TL = -1;	 int TR = -1;
+			int TC = -1; 
+
+			
+			//Draw bars Pos Based on Settings
+			for(int i = 0; i <= barPos.length - 1; i++ )
+			{
+				int curMeterHeight = 0;
+				int curPosX = 0;
+				int curPosY = 0;
+				
+					
+				switch(barPos[i].toString().toLowerCase())
+				{
+					case "top_left":	TL += 2;
+								curMeterHeight = meterHeight * TL;
+								curPosX  = Top_Left_X;
+								curPosY = Top_Left_Y + curMeterHeight;
+							break;
+					
+					case "top_right":	TR += 2;
+								curMeterHeight = meterHeight * TR;
+								curPosX = Top_Right_X;
+								curPosY = Top_Right_Y + curMeterHeight;
+							break;
+					
+					case "top_center": 	TC += 2;
+								curMeterHeight = meterHeight * TC;
+								curPosX = Top_Center_X;
+								curPosY =Top_Center_Y + curMeterHeight;
+							break;
+					
+					case "bottom_left":  BL += 2;
+								curMeterHeight = meterHeight * BL;
+								curPosX = Bottom_Left_X;
+								curPosY = Bottom_Left_Y - curMeterHeight;
+							break;
+					
+					case "bottom_right": BR += 2;
+								curMeterHeight = meterHeight * BR;
+								curPosX = Bottom_Right_X;
+								curPosY = Bottom_Right_Y - curMeterHeight;
+							break;
+					
+					case "bottom_center_right": 	BCR += 2;
+								curMeterHeight = meterHeight * BCR;
+								curPosX = Bottom_Center_Right_X;
+								curPosY = Bottom_Center_Right_Y - curMeterHeight;
+							
+							break;
+					
+					case "bottom_center_left": 		BCL += 2;
+								curMeterHeight = meterHeight * BCL;
+								curPosX = Bottom_Center_Left_X;
+								curPosY = Bottom_Center_Left_Y  - curMeterHeight;
+							break;
+					
+
+				}
+				
+				// 0 = Sanity Bar
+				if(i == 0)
+				{
+					this.drawTexturedModalRect(curPosX,curPosY, 0, 16, barWidth, meterHeight);
+					this.drawTexturedModalRect(curPosX, curPosY, 64, 16, sanityBar, meterHeight);
+					this.drawTexturedModalRect(curPosX + sanityBar - 2, curPosY + 2, 28, 64, 4, 4);
+	
+					// sanity frame
+					//this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*6, meterWidth - 10, meterHeight);
+
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);
+				}
+				
+				// 1 = Air Quality Bar
+				else if(i == 1)
+				{
+					this.drawTexturedModalRect(curPosX, curPosY, 0, 8, barWidth, meterHeight);
+					this.drawTexturedModalRect(curPosX + airBar - 2, curPosY + 2, 8, 64, 4, 4);
+		
+					// oyxygen fraom
+					//this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight*6, meterWidth - 10, meterHeight);
+					
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);
+			
+				}
+				// 2 = Water Bar
+				else if(i == 2)
+				{
+					 //water bar
+					this.drawTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight);
+					this.drawTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight);
+					this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
+					
+				    // water frame
+					//this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight*4, meterWidth, meterHeight);
+
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);					
+				}
+				// 0 = Heat Bar
+				else
+				{
+					// heat Bar
+					this.drawTexturedModalRect(curPosX, curPosY , 0, 24, barWidth, meterHeight);
+					this.drawTexturedModalRect(curPosX + preheatBar - 4, curPosY , 32, 64, 8, 8);
+					this.drawTexturedModalRect(curPosX + heatBar - 2, curPosY + 2, 20, 64, 4, 4);
+					
+					// heat frame
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);
+
+				}
+			
+			}
+		
+				
+			
+			
+			
+			
+
+
+			
+			//copy of old
+			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*3, 0, 24, barWidth, meterHeight);
+			//this.drawTexturedModalRect(xPos + preheatBar - 4, (height - yPos) - meterHeight*3, 32, 64, 8, 8);
+			//this.drawTexturedModalRect(xPos + heatBar - 2, (height - yPos) - meterHeight*3 + 2, 20, 64, 4, 4);
+			
+			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*1, 0, 0, barWidth, meterHeight);
+			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*1, 64, 0, waterBar, meterHeight);
+			//this.drawTexturedModalRect(xPos + waterBar - 2, (height - yPos) - meterHeight*1 + 2, 16, 64, 4, 4);
+			
+			//this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*3, 0, 8, barWidth, meterHeight);
+			//this.drawTexturedModalRect((width - xPos) - barWidth + airBar - 2, (height - yPos) - meterHeight*3 + 2, 8, 64, 4, 4);
+			
+			//this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*1, 0, 16, barWidth, meterHeight);
+			//this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*1, 64, 16, sanityBar, meterHeight);
+			//this.drawTexturedModalRect((width - xPos) - barWidth + sanityBar - 2, (height - yPos) - meterHeight*1 + 2, 28, 64, 4, 4);
+	
+			
 			
 			/*if(tracker.hydration < 25F && tracker.curAttackTime == 1)
 			{
@@ -191,26 +350,26 @@ public class EM_GuiEnviroMeters extends Gui
 				this.drawTexturedModalRect((width - xPos) + airBar - 104, (height - yPos + 4) - 32, 96, 48, 16, 16);	//Top-Left		Oxygen-Indicator
 			}*/
 			
-			// Draw Frames
-
-			this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight, 0, meterHeight*4, meterWidth, meterHeight);
-			this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*3, 0, meterHeight*4, meterWidth, meterHeight);
+			// Draw Frames COPY
+		
+			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight, 0, meterHeight*4, meterWidth, meterHeight);
+			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*3, 0, meterHeight*4, meterWidth, meterHeight);
 			
-			this.drawTexturedModalRect((width - xPos) - meterWidth, (height - yPos) - meterHeight, 0, meterHeight*6, meterWidth, meterHeight);
-			this.drawTexturedModalRect((width - xPos) - meterWidth, (height - yPos) - meterHeight*3, 0, meterHeight*6, meterWidth, meterHeight);
+			//this.drawTexturedModalRect((width - xPos) - meterWidth, (height - yPos) - meterHeight, 0, meterHeight*6, meterWidth, meterHeight);
+			//this.drawTexturedModalRect((width - xPos) - meterWidth, (height - yPos) - meterHeight*3, 0, meterHeight*6, meterWidth, meterHeight);
 			
 			// Draw Text
 			
-			Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight*3, 16777215);
+			//Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight*3, 16777215);
 			if(EM_Settings.useFarenheit)
 			{
-				Minecraft.getMinecraft().fontRenderer.drawString(((tracker.bodyTemp * (9/5))+32F) + "F", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
+				//Minecraft.getMinecraft().fontRenderer.drawString(((tracker.bodyTemp * (9/5))+32F) + "F", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
 			} else
 			{
-				Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
+				//Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
 			}
-			Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", xPos + barWidth, (height - yPos) - meterHeight, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight, 16777215);
+			//Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", xPos + barWidth, (height - yPos) - meterHeight, 16777215);
+			//Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight, 16777215);
 			
 			// Draw Screen FX
 			
@@ -236,6 +395,11 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 	}
 	
+	private void Switch() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public static int getColorFromRGBA_F(float par1, float par2, float par3, float par4)
 	{
     	int R = (int)(par1 * 255.0F);
@@ -297,4 +461,76 @@ public class EM_GuiEnviroMeters extends Gui
             return B << 24 | G << 16 | R << 8 | A;
         }
     }
+   /* 
+    private static int getBarPos(String where, int xPos, int yPos, int width, int height, int BL, int BR, int TL, int TR, int TC, int BCR, int BCL )
+    {
+		// Static Vars for Bar Positions..
+		
+		int Top_Left_X = xPos;
+		int Top_Left_Y = yPos + meterHeight*1;
+		
+		int Top_Right_X = (width - xPos) - barWidth;
+		int Top_Right_Y = yPos + meterHeight*1;
+		
+		int Top_Center_X = ((width/2) - xPos) - (barWidth/2);
+		int Top_Center_Y = yPos + meterHeight*1;
+		
+		int Bottom_Center_Left_X = ((width/2) - xPos) - (barWidth/2) - barWidth + 2;
+		int Bottom_Center_Left_Y = (height - yPos) - meterHeight*1 - 50;
+		
+		int Bottom_Center_Right_X = ((width/2) - xPos) - (barWidth/2) + barWidth - 2;
+		int Bottom_Center_Right_Y = (height - yPos) - meterHeight*1 - 50;
+		
+		int Bottom_Left_X = xPos;
+		int Bottom_Left_Y = (height - yPos);
+		
+		int Bottom_Right_X = (width - xPos) - barWidth;
+		int Bottom_Right_Y = (height - yPos);
+    	
+		int curMeterHeight = 0;
+		int curPosX = 0;
+		int curPosY = 0;
+		
+			
+		switch(where.toString().toLowerCase())
+		{
+			case "top_left":	TL += 2;
+						curMeterHeight = meterHeight * TL;
+
+					break;
+			
+			case "top_right":	TR += 2;
+						curMeterHeight = meterHeight * TR;
+					break;
+			
+			case "top_center": 	TC += 2;
+						curMeterHeight = meterHeight * TC;
+					break;
+			
+			case "bottom_left":  BL += 2;
+						curMeterHeight = meterHeight * BL;
+						curPosX = Bottom_Left_X;
+						curPosY = Bottom_Left_Y - curMeterHeight;
+					break;
+			
+			case "bottom_right": BR += 2;
+						curMeterHeight = meterHeight * BR;
+						curPosX = Bottom_Right_X;
+						curPosY = Bottom_Right_Y - curMeterHeight;
+					break;
+			
+			case "bottom_center_right": 	BCR += 2;
+						curMeterHeight = meterHeight * BCR;
+					break;
+			
+			case "bottom_center_left": 		BCL += 2;
+						curMeterHeight = meterHeight * BCL;
+					break;
+			
+
+		}
+		
+	//	return curPosX, curPosY;
+    	
+    }*/
 }
