@@ -56,6 +56,8 @@ public class EnviroMine
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event)
 	{
+		proxy.preInit(event);
+		
 		// Load Configuration files And Custom files
 		 EM_ConfigHandler.initConfig();
 		 
@@ -75,6 +77,8 @@ public class EnviroMine
 	@EventHandler
 	public static void init(FMLInitializationEvent event)
 	{
+		proxy.init(event);
+		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
@@ -102,5 +106,6 @@ public class EnviroMine
 	@EventHandler
 	public static void postInit(FMLPostInitializationEvent event)
 	{
+		proxy.postInit(event);
 	}
 }

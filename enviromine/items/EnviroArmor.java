@@ -36,7 +36,6 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
     @SideOnly(Side.CLIENT)
     public void registerIcons(IconRegister par1IconRegister)
     {
-		super.registerIcons(par1IconRegister);
         this.cpIcon = par1IconRegister.registerIcon("enviromine:camel_pack");
     }
 
