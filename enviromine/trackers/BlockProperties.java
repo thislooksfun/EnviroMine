@@ -2,25 +2,27 @@ package enviromine.trackers;
 
 public class BlockProperties
 {
-	boolean ignoreMeta;
-	boolean hasPhys;
+	public boolean ignoreMeta;
+	public boolean hasPhys;
 	
-	int id;
-	int meta;
+	public int id;
+	public int meta;
 	
-	int minFall;
-	int maxFall;
-	int supportDist;
+	public int minFall;
+	public int maxFall;
+	public int supportDist;
 	
-	int dropID;
-	int dropMeta;
-	int dropNum;
+	public int dropID;
+	public int dropMeta;
+	public int dropNum;
 	
-	boolean enableTemp;
+	public boolean enableTemp;
 	
-	float temp;
+	public float temp;
+	public float air;
+	public float sanity;
 	
-	public BlockProperties(int id, int meta, boolean hasPhys, boolean ignoreMeta, int minFall, int maxFall, int supportDist, int dropID, int dropMeta, int dropNum, boolean enableTemp, float temp)
+	public BlockProperties(int id, int meta, boolean hasPhys, boolean ignoreMeta, int minFall, int maxFall, int supportDist, int dropID, int dropMeta, int dropNum, boolean enableTemp, float temp, float air, float sanity)
 	{
 		this.id = id;
 		this.meta = meta;
@@ -34,5 +36,7 @@ public class BlockProperties
 		this.dropNum = dropNum;
 		this.enableTemp = enableTemp;
 		this.temp = temp;
+		this.air = air;
+		this.sanity = sanity;
 	}
 }

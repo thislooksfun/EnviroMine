@@ -2,8 +2,10 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
+import enviromine.trackers.BlockProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBed;
@@ -160,7 +162,7 @@ public class EM_PhysManager
         	waterLogged = chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining();
         }
         
-		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48)))
+		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y, z))))
 		{
     		if(block.blockID == Block.dirt.blockID)
     		{
@@ -205,45 +207,52 @@ public class EM_PhysManager
     		int dropType = 0;
     		
     		boolean isCustom = false;
-    		Object[] blockProps = null;
+    		BlockProperties blockProps = null;
     		
-    		if(EM_Settings.blockProperties.containsKey(block.blockID))
+    		if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
     		{
+    			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
+    			{
+    				blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
+    			} else
+    			{
+    				
+    			}
     			blockProps = EM_Settings.blockProperties.get(block.blockID);
-    			if((Integer)blockProps[1] == world.getBlockMetadata(x, y, z) || (Integer)blockProps[1] == -1)
+    			if(blockProps.meta == world.getBlockMetadata(x, y, z) || blockProps.meta == -1)
     			{
     				isCustom = true;
     				
-        			if((Integer)blockProps[2] == 0)
+        			if(blockProps.dropID == 0)
         			{
         				dropType = 0;
         				dropBlock = 0;
         				dropMeta = 0;
         				dropNum = 0;
-        			} else if(Block.blocksList[(Integer)blockProps[2]] != null && (Integer)blockProps[4] <= 0)
+        			} else if(Block.blocksList[blockProps.dropID] != null && blockProps.dropNum <= 0)
         			{
         				dropType = 1;
-        				dropBlock = (Integer)blockProps[2];
-        				if((Integer)blockProps[3] <= -1)
+        				dropBlock = blockProps.dropID;
+        				if(blockProps.dropMeta <= -1)
         				{
         					dropMeta = -1;
         				} else
         				{
-        					dropMeta = (Integer)blockProps[3];
+        					dropMeta = blockProps.dropMeta;
         				}
         				dropNum = 0;
-        			} else if(Item.itemsList[(Integer)blockProps[2]] != null && (Integer)blockProps[4] > 0)
+        			} else if(Item.itemsList[blockProps.dropID] != null && blockProps.dropNum > 0)
         			{
         				dropType = 2;
-        				dropBlock = (Integer)blockProps[2];
-        				if((Integer)blockProps[3] <= -1)
+        				dropBlock = blockProps.dropID;
+        				if(blockProps.dropMeta <= -1)
         				{
         					dropMeta = -1;
         				} else
         				{
-        					dropMeta = (Integer)blockProps[3];
+        					dropMeta = blockProps.dropMeta;
         				}
-        				dropNum = (Integer)blockProps[4];
+        				dropNum = blockProps.dropNum;
         			} else
         			{
         				dropType = 0;
@@ -288,8 +297,8 @@ public class EM_PhysManager
     		
     		if(isCustom)
     		{
-    			minThreshold = (Integer)blockProps[8];
-    			maxThreshold = (Integer)blockProps[9];
+    			minThreshold = blockProps.minFall;
+    			maxThreshold = blockProps.maxFall;
     		} else if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian)
     		{
     			minThreshold = 22;

@@ -5,10 +5,13 @@ import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
+import enviromine.trackers.ArmorProperties;
+import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -200,7 +203,7 @@ public class EM_StatusManager
 		boolean nearLava = false;
 		
 		boolean isCustom = false;
-		Object[] blockProps = null;
+		BlockProperties blockProps = null;
 		
 		int i = MathHelper.floor_double(entityLiving.posX);
 		int j = MathHelper.floor_double(entityLiving.posY);
@@ -260,7 +263,7 @@ public class EM_StatusManager
 					{
 						blockProps = EM_Settings.blockProperties.get(id);
 						
-						if((Integer)blockProps[1] == meta || (Integer)blockProps[1] == -1)
+						if(blockProps.meta == meta || blockProps.meta == -1)
 						{
 							isCustom = true;
 						}
@@ -268,43 +271,64 @@ public class EM_StatusManager
 					
 					if(isCustom && blockProps != null)
 					{
-						if(quality <= (Float)blockProps[7])
+						if(quality <= blockProps.air)
 						{
-							quality = (Float)blockProps[7];
+							quality = blockProps.air;
 						}
-						if(temp <= (Float)blockProps[5])
+						if(temp <= blockProps.temp)
 						{
-							temp = (Float)blockProps[5];
+							temp = blockProps.temp;
 						}
-						if(sanityRate <= (Float)blockProps[6])
+						if((sanityRate <= blockProps.sanity && blockProps.sanity > 0F) || (sanityRate >= blockProps.sanity && blockProps.sanity < 0 && sanityRate <= 0))
 						{
-							sanityRate = (Float)blockProps[6];
+							sanityRate = blockProps.sanity;
 						}
 						
 					} else if((id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID) && quality > -1F)
 					{
-						quality = -1;
-						temp = 100F;
+						if(quality > -1)
+						{
+							quality = -1;
+						}
+						if(temp < 100F)
+						{
+							temp = 100F;
+						}
 						nearLava = true;
 						canBurn = 1;
-					} else if(id == Block.fire.blockID && quality > -0.5F)
+					} else if(id == Block.fire.blockID)
 					{
-						quality = -0.5F;
-						temp = 50F;
+						if(quality > -0.5F)
+						{
+							quality = -0.5F;
+						}
+						if(temp < 50F)
+						{
+							temp = 50F;
+						}
 					} else if((id == Block.torchWood.blockID || id == Block.furnaceBurning.blockID) && quality > -0.25F)
 					{
-						quality = -0.25F;
-						temp = 20F;
+						if(quality > -0.25F)
+						{
+							quality = -0.25F;
+						}
+						if(temp < 20F)
+						{
+							temp = 20F;
+						}
 					} else if(id == Block.leaves.blockID || id == Block.plantYellow.blockID || id == Block.plantRed.blockID || id == Block.waterlily.blockID || id == Block.grass.blockID)
 					{
-						 if(id == Block.plantRed.blockID || id == Block.plantYellow.blockID)
+						if(id == Block.plantRed.blockID || id == Block.plantYellow.blockID)
 						{
 							sanityRate = 1F;
 						}
 						leaves += 1;
 					} else if((id == Block.netherrack.blockID || id == Block.cloth.blockID) && quality >= 0)
 					{
-						temp = 10;
+						if(temp < 10F)
+						{
+							temp = 10F;
+						}
 					} else if(id == Block.waterMoving.blockID || id == Block.waterStill.blockID || (id == Block.cauldron.blockID && meta > 0))
 					{
 						animalHostility = -1;
@@ -329,13 +353,7 @@ public class EM_StatusManager
 			}
 		}
 		
-		if(leaves > 20)
-		{
-			quality += 2F;
-		} else
-		{
-			quality += (leaves * 0.1F);
-		}
+		quality += (leaves * 0.1F);
 		
 		if(lightLev > 1 && !entityLiving.worldObj.provider.isHellWorld)
 		{
@@ -430,26 +448,29 @@ public class EM_StatusManager
 			ItemStack legs = entityLiving.getCurrentItemOrArmor(2);
 			ItemStack boots = entityLiving.getCurrentItemOrArmor(1);
 			
+			float tempMultTotal = 0F;
+			
 			if(helmet != null)
 			{
 				if(EM_Settings.armorProperties.containsKey(helmet.itemID))
 				{
-					Object[] props = EM_Settings.armorProperties.get(helmet.itemID);
-					
-					bTemp *= (Float)props[4];
+					ArmorProperties props = EM_Settings.armorProperties.get(helmet.itemID);
 					
 					if(isDay)
 					{
-						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k))
+						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
-							bTemp += (Float)props[3];
+							tempMultTotal += (props.sunMult - 1.0F);
+							bTemp += props.sunTemp;
 						} else
 						{
-							bTemp += (Float)props[2];
+							tempMultTotal += (props.shadeMult - 1.0F);
+							bTemp += props.shadeTemp;
 						}
 					} else
 					{
-						bTemp += (Float)props[1];
+						tempMultTotal += (props.nightMult - 1.0F);
+						bTemp += props.nightTemp;
 					}
 				}
 			}
@@ -457,22 +478,23 @@ public class EM_StatusManager
 			{
 				if(EM_Settings.armorProperties.containsKey(plate.itemID))
 				{
-					Object[] props = EM_Settings.armorProperties.get(plate.itemID);
-					
-					bTemp *= (Float)props[4];
+					ArmorProperties props = EM_Settings.armorProperties.get(plate.itemID);
 					
 					if(isDay)
 					{
-						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k))
+						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
-							bTemp += (Float)props[3];
+							tempMultTotal += (props.sunMult - 1.0F);
+							bTemp += props.sunTemp;
 						} else
 						{
-							bTemp += (Float)props[2];
+							tempMultTotal += (props.shadeMult - 1.0F);
+							bTemp += props.shadeTemp;
 						}
 					} else
 					{
-						bTemp += (Float)props[1];
+						tempMultTotal += (props.nightMult - 1.0F);
+						bTemp += props.nightTemp;
 					}
 				}
 			}
@@ -480,22 +502,23 @@ public class EM_StatusManager
 			{
 				if(EM_Settings.armorProperties.containsKey(legs.itemID))
 				{
-					Object[] props = EM_Settings.armorProperties.get(legs.itemID);
-					
-					bTemp *= (Float)props[4];
+					ArmorProperties props = EM_Settings.armorProperties.get(legs.itemID);
 					
 					if(isDay)
 					{
-						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k))
+						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
-							bTemp += (Float)props[3];
+							tempMultTotal += (props.sunMult - 1.0F);
+							bTemp += props.sunTemp;
 						} else
 						{
-							bTemp += (Float)props[2];
+							tempMultTotal += (props.shadeMult - 1.0F);
+							bTemp += props.shadeTemp;
 						}
 					} else
 					{
-						bTemp += (Float)props[1];
+						tempMultTotal += (props.nightMult - 1.0F);
+						bTemp += props.nightTemp;
 					}
 				}
 			}
@@ -503,22 +526,23 @@ public class EM_StatusManager
 			{
 				if(EM_Settings.armorProperties.containsKey(boots.itemID))
 				{
-					Object[] props = EM_Settings.armorProperties.get(boots.itemID);
-					
-					bTemp *= (Float)props[4];
+					ArmorProperties props = EM_Settings.armorProperties.get(boots.itemID);
 					
 					if(isDay)
 					{
-						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k))
+						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
-							bTemp += (Float)props[3];
+							tempMultTotal += (props.sunMult - 1.0F);
+							bTemp += props.sunTemp;
 						} else
 						{
-							bTemp += (Float)props[2];
+							tempMultTotal += (props.shadeMult - 1.0F);
+							bTemp += props.shadeTemp;
 						}
 					} else
 					{
-						bTemp += (Float)props[1];
+						tempMultTotal += (props.nightMult - 1.0F);
+						bTemp += props.nightTemp;
 					}
 				}
 			}

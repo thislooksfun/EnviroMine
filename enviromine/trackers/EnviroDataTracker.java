@@ -184,13 +184,15 @@ public class EnviroDataTracker
 		//Check for custom properties
 		boolean enableAirQ = true;
 		boolean enableBodyTemp = true;
-		boolean enablHydrate = true;
+		boolean enableHydrate = true;
+		boolean enableFrostbite = true;
 		if(EM_Settings.livingProperties.containsKey(trackedEntity.getClass().getSimpleName()))
 		{
-			Object[] livingProps = EM_Settings.livingProperties.get(trackedEntity.getClass().getSimpleName());
-			enablHydrate = (Boolean)livingProps[1];
-			enableBodyTemp = (Boolean)livingProps[2];
-			enableAirQ = (Boolean)livingProps[3];
+			EntityProperties livingProps = EM_Settings.livingProperties.get(trackedEntity.getClass().getSimpleName());
+			enableHydrate = livingProps.dehydration;
+			enableBodyTemp = livingProps.bodyTemp;
+			enableAirQ = livingProps.airQ;
+			enableFrostbite = !livingProps.immuneToFrost;
 		}
 		
 		//Reset Disabled Values
@@ -202,7 +204,7 @@ public class EnviroDataTracker
 		{
 			bodyTemp = 20F;
 		}
-		if(!EM_Settings.enableHydrate || !enablHydrate)
+		if(!EM_Settings.enableHydrate || !enableHydrate)
 		{
 			hydration = 100F;
 		}
@@ -242,7 +244,7 @@ public class EnviroDataTracker
 				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 2.0F);
 			}
 			
-			if(bodyTemp <= -5F && !(trackedEntity instanceof EntitySheep) && !(trackedEntity instanceof EntityWolf))
+			if(bodyTemp <= -5F && !(trackedEntity instanceof EntitySheep) && !(trackedEntity instanceof EntityWolf) && enableFrostbite)
 			{
 				if(bodyTemp <= -10F)
 				{
