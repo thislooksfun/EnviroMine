@@ -24,6 +24,8 @@ public class EM_GuiEnviroMeters extends Gui
 {
 	public Minecraft mc;
 	
+	public static final String guiResource = "textures/gui/status_Gui.png";
+	
 	public static final int meterWidth = 96;
 	public static final int meterHeight = 8;
 	public static final int barWidth = 64;
@@ -109,7 +111,7 @@ public class EM_GuiEnviroMeters extends Gui
 				airBar = 0;
 			}
 			
-			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/new_ui.png"));
+			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 			
 			
 			
@@ -125,10 +127,10 @@ public class EM_GuiEnviroMeters extends Gui
 			int Top_Center_X = ((width/2) - xPos) - (barWidth/2);
 			int Top_Center_Y = yPos;
 			
-			int Bottom_Center_Left_X = ((width/2) - xPos) - (barWidth/2) - barWidth + 2;
+			int Bottom_Center_Left_X = ((width/2) - xPos) - (barWidth/2) - barWidth;
 			int Bottom_Center_Left_Y = (height - yPos) - 50;
 			
-			int Bottom_Center_Right_X = ((width/2) - xPos) - (barWidth/2) + barWidth - 2;
+			int Bottom_Center_Right_X = ((width/2) - xPos) - (barWidth/2) + barWidth;
 			int Bottom_Center_Right_Y = (height - yPos) - 50;
 			
 			int Bottom_Left_X = xPos;
@@ -150,8 +152,12 @@ public class EM_GuiEnviroMeters extends Gui
 			int BCR = -1; 	 int BCL = -1;
 			int TL = -1;	 int TR = -1;
 			int TC = -1; 
-
-			
+			int addTW = 0;
+			int AQcurX = 0; int AQcurY = 0;
+			int HTcurX = 0; int HTcurY = 0;
+			int SAcurX = 0; int SAcurY = 0;
+			int WAcurX = 0; int WAcurY = 0;
+			int textPos = 0; int iconPos = 0;
 			//Draw bars Pos Based on Settings
 			for(int i = 0; i <= barPos.length - 1; i++ )
 			{
@@ -159,6 +165,7 @@ public class EM_GuiEnviroMeters extends Gui
 				int curPosX = 0;
 				int curPosY = 0;
 				
+				if(EM_Settings.ShowText_actual == true) addTW = textWidth;
 					
 				switch(barPos[i].toString().toLowerCase())
 				{
@@ -166,36 +173,48 @@ public class EM_GuiEnviroMeters extends Gui
 								curMeterHeight = meterHeight * TL;
 								curPosX  = Top_Left_X;
 								curPosY = Top_Left_Y + curMeterHeight;
+								textPos = Top_Left_X + (textWidth*2);
+								iconPos = textPos + addTW;
 							break;
 					
 					case "top_right":	TR += 2;
 								curMeterHeight = meterHeight * TR;
 								curPosX = Top_Right_X;
 								curPosY = Top_Right_Y + curMeterHeight;
+								textPos = Top_Right_X - textWidth;
+								iconPos = Top_Right_X - textWidth/2 - addTW;
 							break;
 					
 					case "top_center": 	TC += 2;
 								curMeterHeight = meterHeight * TC;
 								curPosX = Top_Center_X;
 								curPosY =Top_Center_Y + curMeterHeight;
+								textPos = Top_Center_X + (textWidth*2);
+								iconPos = textPos + addTW;
 							break;
 					
 					case "bottom_left":  BL += 2;
 								curMeterHeight = meterHeight * BL;
 								curPosX = Bottom_Left_X;
 								curPosY = Bottom_Left_Y - curMeterHeight;
+								textPos = Bottom_Left_X + (textWidth*2);
+								iconPos = textPos + addTW;
 							break;
 					
 					case "bottom_right": BR += 2;
 								curMeterHeight = meterHeight * BR;
 								curPosX = Bottom_Right_X;
 								curPosY = Bottom_Right_Y - curMeterHeight;
+								textPos = Bottom_Right_X - textWidth;
+								iconPos = Bottom_Right_X - textWidth/2 - addTW;
 							break;
 					
 					case "bottom_center_right": 	BCR += 2;
 								curMeterHeight = meterHeight * BCR;
 								curPosX = Bottom_Center_Right_X;
 								curPosY = Bottom_Center_Right_Y - curMeterHeight;
+								textPos = Bottom_Center_Right_X + (textWidth*2);
+								iconPos = textPos + addTW;
 							
 							break;
 					
@@ -203,178 +222,102 @@ public class EM_GuiEnviroMeters extends Gui
 								curMeterHeight = meterHeight * BCL;
 								curPosX = Bottom_Center_Left_X;
 								curPosY = Bottom_Center_Left_Y  - curMeterHeight;
+								textPos = Bottom_Center_Left_X - textWidth + 4;
+								iconPos = Bottom_Center_Left_X - textWidth/2 - addTW;
 							break;
 					
 
 				}
 				
 				// 0 = Sanity Bar
-				if(i == 0)
+				if(i == 0 && EM_Settings.enableSanity == true)
 				{
+					SAcurX = textPos; SAcurY = curPosY;
+					
 					this.drawTexturedModalRect(curPosX,curPosY, 0, 16, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 16, sanityBar, meterHeight);
 					this.drawTexturedModalRect(curPosX + sanityBar - 2, curPosY + 2, 28, 64, 4, 4);
 	
 					// sanity frame
-					//this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*6, meterWidth - 10, meterHeight);
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
 
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);
+					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,SAcurY - 4, 32, 80, 14,14);
 				}
 				
 				// 1 = Air Quality Bar
-				else if(i == 1)
+				else if(i == 1 && EM_Settings.enableAirQ == true)
 				{
+					AQcurX = textPos; AQcurY = curPosY;
+					
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 8, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX + airBar - 2, curPosY + 2, 8, 64, 4, 4);
 		
-					// oyxygen fraom
-					//this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight*6, meterWidth - 10, meterHeight);
-					
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);
+					// oxygen frame
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
 			
+					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,AQcurY - 4, 46, 80, 14,14);
+					
 				}
 				// 2 = Water Bar
-				else if(i == 2)
+				else if(i == 2 && EM_Settings.enableHydrate == true)
 				{
-					 //water bar
+					WAcurX = textPos; WAcurY = curPosY;
+
+					//water bar
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight);
 					this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
 					
 				    // water frame
-					//this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight*4, meterWidth, meterHeight);
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
+					if(EM_Settings.ShowGuiIcons_actual == true)  this.drawTexturedModalRect(iconPos ,WAcurY - 4, 18, 80, 14,14);
 
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);					
 				}
-				// 0 = Heat Bar
-				else
+				// 3 = Heat Bar
+				else if(i == 3 && EM_Settings.enableBodyTemp == true)
 				{
+					HTcurX = textPos; HTcurY = curPosY;
+					
 					// heat Bar
 					this.drawTexturedModalRect(curPosX, curPosY , 0, 24, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX + preheatBar - 4, curPosY , 32, 64, 8, 8);
 					this.drawTexturedModalRect(curPosX + heatBar - 2, curPosY + 2, 20, 64, 4, 4);
 					
 					// heat frame
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-31, meterHeight);
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
 
+					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,HTcurY - 4, 4, 80, 14,14);
 				}
+				
+					
 			
 			}
 		
-				
-			
-			
-			
-			
 
-
-			
-			//copy of old
-			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*3, 0, 24, barWidth, meterHeight);
-			//this.drawTexturedModalRect(xPos + preheatBar - 4, (height - yPos) - meterHeight*3, 32, 64, 8, 8);
-			//this.drawTexturedModalRect(xPos + heatBar - 2, (height - yPos) - meterHeight*3 + 2, 20, 64, 4, 4);
-			
-			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*1, 0, 0, barWidth, meterHeight);
-			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*1, 64, 0, waterBar, meterHeight);
-			//this.drawTexturedModalRect(xPos + waterBar - 2, (height - yPos) - meterHeight*1 + 2, 16, 64, 4, 4);
-			
-			//this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*3, 0, 8, barWidth, meterHeight);
-			//this.drawTexturedModalRect((width - xPos) - barWidth + airBar - 2, (height - yPos) - meterHeight*3 + 2, 8, 64, 4, 4);
-			
-			//this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*1, 0, 16, barWidth, meterHeight);
-			//this.drawTexturedModalRect((width - xPos) - barWidth, (height - yPos) - meterHeight*1, 64, 16, sanityBar, meterHeight);
-			//this.drawTexturedModalRect((width - xPos) - barWidth + sanityBar - 2, (height - yPos) - meterHeight*1 + 2, 28, 64, 4, 4);
-	
-			
-			
-			/*if(tracker.hydration < 25F && tracker.curAttackTime == 1)
+			// Display Debugging Text
+			if(EM_Settings.ShowText_actual == true)
 			{
-				this.drawTexturedModalRect(xPos, (height - yPos) - 8, meterWidth, 0, meterWidth, 8);									//Bottom-Left	Water-Empty
-				this.drawTexturedModalRect(xPos, (height - yPos) - 8, meterWidth, 16, waterBar, 8);								//Bottom-Left	Water-Full
-				this.drawTexturedModalRect(xPos + 96, (height - yPos) - 16, 80, 48, 16, 16);							//Bottom-Left	Water-Icon
-			} else
-			{
-				this.drawTexturedModalRect(xPos, (height - yPos) - 8, 0, 0, meterWidth, 8);										//Bottom-Left	Water-Empty
-				this.drawTexturedModalRect(xPos, (height - yPos) - 8, 0, 16, waterBar, 8);								//Bottom-Left	Water-Full
-				this.drawTexturedModalRect(xPos + 96, (height - yPos) - 16, 0, 48, 16, 16);								//Bottom-Left	Water-Icon
-			}
+				this.drawTexturedModalRect(AQcurX,AQcurY, 63, meterHeight*4, 33, meterHeight);
+				this.drawTexturedModalRect(HTcurX,HTcurY, 63, meterHeight*4, 33, meterHeight);
+				this.drawTexturedModalRect(WAcurX,WAcurY, 63, meterHeight*4, 33, meterHeight);
+				this.drawTexturedModalRect(SAcurX,SAcurY, 63, meterHeight*4, 33, meterHeight);
 			
-			if((tracker.bodyTemp < 0F || tracker.bodyTemp > 50F) && tracker.curAttackTime == 1)
-			{
-				this.drawTexturedModalRect(xPos, (height - yPos) - 24, meterWidth, 0, 96, 8);									//Top-Left		Heat-Empty
-				this.drawTexturedModalRect(xPos, (height - yPos) - 24, meterWidth, 40, 96, 8);									//Top-Left		Heat-Full
-				this.drawTexturedModalRect(xPos + 96, (height - yPos) - 32, 80, 48, 16, 16);							//Top-Left		Heat-Icon
-				this.drawTexturedModalRect(xPos + heatBar - 8, (height - yPos + 4) - 32, meterWidth, 48, 16, 16);				//Top-Left		Heat-Indicator
-				this.drawTexturedModalRect(xPos + preheatBar - 8, (height - yPos + 4) - 32, 112, 48, 16, 16);			//Top-Left		Heat-Predicted
-			} else
-			{
-				this.drawTexturedModalRect(xPos, (height - yPos) - 24, 0, 0, meterWidth, 8);									//Top-Left		Heat-Empty
-				this.drawTexturedModalRect(xPos, (height - yPos) - 24, 0, 40, meterWidth, 8);									//Top-Left		Heat-Full
-				if(tracker.bodyTemp < 0F)
+				Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
+				if(EM_Settings.useFarenheit)
 				{
-					this.drawTexturedModalRect(xPos + meterWidth, (height - yPos) - 32, 0, 64, 16, 16);							//Top-Left		Heat-Icon
-				} else if(tracker.bodyTemp > 50F)
-				{
-					this.drawTexturedModalRect(xPos + meterWidth, (height - yPos) - 32, 16, 64, 16, 16);						//Top-Left		Heat-Icon
+					Minecraft.getMinecraft().fontRenderer.drawString(((tracker.bodyTemp * (9/5))+32F) + "F", HTcurX, HTcurY, 16777215);
 				} else
 				{
-					this.drawTexturedModalRect(xPos + meterWidth, (height - yPos) - 32, 48, 48, 16, 16);						//Top-Left		Heat-Icon
+					Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C", HTcurX, HTcurY, 16777215);
 				}
-				this.drawTexturedModalRect(xPos + heatBar - 8, (height - yPos + 4) - 32, meterWidth, 48, 16, 16);				//Top-Left		Heat-Indicator
-				this.drawTexturedModalRect(xPos + preheatBar - 8, (height - yPos + 4) - 32, 112, 48, 16, 16);			//Top-Left		Heat-Predicted
+				Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", SAcurX,SAcurY, 16777215);
 			}
 			
-			if(tracker.sanity < 25F && tracker.curAttackTime == 1)
-			{
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 8, 96, 8, 96, 8);						//Bottom-Right	Sanity-Empty
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 8, 96, 32, sanityBar, 8);				//Bottom-Right	Sanity-Full
-				this.drawTexturedModalRect((width - xPos) - 112, (height - yPos) - 16, 80, 48, 16, 16);					//Bottom-Right	Sanity-Icon
-			} else
-			{
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 8, 0, 8, 96, 8);						//Bottom-Right	Sanity-Empty
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 8, 0, 32, sanityBar, 8);				//Bottom-Right	Sanity-Full
-				this.drawTexturedModalRect((width - xPos) - 112, (height - yPos) - 16, 32, 48, 16, 16);					//Bottom-Right	Sanity-Icon
-			}
+
+			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 			
-			if(tracker.airQuality < 25F && tracker.curAttackTime == 1)
-			{
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 24, 96, 0, 96, 8);					//Top-Right		Oxygen-Empty
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 24, 96, 24, 96, 8);					//Top-Right		Oxygen-Full
-				this.drawTexturedModalRect((width - xPos) - 112, (height - yPos) - 32, 80, 48, 16, 16);					//Top-Right		Oxygen-Icon
-				this.drawTexturedModalRect((width - xPos) + airBar - 104, (height - yPos + 4) - 32, 96, 48, 16, 16);	//Top-Left		Oxygen-Indicator
-			} else
-			{
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 24, 0, 0, 96, 8);						//Top-Right		Oxygen-Empty
-				this.drawTexturedModalRect((width - xPos) - 96, (height - yPos) - 24, 0, 24, 96, 8);					//Top-Right		Oxygen-Full
-				this.drawTexturedModalRect((width - xPos) - 112, (height - yPos) - 32, 16, 48, 16, 16);					//Top-Right		Oxygen-Icon
-				this.drawTexturedModalRect((width - xPos) + airBar - 104, (height - yPos + 4) - 32, 96, 48, 16, 16);	//Top-Left		Oxygen-Indicator
-			}*/
-			
-			// Draw Frames COPY
-		
-			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight, 0, meterHeight*4, meterWidth, meterHeight);
-			//this.drawTexturedModalRect(xPos, (height - yPos) - meterHeight*3, 0, meterHeight*4, meterWidth, meterHeight);
-			
-			//this.drawTexturedModalRect((width - xPos) - meterWidth, (height - yPos) - meterHeight, 0, meterHeight*6, meterWidth, meterHeight);
-			//this.drawTexturedModalRect((width - xPos) - meterWidth, (height - yPos) - meterHeight*3, 0, meterHeight*6, meterWidth, meterHeight);
-			
-			// Draw Text
-			
-			//Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight*3, 16777215);
-			if(EM_Settings.useFarenheit)
-			{
-				//Minecraft.getMinecraft().fontRenderer.drawString(((tracker.bodyTemp * (9/5))+32F) + "F", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
-			} else
-			{
-				//Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
-			}
-			//Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", xPos + barWidth, (height - yPos) - meterHeight, 16777215);
-			//Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight, 16777215);
-			
-			// Draw Screen FX
-			
-			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/new_ui.png"));
-            
+			// Screen Overlays FX Screen
 			if(tracker.bodyTemp <= 0F)
 			{
 				int grad = (int)(Math.abs(tracker.bodyTemp)/10 * 64);
@@ -395,11 +338,6 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 	}
 	
-	private void Switch() {
-		// TODO Auto-generated method stub
-		
-	}
-
 	public static int getColorFromRGBA_F(float par1, float par2, float par3, float par4)
 	{
     	int R = (int)(par1 * 255.0F);
@@ -461,76 +399,4 @@ public class EM_GuiEnviroMeters extends Gui
             return B << 24 | G << 16 | R << 8 | A;
         }
     }
-   /* 
-    private static int getBarPos(String where, int xPos, int yPos, int width, int height, int BL, int BR, int TL, int TR, int TC, int BCR, int BCL )
-    {
-		// Static Vars for Bar Positions..
-		
-		int Top_Left_X = xPos;
-		int Top_Left_Y = yPos + meterHeight*1;
-		
-		int Top_Right_X = (width - xPos) - barWidth;
-		int Top_Right_Y = yPos + meterHeight*1;
-		
-		int Top_Center_X = ((width/2) - xPos) - (barWidth/2);
-		int Top_Center_Y = yPos + meterHeight*1;
-		
-		int Bottom_Center_Left_X = ((width/2) - xPos) - (barWidth/2) - barWidth + 2;
-		int Bottom_Center_Left_Y = (height - yPos) - meterHeight*1 - 50;
-		
-		int Bottom_Center_Right_X = ((width/2) - xPos) - (barWidth/2) + barWidth - 2;
-		int Bottom_Center_Right_Y = (height - yPos) - meterHeight*1 - 50;
-		
-		int Bottom_Left_X = xPos;
-		int Bottom_Left_Y = (height - yPos);
-		
-		int Bottom_Right_X = (width - xPos) - barWidth;
-		int Bottom_Right_Y = (height - yPos);
-    	
-		int curMeterHeight = 0;
-		int curPosX = 0;
-		int curPosY = 0;
-		
-			
-		switch(where.toString().toLowerCase())
-		{
-			case "top_left":	TL += 2;
-						curMeterHeight = meterHeight * TL;
-
-					break;
-			
-			case "top_right":	TR += 2;
-						curMeterHeight = meterHeight * TR;
-					break;
-			
-			case "top_center": 	TC += 2;
-						curMeterHeight = meterHeight * TC;
-					break;
-			
-			case "bottom_left":  BL += 2;
-						curMeterHeight = meterHeight * BL;
-						curPosX = Bottom_Left_X;
-						curPosY = Bottom_Left_Y - curMeterHeight;
-					break;
-			
-			case "bottom_right": BR += 2;
-						curMeterHeight = meterHeight * BR;
-						curPosX = Bottom_Right_X;
-						curPosY = Bottom_Right_Y - curMeterHeight;
-					break;
-			
-			case "bottom_center_right": 	BCR += 2;
-						curMeterHeight = meterHeight * BCR;
-					break;
-			
-			case "bottom_center_left": 		BCL += 2;
-						curMeterHeight = meterHeight * BCL;
-					break;
-			
-
-		}
-		
-	//	return curPosX, curPosY;
-    	
-    }*/
 }

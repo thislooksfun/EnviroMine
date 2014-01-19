@@ -24,7 +24,9 @@ public class EM_Settings
 	public static boolean enableBodyTemp = true;
 	public static boolean trackNonPlayer_default = true;
 		public static boolean trackNonPlayer_actual;
-	
+		
+	public static boolean ShowGuiIcons_default = true;
+		public static boolean ShowGuiIcons_actual;
 	//public static boolean saddleRecipe = true;
 	
 	
@@ -43,6 +45,9 @@ public class EM_Settings
 		public static String sanityBarPos_actual;
 	public static String oxygenBarPos_default = "Bottom_Right";
 		public static String oxygenBarPos_actual;
+		
+    public static boolean ShowText_default = false;
+    	public static boolean ShowText_actual = false;
 	
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
@@ -104,8 +109,9 @@ public class EM_Settings
         heatBarPos_actual = config.get(GuiSetCat, "Position Heat Bat", "Bottom_Left").getString();
     	waterBarPos_actual = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
     	sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
-    	oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. //n Options: Bottom_Left, Bottom_Right, Bottom_Center, Top_Left, Top_Right, Top_Center").getString();
-        
+    	oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. \\n Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
+    	ShowText_actual = config.get(GuiSetCat, "Show Gui Text",  ShowText_default, "Display Debug Text").getBoolean(ShowText_default);
+    	ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons next to bars",  ShowGuiIcons_default, "Display Debug Text").getBoolean(ShowGuiIcons_default);
         
         //removed
         //saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true , "True will allow you to build Saddles for horses.").getBoolean(true);
