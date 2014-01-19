@@ -2,6 +2,7 @@ package enviromine.handlers;
 
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
+import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.Hallucination;
@@ -39,11 +40,13 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.event.world.WorldEvent.Unload;
 
 public class EM_EventManager
 {
+	
 	@ForgeSubscribe
 	public void onEntityJoinWorld(EntityJoinWorldEvent event)
 	{
@@ -58,6 +61,12 @@ public class EM_EventManager
 			}
 			if(EnviroDataTracker.isLegalType((EntityLivingBase)event.entity))
 			{
+				// If Not tracking mob/animals and not a player than stop
+				if(!(event.entity instanceof EntityPlayer) && EM_Settings.trackNonPlayer_actual == false)	
+				{ 
+					return; 
+				}
+				
 				EnviroDataTracker emTrack = new EnviroDataTracker((EntityLivingBase)event.entity);
 				EM_StatusManager.addToManager(emTrack);
 				emTrack.loadNBTTags();
@@ -552,9 +561,12 @@ public class EM_EventManager
 	@ForgeSubscribe
 	public void onWorldSave(Save event)
 	{
+		if(EM_Settings.trackNonPlayer_actual == false) {EM_StatusManager.removeNpcTrackers();}
+		
 		EM_StatusManager.saveAllWorldTrackers(event.world);
 	}
-
+	
+	
     protected static MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityPlayer par2EntityPlayer, boolean par3)
     {
         float f = 1.0F;

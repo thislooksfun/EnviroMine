@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -670,12 +671,12 @@ public class EM_StatusManager
 		
 		if(tracker != null)
 		{
-			if(tracker.bodyTemp >= 30F)
+			if(tracker.bodyTemp >= 30F && EM_Settings.sweatParticals_actual == true)
 			{
 				entityLiving.worldObj.spawnParticle("dripWater", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
 			
-			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity))
+			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity) && EM_Settings.insaneParticals_actual == true)
 			{
 				entityLiving.worldObj.spawnParticle("portal", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
@@ -754,4 +755,21 @@ public class EM_StatusManager
 		
 		return null;
 	}
+	
+	public static void removeNpcTrackers()
+	{
+			//System.out.println(trackerList.size() +" Tracker SiZe");
+			for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+			{
+				if(!(trackerList.get(i).trackedEntity instanceof EntityPlayer)) 
+				{ 
+					//System.out.println("Not a Player here: " + trackerList.get(i).trackedEntity.getEntityName());
+					
+					trackerList.get(i).isDisabled = true;
+					trackerList.remove(i);
+				}
+			}
+	
+	}
+
 }

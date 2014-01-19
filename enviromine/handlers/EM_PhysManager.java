@@ -162,6 +162,7 @@ public class EM_PhysManager
         
 		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48)))
 		{
+			if(EM_Settings.enableLandslide == false) { return; } // If Landslides Disable stop here
     		if(block.blockID == Block.dirt.blockID)
     		{
 	    		for(int i = -1; i < 2; i++)

@@ -93,7 +93,7 @@ public class EM_Settings
         
         //General Settings
         enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
-        enableLandslide =  config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
+        enableLandslide =  config.get(Configuration.CATEGORY_GENERAL, "Enable Physics Landslide", true).getBoolean(true);
         enableSanity = config.get(Configuration.CATEGORY_GENERAL, "Allow Sanity", true).getBoolean(true);
         enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Allow Hydration", true).getBoolean(true);
         enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
@@ -104,14 +104,14 @@ public class EM_Settings
         // Gui settings
         String GuiSetCat = "GUI Settings";
         sweatParticals_actual = config.get(GuiSetCat, "Show Sweat Particales",  sweatParticals_default).getBoolean(true);
-        insaneParticals_actual =  config.get(GuiSetCat, "Show Insanity Particles", insaneParticals_default).getBoolean(true);
+        insaneParticals_actual =  config.get(GuiSetCat, "Show Insanity Particles", insaneParticals_default ,"Show/Hide Particales").getBoolean(true);
         useFarenheit = config.get(GuiSetCat, "Use Farenheit instead of Celsius", false, "Will display either Farenhit or Celcius on GUI").getBoolean(false);
         heatBarPos_actual = config.get(GuiSetCat, "Position Heat Bat", "Bottom_Left").getString();
     	waterBarPos_actual = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
     	sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
     	oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. \\n Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
-    	ShowText_actual = config.get(GuiSetCat, "Show Gui Text",  ShowText_default, "Display Debug Text").getBoolean(ShowText_default);
-    	ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons next to bars",  ShowGuiIcons_default, "Display Debug Text").getBoolean(ShowGuiIcons_default);
+    	ShowText_actual = config.get(GuiSetCat, "Show Gui Text",  ShowText_default).getBoolean(ShowText_default);
+    	ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons",  ShowGuiIcons_default, "Show Hide Gui Text Display and Icons").getBoolean(ShowGuiIcons_default);
         
         //removed
         //saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true , "True will allow you to build Saddles for horses.").getBoolean(true);
