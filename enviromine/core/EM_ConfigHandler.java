@@ -60,6 +60,10 @@ public class EM_ConfigHandler
 		File configFile = new File(configPath + "EnviroMine.cfg");
 		System.out.println("Attempting to load config: " + configFile.getAbsolutePath());
 		EM_Settings.loadGeneralConfig(configFile);
+		
+		System.out.println("Loaded " + EM_Settings.armorProperties.size() + " armor properties");
+		System.out.println("Loaded " + EM_Settings.blockProperties.size() + " block properties");
+		System.out.println("Loaded " + EM_Settings.livingProperties.size() + " entity properties");
 	}
 	
 	//#######################################
@@ -160,9 +164,9 @@ public class EM_ConfigHandler
 			for(int x = 0; nameListData.hasNext(); x++)
 			{
 				catagory.add(nameListData.next());
-				
-				System.out.println("Searching Config for Found: " + catagory.get(x).toString());
 			}
+			
+			System.out.println("Found " + catagory.size() + " custom properties in " + customFiles.getName());
 			
 			// Now Read/Save Each Category And Add into Proper Hash Maps
 			
@@ -178,20 +182,16 @@ public class EM_ConfigHandler
 					
 					if(parent.equals(blockCat))
 					{
-						System.out.println("Loading block " + child);
-						
 						LoadBlockProperty(config, catagory.get(x));
 					} else if(parent.equals(armorCat))
 					{
-						System.out.println("Loading armor " + child);
 						LoadArmorProperty(config, catagory.get(x));
 					} else if(parent.equals(itemsCat))
 					{
-						System.out.println("Loading item " + child);
+						System.out.println("Loading item " + child + " (NOT YET SUPPORTED)");
 					} else if(parent.equals(entityCat))
 					{
 						LoadLivingProperty(config, catagory.get(x));
-						System.out.println("Loading entity " + child);
 					} else
 					{
 						System.out.println("Failed to load object " + CurCat);
@@ -204,26 +204,26 @@ public class EM_ConfigHandler
 		}
 	}
 	
-	private static void LoadBlockProperty(Configuration config, Object catagory)
+	private static void LoadBlockProperty(Configuration config, String catagory)
 	{
-		config.addCustomCategoryComment((String)catagory, "");
-		int id = config.get((String)catagory, "1.ID", 0).getInt(0);
-		int metaData = config.get((String)catagory, "2.MetaID", 0).getInt(0);
-		int dropID = config.get((String)catagory, "3.DropID", 0).getInt(0);
-		int dropMeta = config.get((String)catagory, "4.DropMetaID", 0).getInt(0);
-		double temprature = config.get((String)catagory, "5.Temprature", 0.00).getDouble(0.00);
-		double airQuality = config.get((String)catagory, "6.AirQuality", 0.00).getDouble(0.00);
-		String stability = config.get((String)catagory, "7.Stability", "loose").getString();
-		
-		// Change Temperatures to Floats
-		float tempFloat = (float)temprature;
-		float airQFloat = (float)airQuality;
+		config.addCustomCategoryComment(catagory, "");
+		int id = config.get(catagory, "1.ID", 0).getInt(0);
+		boolean hasPhys = config.get(catagory, "2.EnablePhysics", false).getBoolean(false);
+		int metaData = config.get(catagory, "3.MetaID", 0).getInt(0);
+		int dropID = config.get(catagory, "4.DropID", 0).getInt(0);
+		int dropMeta = config.get(catagory, "5.DropMetaID", 0).getInt(0);
+		int dropNum = config.get(catagory, "6.DropNumber", 0).getInt(0);
+		boolean enableTemp = config.get(catagory, "7.EnableTemperature", false).getBoolean(false);
+		float temperature = (float)config.get(catagory, "8.Temprature", 0.00).getDouble(0.00);
+		float airQuality = (float)config.get(catagory, "9.Air Quality", 0.00).getDouble(0.00);
+		float sanity = (float)config.get(catagory, "10.AirQuality", 0.00).getDouble(0.00);
+		String stability = config.get(catagory, "11.Stability", "loose").getString();
+		boolean holdOther = config.get(catagory, "12.Holds Other Blocks", false).getBoolean(false);
 		
 		// Get Stability Options
-		int minFall = 10;
-		int maxFall = 15;
-		int supportDist = 1;
-		boolean hasPhys = true;
+		int minFall = 99;
+		int maxFall = 99;
+		int supportDist = 5;
 		
 		switch(stability)
 		{
@@ -246,38 +246,52 @@ public class EM_ConfigHandler
 				maxFall = 25;
 				supportDist = 5;
 				break;
-			case "off":
+			default:
+				minFall = 99;
+				maxFall = 99;
+				supportDist = 5;
 				hasPhys = false;
 				break;
 		}
 		
-		//INSERT NEW PROPERTY INSTANCE CODE
+		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther);
+		
+		if(metaData < 0)
+		{
+			EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+		} else
+		{
+			EM_Settings.blockProperties.put("" + id, entry);
+		}
 	}
 	
-	private static void LoadArmorProperty(Configuration config, Object catagory)
+	private static void LoadArmorProperty(Configuration config, String catagory)
 	{
-		config.addCustomCategoryComment((String)catagory, "");
-		int id = config.get((String)catagory, "1.ID", 0).getInt(0);
-		double nightTemp = config.get((String)catagory, "2.nightTemp", 0.00).getDouble(0);
-		double shadeTemp = config.get((String)catagory, "3.shadeTemp", 0.00).getDouble(0);
-		double sunTemp = config.get((String)catagory, "4.sunTemp", -1.00).getDouble(0);
-		double nightMult = config.get((String)catagory, "5.nightMult", 1).getDouble(1);
-		double shadeMult = config.get((String)catagory, "6.shadeMult", 1).getDouble(1);
-		double sunMult = config.get((String)catagory, "7.sunMult", 1).getDouble(1);
+		config.addCustomCategoryComment(catagory, "");
+		int id = config.get(catagory, "1.ID", 0).getInt(0);
+		double nightTemp = config.get(catagory, "2.nightTemp", 0.00).getDouble(0);
+		double shadeTemp = config.get(catagory, "3.shadeTemp", 0.00).getDouble(0);
+		double sunTemp = config.get(catagory, "4.sunTemp", -1.00).getDouble(0);
+		double nightMult = config.get(catagory, "5.nightMult", 1).getDouble(1);
+		double shadeMult = config.get(catagory, "6.shadeMult", 1).getDouble(1);
+		double sunMult = config.get(catagory, "7.sunMult", 1).getDouble(1);
 		
-		//INSERT NEW PROPERTY INSTANCE CODE
+		ArmorProperties entry = new ArmorProperties(id, (float)nightTemp, (float)shadeTemp, (float)sunTemp, (float)nightMult, (float)shadeMult, (float)sunMult);
+		EM_Settings.armorProperties.put(id, entry);
 	}
 	
-	private static void LoadLivingProperty(Configuration config, Object catagory)
+	private static void LoadLivingProperty(Configuration config, String catagory)
 	{
-		config.addCustomCategoryComment((String)catagory, "");
-		String name = config.get((String)catagory, "1.Entity Name", "").toString();
-		Boolean dehydration = config.get((String)catagory, "2.Enable Dehydration", true).getBoolean(true);
-		Boolean bodyTemp = config.get((String)catagory, "3.Enable BodyTemp", true).getBoolean(true);
-		Boolean airQ = config.get((String)catagory, "4.Enable Air Quility", true).getBoolean(true);
-		Boolean immuneToFrost = config.get((String)catagory, "5.ImmuneToFrost", false).getBoolean(false);
+		config.addCustomCategoryComment(catagory, "");
+		String name = config.get(catagory, "1.Entity Name", "").getString();
+		Boolean track = config.get(catagory, "2.Enable EnviroTracker", true).getBoolean(true);
+		Boolean dehydration = config.get(catagory, "3.Enable Dehydration", true).getBoolean(true);
+		Boolean bodyTemp = config.get(catagory, "4.Enable BodyTemp", true).getBoolean(true);
+		Boolean airQ = config.get(catagory, "5.Enable Air Quility", true).getBoolean(true);
+		Boolean immuneToFrost = config.get(catagory, "6.ImmuneToFrost", false).getBoolean(false);
 		
-		//INSERT NEW PROPERTY INSTANCE CODE
+		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost);
+		EM_Settings.livingProperties.put(name, entry);
 	}
 	
 	// RIGHT NOW I AM JUST LOADING DEFAULT ARMOR INTO HASH MAPS
@@ -302,32 +316,33 @@ public class EM_ConfigHandler
 		custom.addCustomCategoryComment(entityCat, "Custom Entities");		
 		*/
 		
-		ArmorDefaultSave("Leather Helmet", ItemArmor.helmetLeather.itemID, 2.0, 2.0, 1.0, 1);
-		ArmorDefaultSave("Leather Chest", ItemArmor.plateLeather.itemID, 2.0, 2.0, 1.0, 1);
-		ArmorDefaultSave("Leather Legs", ItemArmor.legsLeather.itemID, 2.0, 2.0, 1.0, 1);
-		ArmorDefaultSave("Leather Boots", ItemArmor.bootsLeather.itemID, 2.0, 2.0, 1.0, 1);
+		ArmorDefaultSave(ItemArmor.helmetLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.plateLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.legsLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.bootsLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
 		
-		ArmorDefaultSave("Iron Helmet", ItemArmor.helmetIron.itemID, -1.0, 0.0, 5.0, 1.1);
-		ArmorDefaultSave("Iron Chest", ItemArmor.plateIron.itemID, -1.0, 0.0, 5.0, 1.1);
-		ArmorDefaultSave("Iron Legs", ItemArmor.legsIron.itemID, -1.0, 0.0, 5.0, 1.1);
-		ArmorDefaultSave("Iron Boots", ItemArmor.bootsIron.itemID, -1.0, 0.0, 5.0, 1.1);
+		ArmorDefaultSave(ItemArmor.helmetIron.itemID	, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.plateIron.itemID		, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.legsIron.itemID		, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.bootsIron.itemID		, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
 		
-		ArmorDefaultSave("Gold Helmet", ItemArmor.helmetGold.itemID, 0.0, 0.0, 3.0, 1.1);
-		ArmorDefaultSave("Gold Chest", ItemArmor.plateGold.itemID, 0.0, 0.0, 3.0, 1.1);
-		ArmorDefaultSave("Gold Legs", ItemArmor.legsGold.itemID, 0.0, 0.0, 3.0, 1.1);
-		ArmorDefaultSave("Gold Boots", ItemArmor.bootsGold.itemID, 0.0, 0.0, 3.0, 1.1);
+		ArmorDefaultSave(ItemArmor.helmetGold.itemID	, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
+		ArmorDefaultSave(ItemArmor.plateGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
+		ArmorDefaultSave(ItemArmor.legsGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
+		ArmorDefaultSave(ItemArmor.bootsGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
 		
-		ArmorDefaultSave("Diamond Helmet", ItemArmor.helmetDiamond.itemID, 0.0, 0.0, 3.0, 1.1);
-		ArmorDefaultSave("Diamond Chest", ItemArmor.plateDiamond.itemID, 0.0, 0.0, 3.0, 1.1);
-		ArmorDefaultSave("Diamond Legs", ItemArmor.legsDiamond.itemID, 0.0, 0.0, 3.0, 1.1);
-		ArmorDefaultSave("Diamond Boots", ItemArmor.bootsDiamond.itemID, 0.0, 0.0, 3.0, 1.1);
+		ArmorDefaultSave(ItemArmor.helmetDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
+		ArmorDefaultSave(ItemArmor.plateDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
+		ArmorDefaultSave(ItemArmor.legsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
+		ArmorDefaultSave(ItemArmor.bootsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
 		
 		//custom.save();	
 	}
 	
-	private static void ArmorDefaultSave(String name, int id, double nightFloat, double shadeFloat, double sunFloat, double sunMult)
+	private static void ArmorDefaultSave(int id, float nightTemp, float shadeTemp, float sunTemp, float nightMult, float shadeMult, float sunMult)
 	{
-		//INSERT NEW PROPERTY INSTANCE CODE
+		ArmorProperties entry = new ArmorProperties(id, nightTemp, shadeTemp, sunTemp, nightMult, shadeMult, sunMult);
+		EM_Settings.armorProperties.put(id, entry);
 	}
 	
 	//Currently not used

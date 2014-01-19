@@ -172,9 +172,25 @@ public class EM_PhysManager
 	    			{
 	    				for(int k = -1; k < 2; k++)
 	    				{
+	    					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+	    					{
+	    						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+	    						{
+	    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)).holdsOthers)
+	    							{
+	    								return;
+	    							}
+	    						} else if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)))
+	    						{
+	    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z)).holdsOthers)
+	    							{
+	    								return;
+	    							}
+	    						}
+	    					}
 	    					if(world.getBlockId(i + x, j + y, k + z) == Block.glowStone.blockID)
 	    					{
-	    						return;
+								return;
 	    					}
 	    				}
 	    			}
@@ -216,9 +232,9 @@ public class EM_PhysManager
     				blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
     			} else
     			{
-    				
+    				blockProps = EM_Settings.blockProperties.get("" + block.blockID);
     			}
-    			blockProps = EM_Settings.blockProperties.get(block.blockID);
+    			
     			if(blockProps.meta == world.getBlockMetadata(x, y, z) || blockProps.meta == -1)
     			{
     				isCustom = true;
@@ -319,6 +335,22 @@ public class EM_PhysManager
     			{
     				for(int k = -1; k < 2; k++)
     				{
+    					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+    					{
+    						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+    						{
+    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)).holdsOthers)
+    							{
+    								return;
+    							}
+    						} else if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)))
+    						{
+    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z)).holdsOthers)
+    							{
+    								return;
+    							}
+    						}
+    					}
     					if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i, j, k) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
     					{
         					missingBlocks++;
@@ -333,7 +365,7 @@ public class EM_PhysManager
     			}
     		}
     		
-    		missingBlocks += 9;
+    		//missingBlocks += 9;
     		
     		int dropChance = maxThreshold - missingBlocks;
     		

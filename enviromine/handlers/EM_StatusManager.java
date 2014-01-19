@@ -449,6 +449,7 @@ public class EM_StatusManager
 			ItemStack boots = entityLiving.getCurrentItemOrArmor(1);
 			
 			float tempMultTotal = 0F;
+			float addTemp = 0F;
 			
 			if(helmet != null)
 			{
@@ -461,16 +462,16 @@ public class EM_StatusManager
 						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
 							tempMultTotal += (props.sunMult - 1.0F);
-							bTemp += props.sunTemp;
+							addTemp += props.sunTemp;
 						} else
 						{
 							tempMultTotal += (props.shadeMult - 1.0F);
-							bTemp += props.shadeTemp;
+							addTemp += props.shadeTemp;
 						}
 					} else
 					{
 						tempMultTotal += (props.nightMult - 1.0F);
-						bTemp += props.nightTemp;
+						addTemp += props.nightTemp;
 					}
 				}
 			}
@@ -485,16 +486,16 @@ public class EM_StatusManager
 						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
 							tempMultTotal += (props.sunMult - 1.0F);
-							bTemp += props.sunTemp;
+							addTemp += props.sunTemp;
 						} else
 						{
 							tempMultTotal += (props.shadeMult - 1.0F);
-							bTemp += props.shadeTemp;
+							addTemp += props.shadeTemp;
 						}
 					} else
 					{
 						tempMultTotal += (props.nightMult - 1.0F);
-						bTemp += props.nightTemp;
+						addTemp += props.nightTemp;
 					}
 				}
 			}
@@ -509,16 +510,16 @@ public class EM_StatusManager
 						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
 							tempMultTotal += (props.sunMult - 1.0F);
-							bTemp += props.sunTemp;
+							addTemp += props.sunTemp;
 						} else
 						{
 							tempMultTotal += (props.shadeMult - 1.0F);
-							bTemp += props.shadeTemp;
+							addTemp += props.shadeTemp;
 						}
 					} else
 					{
 						tempMultTotal += (props.nightMult - 1.0F);
-						bTemp += props.nightTemp;
+						addTemp += props.nightTemp;
 					}
 				}
 			}
@@ -533,19 +534,22 @@ public class EM_StatusManager
 						if(entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && bTemp > 0F)
 						{
 							tempMultTotal += (props.sunMult - 1.0F);
-							bTemp += props.sunTemp;
+							addTemp += props.sunTemp;
 						} else
 						{
 							tempMultTotal += (props.shadeMult - 1.0F);
-							bTemp += props.shadeTemp;
+							addTemp += props.shadeTemp;
 						}
 					} else
 					{
 						tempMultTotal += (props.nightMult - 1.0F);
-						bTemp += props.nightTemp;
+						addTemp += props.nightTemp;
 					}
 				}
 			}
+			
+			bTemp *= (1F + tempMultTotal);
+			bTemp += addTemp;
 		}
 		
 		if(temp > bTemp)

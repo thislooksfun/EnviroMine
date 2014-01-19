@@ -186,9 +186,9 @@ public class EnviroDataTracker
 		boolean enableBodyTemp = true;
 		boolean enableHydrate = true;
 		boolean enableFrostbite = true;
-		if(EM_Settings.livingProperties.containsKey(trackedEntity.getClass().getSimpleName()))
+		if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(trackedEntity)))
 		{
-			EntityProperties livingProps = EM_Settings.livingProperties.get(trackedEntity.getClass().getSimpleName());
+			EntityProperties livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(trackedEntity));
 			enableHydrate = livingProps.dehydration;
 			enableBodyTemp = livingProps.bodyTemp;
 			enableAirQ = livingProps.airQ;
@@ -298,6 +298,11 @@ public class EnviroDataTracker
 	public static boolean isLegalType(EntityLivingBase entity)
 	{
 		String name = EntityList.getEntityString(entity);
+		
+		if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(entity)))
+		{
+			return EM_Settings.livingProperties.get(EntityList.getEntityString(entity)).shouldTrack;
+		}
 		
 		if(entity.isEntityUndead() || entity instanceof EntityMob)
 		{
