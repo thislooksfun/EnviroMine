@@ -26,6 +26,7 @@ import net.minecraft.block.BlockObsidian;
 import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -223,6 +224,7 @@ public class EM_PhysManager
     		int dropType = 0;
     		
     		boolean isCustom = false;
+    		boolean defaultDrop = true;
     		BlockProperties blockProps = null;
     		
     		if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
@@ -230,16 +232,26 @@ public class EM_PhysManager
     			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
     			{
     				blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
+    				System.out.println("Physics update for custom block: " + blockProps.name);
+    				System.out.println("Physics properties: " + blockProps.minFall + "," + blockProps.maxFall);
     			} else
     			{
     				blockProps = EM_Settings.blockProperties.get("" + block.blockID);
+    				System.out.println("Physics update for custom block: " + blockProps.name);
+    				System.out.println("Physics properties: " + blockProps.minFall + "," + blockProps.maxFall);
     			}
     			
     			if(blockProps.meta == world.getBlockMetadata(x, y, z) || blockProps.meta == -1)
     			{
     				isCustom = true;
+    				defaultDrop = false;
     				
-        			if(blockProps.dropID == 0)
+    				if(blockProps.dropID < 0)
+    				{
+        				dropType = 1;
+        				defaultDrop = true;
+        				dropNum = blockProps.dropNum;
+    				} else if(blockProps.dropID == 0)
         			{
         				dropType = 0;
         				dropBlock = 0;
@@ -279,7 +291,7 @@ public class EM_PhysManager
     			}
     		}
     		
-			if(isCustom)
+			if(!defaultDrop)
 			{
 			} else if(dropBlock <= 0)
     		{
@@ -428,7 +440,7 @@ public class EM_PhysManager
     	        	world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
     	        	
     				EntityPhysicsBlock entityphysblock;
-    				if(isCustom && dropMeta != -1)
+    				if(isCustom && dropMeta > -1)
     				{
     					entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, dropMeta, false);
         			} else

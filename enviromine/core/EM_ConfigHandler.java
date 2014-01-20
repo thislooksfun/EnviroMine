@@ -172,12 +172,12 @@ public class EM_ConfigHandler
 			
 			for(int x = 0; x <= (catagory.size() - 1); x++)
 			{
-				String CurCat = catagory.get(x).toString();
+				String CurCat = catagory.get(x);
 				
 				if(!((String)CurCat).isEmpty() && ((String)CurCat).contains(Configuration.CATEGORY_SPLITTER))
 				{
-					String[] CatSplit = CurCat.toString().split("\\" + Configuration.CATEGORY_SPLITTER);
-					String parent = (String)CatSplit[0];
+					String[] CatSplit = CurCat.split("\\" + Configuration.CATEGORY_SPLITTER);
+					String parent = CatSplit[0];
 					String child = CatSplit[1];
 					
 					if(parent.equals(blockCat))
@@ -204,21 +204,23 @@ public class EM_ConfigHandler
 		}
 	}
 	
-	private static void LoadBlockProperty(Configuration config, String catagory)
+	private static void LoadBlockProperty(Configuration config, String category)
 	{
-		config.addCustomCategoryComment(catagory, "");
-		int id = config.get(catagory, "1.ID", 0).getInt(0);
-		boolean hasPhys = config.get(catagory, "2.EnablePhysics", false).getBoolean(false);
-		int metaData = config.get(catagory, "3.MetaID", 0).getInt(0);
-		int dropID = config.get(catagory, "4.DropID", 0).getInt(0);
-		int dropMeta = config.get(catagory, "5.DropMetaID", 0).getInt(0);
-		int dropNum = config.get(catagory, "6.DropNumber", 0).getInt(0);
-		boolean enableTemp = config.get(catagory, "7.EnableTemperature", false).getBoolean(false);
-		float temperature = (float)config.get(catagory, "8.Temprature", 0.00).getDouble(0.00);
-		float airQuality = (float)config.get(catagory, "9.Air Quality", 0.00).getDouble(0.00);
-		float sanity = (float)config.get(catagory, "10.AirQuality", 0.00).getDouble(0.00);
-		String stability = config.get(catagory, "11.Stability", "loose").getString();
-		boolean holdOther = config.get(catagory, "12.Holds Other Blocks", false).getBoolean(false);
+		config.addCustomCategoryComment(category, "");
+		String name = category.split("\\" + Configuration.CATEGORY_SPLITTER)[1];
+		
+		int id = config.get(category, "01.ID", 0).getInt(0);
+		boolean hasPhys = config.get(category, "02.EnablePhysics", false).getBoolean(false);
+		int metaData = config.get(category, "03.MetaID", 0).getInt(0);
+		int dropID = config.get(category, "04.DropID", 0).getInt(0);
+		int dropMeta = config.get(category, "05.DropMetaID", 0).getInt(0);
+		int dropNum = config.get(category, "06.DropNumber", 0).getInt(0);
+		boolean enableTemp = config.get(category, "07.EnableTemperature", false).getBoolean(false);
+		float temperature = (float)config.get(category, "08.Temprature", 0.00).getDouble(0.00);
+		float airQuality = (float)config.get(category, "09.Air Quality", 0.00).getDouble(0.00);
+		float sanity = (float)config.get(category, "10.Sanity", 0.00).getDouble(0.00);
+		String stability = config.get(category, "11.Stability", "loose").getString();
+		boolean holdOther = config.get(category, "12.Holds Other Blocks", false).getBoolean(false);
 		
 		// Get Stability Options
 		int minFall = 99;
@@ -254,14 +256,16 @@ public class EM_ConfigHandler
 				break;
 		}
 		
-		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther);
+		BlockProperties entry = new BlockProperties(name, id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther);
 		
 		if(metaData < 0)
 		{
-			EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+			EM_Settings.blockProperties.put("" + id, entry);
+			System.out.println("New block entry at: '" + id + "'");
 		} else
 		{
-			EM_Settings.blockProperties.put("" + id, entry);
+			EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+			System.out.println("New block entry at: '" + id + "," + metaData + "'");
 		}
 	}
 	

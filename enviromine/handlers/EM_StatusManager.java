@@ -259,9 +259,15 @@ public class EM_StatusManager
 						meta = entityLiving.worldObj.getBlockMetadata(i + x, j + y, k + z);
 					}
 					
-					if(EM_Settings.blockProperties.containsKey(id))
+					if(EM_Settings.blockProperties.containsKey("" + id + "," + meta) || EM_Settings.blockProperties.containsKey("" + id))
 					{
-						blockProps = EM_Settings.blockProperties.get(id);
+						if(EM_Settings.blockProperties.containsKey("" + id + "," + meta))
+						{
+							blockProps = EM_Settings.blockProperties.get("" + id + "," + meta);
+						} else
+						{
+							blockProps = EM_Settings.blockProperties.get("" + id);
+						}
 						
 						if(blockProps.meta == meta || blockProps.meta == -1)
 						{
