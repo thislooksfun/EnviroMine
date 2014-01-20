@@ -232,13 +232,9 @@ public class EM_PhysManager
     			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
     			{
     				blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
-    				System.out.println("Physics update for custom block: " + blockProps.name);
-    				System.out.println("Physics properties: " + blockProps.minFall + "," + blockProps.maxFall);
     			} else
     			{
     				blockProps = EM_Settings.blockProperties.get("" + block.blockID);
-    				System.out.println("Physics update for custom block: " + blockProps.name);
-    				System.out.println("Physics properties: " + blockProps.minFall + "," + blockProps.maxFall);
     			}
     			
     			if(blockProps.meta == world.getBlockMetadata(x, y, z) || blockProps.meta == -1)

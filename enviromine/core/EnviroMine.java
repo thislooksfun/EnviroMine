@@ -1,6 +1,8 @@
 package enviromine.core;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
@@ -13,6 +15,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.EnumHelper;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -40,6 +43,7 @@ import enviromine.items.EnviroItemSaltWaterBottle;
 
 public class EnviroMine
 {
+	public static Logger logger;
 	public static Item badWaterBottle;
 	public static Item saltWaterBottle;
 	public static Item coldWaterBottle;
@@ -56,6 +60,9 @@ public class EnviroMine
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event)
 	{
+		logger = event.getModLog();
+		logger.setParent(FMLLog.getLogger());
+		
 		proxy.preInit(event);
 		
 		// Load Configuration files And Custom files
@@ -98,7 +105,7 @@ public class EnviroMine
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
 		
-		System.out.println("Registering Handlers for EnviroMine");
+		EnviroMine.logger.log(Level.INFO, "Registering Handlers");
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}

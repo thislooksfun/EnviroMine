@@ -78,7 +78,6 @@ public class Hallucination
 			return;
 		}
 		list.add(this);
-		System.out.println("Spawning hallucination at " + x + ", " + y + ", " + z);
 		
 		if(EnviroMine.proxy.isClient())
 		{

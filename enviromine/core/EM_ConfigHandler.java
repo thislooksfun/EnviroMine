@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,11 +46,12 @@ public class EM_ConfigHandler
 		
 		//CheckFile(new File(configPath + "Help_File_Custom.txt"));
 		
+		EnviroMine.logger.log(Level.INFO, "Loading configs");
+		
 		// Now load Files from "Custom Objects"
 		File[] customFiles = GetFileList(customPath);
 		for(int i = 0; i < customFiles.length; i++)
 		{
-			System.out.println("Loading " + customFiles[i].getName());
 			LoadCustomObjects(customFiles[i]);
 		}
 		
@@ -58,12 +60,13 @@ public class EM_ConfigHandler
 		
 		// Load Main Config File And this will go though changes
 		File configFile = new File(configPath + "EnviroMine.cfg");
-		System.out.println("Attempting to load config: " + configFile.getAbsolutePath());
 		EM_Settings.loadGeneralConfig(configFile);
 		
-		System.out.println("Loaded " + EM_Settings.armorProperties.size() + " armor properties");
-		System.out.println("Loaded " + EM_Settings.blockProperties.size() + " block properties");
-		System.out.println("Loaded " + EM_Settings.livingProperties.size() + " entity properties");
+		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.armorProperties.size() + " armor properties");
+		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.blockProperties.size() + " block properties");
+		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.livingProperties.size() + " entity properties");
+		
+		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
 	}
 	
 	//#######################################
@@ -76,8 +79,6 @@ public class EM_ConfigHandler
 		// Will be used Auto Load Custom Objects from ??? Dir 
 		File f = new File(path);
 		File[] list = f.listFiles();
-		
-		System.out.println("Found " + list.length + " custom configs");
 		
 		return list;
 	}
@@ -106,17 +107,22 @@ public class EM_ConfigHandler
 		
 		// create File object
 		
+		if(Dir.exists())
+		{
+			return;
+		}
+		
 		try
 		{
 			dirFlag = Dir.mkdirs();
 		} catch(SecurityException Se)
 		{
-			System.out.println("Error while creating config directory:\n" + Se);
+			EnviroMine.logger.log(Level.INFO, "Error while creating config directory:\n" + Se);
 		}
 		
 		if(!dirFlag)
 		{
-			System.out.println("Failed to create config directory!");
+			EnviroMine.logger.log(Level.INFO, "Failed to create config directory!");
 		}
 	}
 	
@@ -139,12 +145,12 @@ public class EM_ConfigHandler
 			} catch(NullPointerException e)
 			{
 				e.printStackTrace();
-				System.out.println("FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
+				EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
 				return;
 			} catch(StringIndexOutOfBoundsException e)
 			{
 				e.printStackTrace();
-				System.out.println("FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
+				EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
 				return;
 			}
 			
@@ -166,8 +172,6 @@ public class EM_ConfigHandler
 				catagory.add(nameListData.next());
 			}
 			
-			System.out.println("Found " + catagory.size() + " custom properties in " + customFiles.getName());
-			
 			// Now Read/Save Each Category And Add into Proper Hash Maps
 			
 			for(int x = 0; x <= (catagory.size() - 1); x++)
@@ -188,13 +192,12 @@ public class EM_ConfigHandler
 						LoadArmorProperty(config, catagory.get(x));
 					} else if(parent.equals(itemsCat))
 					{
-						System.out.println("Loading item " + child + " (NOT YET SUPPORTED)");
 					} else if(parent.equals(entityCat))
 					{
 						LoadLivingProperty(config, catagory.get(x));
 					} else
 					{
-						System.out.println("Failed to load object " + CurCat);
+						EnviroMine.logger.log(Level.INFO, "Failed to load object " + CurCat);
 					}
 					
 				}
@@ -261,11 +264,9 @@ public class EM_ConfigHandler
 		if(metaData < 0)
 		{
 			EM_Settings.blockProperties.put("" + id, entry);
-			System.out.println("New block entry at: '" + id + "'");
 		} else
 		{
 			EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
-			System.out.println("New block entry at: '" + id + "," + metaData + "'");
 		}
 	}
 	
@@ -309,9 +310,9 @@ public class EM_ConfigHandler
 		try	
 			{ custom = new Configuration(customFile);} 
 		catch(NullPointerException e)
-			{e.printStackTrace();System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");	return;	} 
+			{e.printStackTrace();EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");	return;	} 
 		catch(StringIndexOutOfBoundsException e)	
-			{	e.printStackTrace();System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");	return;	}System.out.println("Loading EnviroMine Config: " + customFile.getAbsolutePath());
+			{	e.printStackTrace();EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");	return;	}EnviroMine.logger.log(Level.INFO, "Loading EnviroMine Config: " + customFile.getAbsolutePath());
 		custom.load();
 
 		// Load Default Categories

@@ -2,6 +2,7 @@ package enviromine.core;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
@@ -49,15 +50,14 @@ public class EM_Settings
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
 			return;
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
-			System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
 			return;
 		}
-		System.out.println("Loading EnviroMine Config: " + file.getAbsolutePath());
 		
         config.load();
         
@@ -83,8 +83,6 @@ public class EM_Settings
         insanityPotionID = config.get("Potions", "Insanity", 31).getInt(52);
 
         config.save();
-        
-        System.out.println("Successfully loaded EnviroMine configs");
 	}
 	
 	public static float convertToFarenheit(float num)

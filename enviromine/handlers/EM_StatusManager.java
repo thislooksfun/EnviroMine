@@ -780,7 +780,6 @@ public class EM_StatusManager
 			{
 				if(!player.isDead)
 				{
-					System.out.println("Found player in dimension " + worlds[i].getWorldInfo().getVanillaDimension());
 					return player;
 				}
 			}
