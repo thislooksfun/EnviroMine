@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
-import net.minecraft.item.ItemArmor;
 import net.minecraftforge.common.Configuration;
 
 public class EM_Settings

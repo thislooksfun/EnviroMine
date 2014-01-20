@@ -167,7 +167,7 @@ public class EM_ConfigHandler
 			Iterator<String> nameListData = nameList.iterator();
 			
 			// add Categories to a List 
-			for(int x = 0; nameListData.hasNext(); x++)
+			while(nameListData.hasNext())
 			{
 				catagory.add(nameListData.next());
 			}
@@ -180,9 +180,7 @@ public class EM_ConfigHandler
 				
 				if(!((String)CurCat).isEmpty() && ((String)CurCat).contains(Configuration.CATEGORY_SPLITTER))
 				{
-					String[] CatSplit = CurCat.split("\\" + Configuration.CATEGORY_SPLITTER);
-					String parent = CatSplit[0];
-					String child = CatSplit[1];
+					String parent = CurCat.split("\\" + Configuration.CATEGORY_SPLITTER)[0];
 					
 					if(parent.equals(blockCat))
 					{

@@ -1,11 +1,7 @@
 package enviromine.gui;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.nio.ByteOrder;
-
 import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
