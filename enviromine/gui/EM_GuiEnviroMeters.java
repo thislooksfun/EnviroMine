@@ -147,6 +147,12 @@ public class EM_GuiEnviroMeters extends Gui
 			barPos[2] = (String) EM_Settings.waterBarPos_actual.toString();
 			barPos[3] = (String) EM_Settings.heatBarPos_actual.toString();
 			
+			boolean[] barTrue = new boolean[4];
+			barTrue[0] =  EM_Settings.enableSanity;
+			barTrue[1] = EM_Settings.enableAirQ;
+			barTrue[2] = EM_Settings.enableHydrate;
+			barTrue[3] = EM_Settings.enableBodyTemp;
+			
 			// Cnt for Each section of screen
 			int BL = -1;	 int BR = -1;
 			int BCR = -1; 	 int BCL = -1;
@@ -166,7 +172,8 @@ public class EM_GuiEnviroMeters extends Gui
 				int curPosY = 0;
 				
 				if(EM_Settings.ShowText_actual == true) addTW = textWidth;
-					
+				if(!(barTrue[i])) { if(i <= 2) i+=1; else break;}  	
+				
 				switch(barPos[i].toString().toLowerCase())
 				{
 					case "top_left":	TL += 2;

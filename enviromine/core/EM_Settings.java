@@ -58,6 +58,10 @@ public class EM_Settings
 	public static int dehydratePotionID = 30;
 	public static int insanityPotionID = 31;
 	
+	//World Gen
+	public static boolean shaftGen_default = true;
+		public static boolean shaftGen_actual;
+	
 	//Properties
 	public static HashMap<Integer,Object[]> armorProperties = new HashMap<Integer,Object[]>();
 	public static HashMap<Integer,Object[]> blockProperties = new HashMap<Integer,Object[]>();
@@ -90,6 +94,10 @@ public class EM_Settings
 		//config.addCustomCategoryComment("EntityLiving Properties", "Add properties for custom living entities here. Add the entity name to 'Custom Objects' before creating the property here. \nProperty Format: <EntityName(E.G. EntityPigZombie)>, <Dehydrate(T/F)>, <BodyTemp?(T/F)>, <AirQuality?(T/F)>");
        // config.addCustomCategoryComment("Custom Objects", "Lists of objects that have envionmental properties");
         
+        
+        //World Generation
+        
+        shaftGen_actual =  config.get("Wold Generations", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
         
         //General Settings
         enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
