@@ -3,24 +3,21 @@ package enviromine.handlers;
 import java.util.EnumSet;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumMovingObjectType;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
+import enviromine.core.EM_ConfigHandler;
 
 
 public class KeyBind extends KeyHandler
 {
-
+	Object[] dataToCustom = new Object[5];
+	
+	
 	public boolean keydown = true;
 	public KeyBind(KeyBinding[] keyBindings, boolean[] repeatings) 
 	{
@@ -50,21 +47,22 @@ public class KeyBind extends KeyHandler
 
 		if(tickEnd)
 		{
+			if(!(Minecraft.getMinecraft().isSingleplayer())) {
+				Minecraft.getMinecraft().thePlayer.addChatMessage("Single player only function.");
+				return;
+			}
 			try
 			{
-		 
-				//what to do when key is pressed/down
 				EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
-			
+
 				if (type.name() == "ENTITY")
 				{
 					Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
-					
 					String name = EntityList.getEntityString(lookingAt);
-					
-					System.out.println(name);
-					
 					// Call CONFIG
+					EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
+					
+					Minecraft.getMinecraft().thePlayer.addChatMessage("Adding " + name + " to MyCustom.dat file.");
 				}
 				else if(type.name() == "TILE")
 				{
@@ -72,27 +70,27 @@ public class KeyBind extends KeyHandler
 					int blockX = Minecraft.getMinecraft().objectMouseOver.blockX;
 					int blockY = Minecraft.getMinecraft().objectMouseOver.blockY;
 					int blockZ = Minecraft.getMinecraft().objectMouseOver.blockZ;
-					
-					//System.out.println("*"+ blockX + ","+ blockY + ","+ blockZ +"*");
-				
+
 					int blockID = Minecraft.getMinecraft().thePlayer.worldObj.getBlockId(blockX,blockY,blockZ);
 					int blockMeta = Minecraft.getMinecraft().thePlayer.worldObj.getBlockMetadata(blockX, blockY, blockZ);
-					//String blockMat = Minecraft.getMinecraft().thePlayer.worldObj.get;
 					Block block = Block.blocksList[blockID];
 					String blockULName = block.getUnlocalizedName().toString();
 					String blockName = block.getLocalizedName().toString();
-				
-					//Call Config
-					System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
+					dataToCustom[0] = blockID; dataToCustom[1] = blockMeta;
+					dataToCustom[2] = blockULName;
+					//System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
+					
+					EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
+					
+					Minecraft.getMinecraft().thePlayer.addChatMessage("Adding " + blockName + "-"+ blockID +":"+ blockMeta +" to MyCustom.dat file.");
 				} //else if
 			} //try
 			catch (NullPointerException e)
 			{
-				// Doesn't contain Info
-				System.out.println("Empty" + e);
+
 			}
 		
-		}
+		} 
 
 
 	}

@@ -3,9 +3,7 @@ package enviromine.gui;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.nio.ByteOrder;
-
 import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
@@ -38,15 +36,17 @@ public class EM_GuiEnviroMeters extends Gui
 		this.mc = mc;
 	}
 	
+	
 	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
 	public void onGuiRender(RenderGameOverlayEvent event)
 	{
-		if(event.isCancelable() || event.type != ElementType.EXPERIENCE)
+		
+		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCancelable())
 		{
 			return;
 		}
-		
+
 		int xPos = 4;
 		int yPos = 4;
 		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);

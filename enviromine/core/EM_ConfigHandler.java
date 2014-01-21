@@ -432,4 +432,60 @@ public class EM_ConfigHandler
 			return ((num-32F) * (5/9));
 		}
 		
+		
+		public static void SaveMyCustom(String type, String name, Object[] data)
+		{
+			
+			// Check to make sure this is a Data File Before Editing
+			File configFile = new File(customPath + "MyCustom.dat");
+			
+			Configuration config;
+			try
+			{
+				config = new Configuration(configFile);
+			} catch(NullPointerException e)
+			{
+				e.printStackTrace();
+				System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+				return;
+			} catch(StringIndexOutOfBoundsException e)
+			{
+				e.printStackTrace();
+				System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+				return;
+			}
+			
+			config.load();
+			// Load Default Categories
+			config.addCustomCategoryComment(armorCat, "Add Custom Armor");
+			config.addCustomCategoryComment(blockCat, "Add Custom Blocks");
+			config.addCustomCategoryComment(entityCat, "Custom Entities");
+
+			if(type == "TILE")
+			{
+				String nameULCat = blockCat+"."+name + " " + (Integer) data[1];
+				config.addCustomCategoryComment((String) nameULCat, name);
+				config.get((String) nameULCat, "1.ID", (Integer) data[0]).getInt(0);
+				config.get((String) nameULCat, "2.MetaID", (Integer) data[1]).getInt(0);
+				config.get((String) nameULCat, "3.DropID",  (Integer) data[0]).getInt(0);
+				config.get((String) nameULCat, "4.DropMetaID", (Integer) data[1]).getInt(0);
+				config.get((String) nameULCat, "5.Temprature", 0.00).getDouble(0.00);     
+				config.get((String) nameULCat, "6.AirQuality", 0.00).getDouble(0.00);
+				config.get((String) nameULCat, "7.Stability", "loose").getString();
+				
+			}else if (type == "ENTITY")
+			{
+				String nameEntityCat = entityCat +"."+name;
+				config.addCustomCategoryComment((String) nameEntityCat, "");
+				config.get((String) nameEntityCat, "1.Entity Name", name).toString();
+				config.get((String) nameEntityCat, "2.Enable Dehydration", true).getBoolean(true);
+				config.get((String) nameEntityCat, "3.Enable BodyTemp", true).getBoolean(true);
+				config.get((String) nameEntityCat, "4.Enable Air Quility", true).getBoolean(true);
+				config.get((String) nameEntityCat, "5.ImmuneToFrost", false).getBoolean(false); 
+				
+			}
+			
+			config.save();
+		}
+		
 } // End of Page
