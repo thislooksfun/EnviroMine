@@ -2,7 +2,9 @@ package enviromine.core;
 
 import java.io.File;
 
+import org.lwjgl.input.Keyboard;
 import net.minecraft.block.Block;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumArmorMaterial;
 import net.minecraft.item.Item;
@@ -13,6 +15,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.EnumHelper;
+import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -68,6 +71,7 @@ public class EnviroMine
 		
 		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
 		
+	
 		VillagerRegistry.instance().registerVillageCreationHandler(new EnviroShaftCreationHandler());
 		MapGenStructureIO.func_143031_a(EM_VillageMineshaft.class, "ViMS");
 	}
@@ -93,6 +97,11 @@ public class EnviroMine
 		GameRegistry.addShapelessRecipe(new ItemStack(coldWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Item.snowball, 1));
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
+	
+    	KeyBinding[] key = {new KeyBinding("EnviroMine Add Custom", Keyboard.KEY_G)};
+        boolean[] repeat = {false};
+        KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
+	
 		
 		System.out.println("Registering Handlers for EnviroMine");
 		proxy.registerTickHandlers();
