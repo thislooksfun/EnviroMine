@@ -20,7 +20,6 @@ public class EM_ServerScheduledTickHandler implements ITickHandler
 		{
 			EM_PhysManager.updateSchedule();
 		}
-		EM_StatusManager.updateTimer();
 	}
 
 	@Override

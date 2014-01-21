@@ -41,6 +41,10 @@ public class EnviroDataTracker
 	public boolean frozenHands = false;
 	public boolean frozenLegs = false;
 	
+	public int timeBelow0 = 0;
+	
+	public int updateTimer = 0;
+	
 	public EnviroDataTracker(EntityLivingBase entity)
 	{
 		trackedEntity = entity;
@@ -52,6 +56,8 @@ public class EnviroDataTracker
 	
 	public void updateData()
 	{
+		updateTimer = 0;
+		
 		if(trackedEntity == null)
 		{
 			EM_StatusManager.removeTracker(this);

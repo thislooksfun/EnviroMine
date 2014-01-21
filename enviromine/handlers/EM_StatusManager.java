@@ -3,6 +3,8 @@ package enviromine.handlers;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,17 +32,22 @@ import net.minecraft.world.chunk.Chunk;
 
 public class EM_StatusManager
 {
-	public static List<String[]> trackedEntities = new ArrayList<String[]>();
-	public static List<EnviroDataTracker> trackerList = new ArrayList<EnviroDataTracker>();
+	public static HashMap<String,EnviroDataTracker> trackerList = new HashMap<String,EnviroDataTracker>();
 	public static int ticksSinceUpdate = 0;
 	public static int updateInterval = 15;
 	
 	public static void addToManager(EnviroDataTracker tracker)
 	{
-		trackerList.add(tracker);
+		if(tracker.trackedEntity instanceof EntityPlayer)
+		{
+			trackerList.put("" + tracker.trackedEntity.getEntityName(), tracker);
+		} else
+		{
+			trackerList.put("" + tracker.trackedEntity.entityId, tracker);
+		}
 	}
 	
-	public static void updateTrackers()
+	public static void updateTracker(EnviroDataTracker tracker)
 	{
 		if(EnviroMine.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning())
 		{
@@ -50,10 +57,11 @@ public class EM_StatusManager
 			}
 		}
 		
-		for(int i = 0; i < trackerList.size(); i += 1)
+		tracker.updateTimer += 1;
+		if(tracker.updateTimer >= 30)
 		{
-			EnviroDataTracker tracker = trackerList.get(i);
 			tracker.updateData();
+
 			if(!EnviroMine.proxy.isClient() || EnviroMine.proxy.isOpenToLAN())
 			{
 				syncMultiplayerTracker(tracker);
@@ -92,95 +100,30 @@ public class EM_StatusManager
 	
 	public static EnviroDataTracker lookupTracker(EntityLivingBase entity)
 	{
-		for(int i = 0; i < trackerList.size(); i += 1)
+		if(entity instanceof EntityPlayer)
 		{
-			if(trackerList.get(i).trackedEntity == entity)
+			if(trackerList.containsKey("" + entity.getEntityName()))
 			{
-				return trackerList.get(i);
+				return trackerList.get("" + entity.getEntityName());
 			} else
 			{
-				continue;
+				return null;
 			}
-		}
-		return null;
-	}
-	
-	public static EnviroDataTracker lookupTrackerFromID(int id)
-	{
-		for(int i = 0; i < trackerList.size(); i += 1)
-		{
-			if(trackerList.get(i) == null)
-			{
-				continue;
-			} else if(trackerList.get(i).trackedEntity != null)
-			{
-				if(trackerList.get(i).trackedEntity.entityId == id)
-				{
-					return trackerList.get(i);
-				} else
-				{
-					continue;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public static EnviroDataTracker lookupTrackerFromUUID(UUID id)
-	{
-		for(int i = 0; i < trackerList.size(); i += 1)
-		{
-			if(trackerList.get(i) == null)
-			{
-				continue;
-			} else if(trackerList.get(i).trackedEntity != null)
-			{
-				if(trackerList.get(i).trackedEntity.getUniqueID() == id)
-				{
-					return trackerList.get(i);
-				} else
-				{
-					continue;
-				}
-			}
-		}
-		return null;
-	}
-	
-	public static EnviroDataTracker lookupPlayerTrackerFromName(String user)
-	{
-		for(int i = 0; i < trackerList.size(); i += 1)
-		{
-			if(trackerList.get(i) == null)
-			{
-				continue;
-			} else if(trackerList.get(i).trackedEntity instanceof EntityPlayer)
-			{
-				if(((EntityPlayer)trackerList.get(i).trackedEntity).username.equals(user))
-				{
-					return trackerList.get(i);
-				} else
-				{
-					continue;
-				}
-			} else
-			{
-				continue;
-			}
-		}
-		return null;
-	}
-	
-	public static void updateTimer()
-	{
-		if(ticksSinceUpdate >= updateInterval)
-		{
-			updateTrackers();
-			ticksSinceUpdate = 0;
 		} else
 		{
-			ticksSinceUpdate += 1;
+			if(trackerList.containsKey("" + entity.entityId))
+			{
+				return trackerList.get("" + entity.entityId);
+			} else
+			{
+				return null;
+			}
 		}
+	}
+	
+	public static EnviroDataTracker lookupTrackerFromUsername(String username)
+	{
+		return trackerList.get(username);
 	}
 	
 	public static float[] getSurroundingData(EntityLivingBase entityLiving, int range)
@@ -625,30 +568,35 @@ public class EM_StatusManager
 	
 	public static void removeTracker(EnviroDataTracker tracker)
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+		if(trackerList.containsValue(tracker))
 		{
-			if(trackerList.get(i) == tracker)
+			tracker.isDisabled = true;
+			if(tracker.trackedEntity instanceof EntityPlayer)
 			{
-				trackerList.get(i).isDisabled = true;
-				trackerList.remove(i);
+				trackerList.remove(((EntityPlayer)tracker.trackedEntity).username);
+			} else
+			{
+				trackerList.remove(tracker.trackedEntity.entityId);
 			}
 		}
 	}
 	
 	public static void saveAndRemoveTracker(EnviroDataTracker tracker)
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+		if(trackerList.containsValue(tracker))
 		{
-			if(trackerList.get(i) == tracker)
+			tracker.isDisabled = true;
+			NBTTagCompound tags = tracker.trackedEntity.getEntityData();
+			tags.setFloat("ENVIRO_AIR", tracker.airQuality);
+			tags.setFloat("ENVIRO_HYD", tracker.hydration);
+			tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
+			tags.setFloat("ENVIRO_SAN", tracker.sanity);
+			if(tracker.trackedEntity instanceof EntityPlayer)
 			{
-				tracker.isDisabled = true;
-				NBTTagCompound tags = tracker.trackedEntity.getEntityData();
-				tags.setFloat("ENVIRO_AIR", tracker.airQuality);
-				tags.setFloat("ENVIRO_HYD", tracker.hydration);
-				tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
-				tags.setFloat("ENVIRO_SAN", tracker.sanity);
-				trackerList.get(i).isDisabled = true;
-				trackerList.remove(i);
+				trackerList.remove(((EntityPlayer)tracker.trackedEntity).username);
+			} else
+			{
+				trackerList.remove(tracker.trackedEntity.entityId);
 			}
 		}
 	}
@@ -664,26 +612,30 @@ public class EM_StatusManager
 	
 	public static void removeAllTrackers()
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+		Iterator<EnviroDataTracker> iterator = trackerList.values().iterator();
+		while(iterator.hasNext())
 		{
-			trackerList.get(i).isDisabled = true;
-			trackerList.remove(i);
+			EnviroDataTracker tracker = iterator.next();
+			tracker.isDisabled = true;
 		}
+		
+		trackerList.clear();
 	}
 	
 	public static void saveAndDeleteAllTrackers()
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+		Iterator<EnviroDataTracker> iterator = trackerList.values().iterator();
+		while(iterator.hasNext())
 		{
-			EnviroDataTracker tracker = trackerList.get(i);
+			EnviroDataTracker tracker = iterator.next();
 			NBTTagCompound tags = tracker.trackedEntity.getEntityData();
 			tags.setFloat("ENVIRO_AIR", tracker.airQuality);
 			tags.setFloat("ENVIRO_HYD", tracker.hydration);
 			tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
 			tags.setFloat("ENVIRO_SAN", tracker.sanity);
-			trackerList.get(i).isDisabled = true;
-			trackerList.remove(i);
+			tracker.isDisabled = true;
 		}
+		trackerList.clear();
 	}
 	
 	public static void createFX(EntityLivingBase entityLiving)
@@ -691,15 +643,11 @@ public class EM_StatusManager
 		float rndX = (entityLiving.getRNG().nextFloat() * entityLiving.width*2) - entityLiving.width;
 		float rndY = entityLiving.getRNG().nextFloat() * entityLiving.height;
 		float rndZ = (entityLiving.getRNG().nextFloat() * entityLiving.width*2) - entityLiving.width;
-		EnviroDataTracker tracker = null;
+		EnviroDataTracker tracker = lookupTracker(entityLiving);
 		
 		if(entityLiving instanceof EntityPlayer && !(entityLiving instanceof EntityPlayerMP))
 		{
-			tracker = EM_StatusManager.lookupPlayerTrackerFromName(((EntityPlayer)entityLiving).username);
 			rndY = -rndY;
-		} else
-		{
-			tracker = EM_StatusManager.lookupTrackerFromID(entityLiving.entityId);
 		}
 		
 		if(tracker != null)
@@ -718,9 +666,12 @@ public class EM_StatusManager
 
 	public static void saveAndDeleteWorldTrackers(World world)
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+		HashMap<String,EnviroDataTracker> tempList = new HashMap<String,EnviroDataTracker>(trackerList);
+		Iterator<EnviroDataTracker> iterator = tempList.values().iterator();
+		while(iterator.hasNext())
 		{
-			EnviroDataTracker tracker = trackerList.get(i);
+			EnviroDataTracker tracker = iterator.next();
+			
 			if(tracker.trackedEntity.worldObj == world)
 			{
 				NBTTagCompound tags = tracker.trackedEntity.getEntityData();
@@ -728,17 +679,26 @@ public class EM_StatusManager
 				tags.setFloat("ENVIRO_HYD", tracker.hydration);
 				tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
 				tags.setFloat("ENVIRO_SAN", tracker.sanity);
-				trackerList.get(i).isDisabled = true;
-				trackerList.remove(i);
+				tracker.isDisabled = true;
+				if(tracker.trackedEntity instanceof EntityPlayer)
+				{
+					trackerList.remove(((EntityPlayer)tracker.trackedEntity).username);
+				} else
+				{
+					trackerList.remove(tracker.trackedEntity.entityId);
+				}
 			}
 		}
 	}
 
 	public static void saveAllWorldTrackers(World world)
 	{
-		for(int i = trackerList.size() - 1; i >= 0; i -= 1)
+		HashMap<String,EnviroDataTracker> tempList = new HashMap<String,EnviroDataTracker>(trackerList);
+		Iterator<EnviroDataTracker> iterator = tempList.values().iterator();
+		while(iterator.hasNext())
 		{
-			EnviroDataTracker tracker = trackerList.get(i);
+			EnviroDataTracker tracker = iterator.next();
+			
 			if(tracker.trackedEntity.worldObj == world)
 			{
 				NBTTagCompound tags = tracker.trackedEntity.getEntityData();

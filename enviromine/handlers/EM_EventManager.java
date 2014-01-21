@@ -440,6 +440,7 @@ public class EM_EventManager
 		if(event.entityLiving instanceof EntityPlayer)
 		{
 			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
+			EM_StatusManager.updateTracker(tracker);
 			ItemStack item = null;
 			int itemUse = 0;
 			

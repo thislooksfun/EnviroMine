@@ -12,7 +12,7 @@ import net.minecraftforge.common.Configuration;
 public class EM_Settings
 {
 	//Mod Data
-	public static final String Version = "1.0.14";
+	public static final String Version = "1.1.0";
 	public static final String ID = "EnviroMine";
 	public static final String Channel = "EM_CH";
 	public static final String Name = "EnviroMine";

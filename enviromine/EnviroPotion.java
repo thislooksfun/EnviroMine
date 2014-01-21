@@ -34,13 +34,19 @@ public class EnviroPotion extends Potion
 			return;
 		}
 		
+		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(entityLiving);
+		
 		if(entityLiving.isPotionActive(frostbite))
 		{
 			if(entityLiving.getActivePotionEffect(frostbite).duration == 0)
 			{
 				entityLiving.removePotionEffect(frostbite.id);
 			}
-			entityLiving.attackEntityFrom(EnviroDamageSource.frostbite, 2.0F + (entityLiving.getActivePotionEffect(frostbite).getAmplifier() * 1.0F));
+			
+			if(entityLiving.getRNG().nextInt(10) == 0)
+			{
+				entityLiving.attackEntityFrom(EnviroDamageSource.frostbite, 1.0F + (entityLiving.getActivePotionEffect(frostbite).getAmplifier() * 1.0F));
+			}
 		}
 		if(entityLiving.isPotionActive(dehydration.id))
 		{
@@ -48,8 +54,6 @@ public class EnviroPotion extends Potion
 			{
 				entityLiving.removePotionEffect(dehydration.id);
 			}
-			
-			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(entityLiving);
 			
 			if(tracker != null)
 			{

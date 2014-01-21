@@ -53,7 +53,7 @@ public class EM_GuiEnviroMeters extends Gui
 		if(tracker == null)
 		{
 			Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
-			tracker = EM_StatusManager.lookupPlayerTrackerFromName(this.mc.thePlayer.username);
+			tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
 		} else if(tracker.isDisabled)
 		{
 			tracker = null;

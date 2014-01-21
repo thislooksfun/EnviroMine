@@ -3,11 +3,16 @@ package enviromine.handlers;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.server.MinecraftServer;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
 import enviromine.trackers.EnviroDataTracker;
 
 public class EnviroPacketHandler implements IPacketHandler
@@ -38,13 +43,7 @@ public class EnviroPacketHandler implements IPacketHandler
 		}
 		data = bos.toString().split(",");
 		
-		try
-		{
-			tracker = EM_StatusManager.lookupTrackerFromID(Integer.parseInt(data[0]));
-		} catch(NumberFormatException e)
-		{
-			tracker = EM_StatusManager.lookupPlayerTrackerFromName(data[0]);
-		}
+		tracker = EM_StatusManager.lookupTrackerFromUsername(data[0]);
 		
 		if(tracker != null)
 		{
