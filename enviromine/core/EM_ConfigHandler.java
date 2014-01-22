@@ -228,33 +228,31 @@ public class EM_ConfigHandler
 		int maxFall = 99;
 		int supportDist = 5;
 		
-		switch(stability)
+		if(stability.equals("sand"))
 		{
-			case "sand":
-				minFall = -1;
-				maxFall = -1;
-				break;
-			case "loose":
-				minFall = 10;
-				maxFall = 15;
-				supportDist = 1;
-				break;
-			case "average":
-				minFall = 15;
-				maxFall = 22;
-				supportDist = 3;
-				break;
-			case "strong":
-				minFall = 22;
-				maxFall = 25;
-				supportDist = 5;
-				break;
-			default:
-				minFall = 99;
-				maxFall = 99;
-				supportDist = 5;
-				hasPhys = false;
-				break;
+			minFall = -1;
+			maxFall = -1;
+		} else if(stability.equals("loose"))
+		{
+			minFall = 10;
+			maxFall = 15;
+			supportDist = 1;
+		} else if(stability.equals("average"))
+		{
+			minFall = 15;
+			maxFall = 22;
+			supportDist = 3;
+		} else if(stability.equals("strong"))
+		{
+			minFall = 22;
+			maxFall = 25;
+			supportDist = 5;
+		} else
+		{
+			minFall = 99;
+			maxFall = 99;
+			supportDist = 5;
+			hasPhys = false;
 		}
 		
 		BlockProperties entry = new BlockProperties(name, id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther);
@@ -319,15 +317,15 @@ public class EM_ConfigHandler
 		custom.addCustomCategoryComment(entityCat, "Custom Entities");		
 		*/
 		
-		ArmorDefaultSave(ItemArmor.helmetLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
-		ArmorDefaultSave(ItemArmor.plateLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
-		ArmorDefaultSave(ItemArmor.legsLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
-		ArmorDefaultSave(ItemArmor.bootsLeather.itemID	, 2.5F, 2.5F, 2.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.helmetLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.plateLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.legsLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.bootsLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
 		
-		ArmorDefaultSave(ItemArmor.helmetIron.itemID	, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
-		ArmorDefaultSave(ItemArmor.plateIron.itemID		, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
-		ArmorDefaultSave(ItemArmor.legsIron.itemID		, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
-		ArmorDefaultSave(ItemArmor.bootsIron.itemID		, -1.0F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.helmetIron.itemID	, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.plateIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.legsIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
+		ArmorDefaultSave(ItemArmor.bootsIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
 		
 		ArmorDefaultSave(ItemArmor.helmetGold.itemID	, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
 		ArmorDefaultSave(ItemArmor.plateGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);

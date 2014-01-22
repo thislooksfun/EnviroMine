@@ -158,7 +158,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
             
             if(isLandSlide)
             {
-            	i = 5;
+            	i = 2;
             }
 
             if (i > 0)

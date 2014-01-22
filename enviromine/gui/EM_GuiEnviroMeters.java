@@ -203,7 +203,7 @@ public class EM_GuiEnviroMeters extends Gui
 				Minecraft.getMinecraft().fontRenderer.drawString(((tracker.bodyTemp * (9/5))+32F) + "F", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
 			} else
 			{
-				Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C | " + tracker.airTemp + "C", xPos + barWidth, (height - yPos) - meterHeight*3, 16777215);
 			}
 			Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", xPos + barWidth, (height - yPos) - meterHeight, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", (width - xPos) - barWidth - textWidth, (height - yPos) - meterHeight, 16777215);
@@ -212,12 +212,26 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/new_ui.png"));
             
-			if(tracker.bodyTemp <= 0F)
+			if(tracker.bodyTemp >= 39)
 			{
-				int grad = (int)(Math.abs(tracker.bodyTemp)/10 * 64);
-				if(tracker.bodyTemp <= -10F)
+				int grad = 0;
+				if(tracker.bodyTemp >= 41F)
 				{
 					grad = 64;
+				} else
+				{
+					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39))/3)) * 96);
+				}
+				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(255, 255, 255, grad), getColorFromRGBA(255, 255, 255, grad));
+			} else if(tracker.bodyTemp <= 35F)
+			{
+				int grad = 0;
+				if(tracker.bodyTemp <= 32F)
+				{
+					grad = 64;
+				} else
+				{
+					grad = (int)(((Math.abs(3 - (tracker.bodyTemp - 32))/3)) * 64);
 				}
 				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(125, 255, 255, grad), getColorFromRGBA(125, 255, 255, grad));
 			} else if(tracker.airQuality < 50F)
