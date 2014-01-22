@@ -3,16 +3,11 @@ package enviromine.handlers;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.server.MinecraftServer;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import enviromine.core.EM_Settings;
-import enviromine.core.EnviroMine;
 import enviromine.trackers.EnviroDataTracker;
 
 public class EnviroPacketHandler implements IPacketHandler

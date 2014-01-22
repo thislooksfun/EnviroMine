@@ -7,6 +7,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
+import enviromine.core.EnviroMine;
 import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.handlers.EM_ClientScheduledTickHandler;
 
@@ -54,6 +55,7 @@ public class EM_ClientProxy extends EM_CommonProxy
 	public void init(FMLInitializationEvent event)
 	{
 		super.init(event);
+		EnviroMine.registerKeyBindings(event);
 	}
 	
 	public void postInit(FMLPostInitializationEvent event)

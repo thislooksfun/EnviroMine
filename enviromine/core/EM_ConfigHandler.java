@@ -1,27 +1,18 @@
 package enviromine.core;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
 import net.minecraft.item.ItemArmor;
 import net.minecraftforge.common.Configuration;
-import net.minecraftforge.common.Property;
 
 public class EM_ConfigHandler
 {

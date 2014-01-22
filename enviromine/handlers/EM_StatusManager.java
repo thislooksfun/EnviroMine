@@ -2,12 +2,9 @@ package enviromine.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
-
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;

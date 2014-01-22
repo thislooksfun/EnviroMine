@@ -13,7 +13,9 @@ import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.EnumHelper;
+
 import org.lwjgl.input.Keyboard;
+
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -27,6 +29,8 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
@@ -114,11 +118,6 @@ public class EnviroMine
 		GameRegistry.addShapelessRecipe(new ItemStack(saltWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.sand, 1));
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
-	
-    	KeyBinding[] key = {new KeyBinding("EnviroMine Add Custom", Keyboard.KEY_G)};
-        boolean[] repeat = {false};
-        KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
-	
 		
 		EnviroMine.logger.log(Level.INFO, "Registering Handlers");
 		proxy.registerTickHandlers();
@@ -129,5 +128,13 @@ public class EnviroMine
 	public static void postInit(FMLPostInitializationEvent event)
 	{
 		proxy.postInit(event);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void registerKeyBindings(FMLInitializationEvent event)
+	{
+    	KeyBinding[] key = {new KeyBinding("EnviroMine Add Custom", Keyboard.KEY_G)};
+        boolean[] repeat = {false};
+        KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
 	}
 }

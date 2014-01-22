@@ -1,7 +1,11 @@
 package enviromine.gui;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.ByteOrder;
+
 import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
@@ -15,12 +19,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.ForgeSubscribe;
-import org.lwjgl.opengl.GL11;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import enviromine.core.EM_Settings;
-import enviromine.handlers.EM_StatusManager;
-import enviromine.trackers.EnviroDataTracker;
 
 public class EM_GuiEnviroMeters extends Gui
 {
@@ -88,6 +86,8 @@ public class EM_GuiEnviroMeters extends Gui
 			int preheatBar = MathHelper.ceiling_float_int(((tracker.airTemp + 50) / 150) * barWidth);
 			int sanityBar = MathHelper.ceiling_float_int((tracker.sanity / 100) * barWidth);
 			int airBar = MathHelper.ceiling_float_int((tracker.airQuality / 100) * barWidth);
+			
+			float dispHeat = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(2, RoundingMode.DOWN).floatValue();
 			
 			if(waterBar > barWidth)
 			{
@@ -340,10 +340,10 @@ public class EM_GuiEnviroMeters extends Gui
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
 				if(EM_Settings.useFarenheit)
 				{
-					Minecraft.getMinecraft().fontRenderer.drawString(((tracker.bodyTemp * (9/5))+32F) + "F", HTcurX, HTcurY, 16777215);
+					Minecraft.getMinecraft().fontRenderer.drawString(((dispHeat * (9/5))+32F) + "F", HTcurX, HTcurY, 16777215);
 				} else
 				{
-					Minecraft.getMinecraft().fontRenderer.drawString(tracker.bodyTemp + "C", HTcurX, HTcurY, 16777215);
+					Minecraft.getMinecraft().fontRenderer.drawString(dispHeat + "C", HTcurX, HTcurY, 16777215);
 				}
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", SAcurX,SAcurY, 16777215);

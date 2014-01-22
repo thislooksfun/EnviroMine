@@ -11,6 +11,7 @@ import net.minecraft.util.EnumMovingObjectType;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_ConfigHandler;
+import enviromine.core.EnviroMine;
 
 
 public class KeyBind extends KeyHandler
@@ -24,7 +25,7 @@ public class KeyBind extends KeyHandler
 		super(keyBindings, repeatings);
 	}
 
-	private EnumSet tickTypes = EnumSet.of(TickType.CLIENT);
+	private EnumSet<TickType> tickTypes = EnumSet.of(TickType.CLIENT);
 
 
 	@Override
@@ -47,7 +48,7 @@ public class KeyBind extends KeyHandler
 
 		if(tickEnd)
 		{
-			if(!(Minecraft.getMinecraft().isSingleplayer())) {
+			if(!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) {
 				Minecraft.getMinecraft().thePlayer.addChatMessage("Single player only function.");
 				return;
 			}
@@ -82,7 +83,7 @@ public class KeyBind extends KeyHandler
 					
 					EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
 					
-					Minecraft.getMinecraft().thePlayer.addChatMessage("Adding " + blockName + "-"+ blockID +":"+ blockMeta +" to MyCustom.dat file.");
+					Minecraft.getMinecraft().thePlayer.addChatMessage("Adding " + blockName + "("+ blockID +":"+ blockMeta +") to MyCustom.dat file.");
 				} //else if
 			} //try
 			catch (NullPointerException e)
