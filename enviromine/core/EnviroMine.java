@@ -1,8 +1,8 @@
 package enviromine.core;
 
-import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.lwjgl.input.Keyboard;
 import net.minecraft.block.Block;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.creativetab.CreativeTabs;
@@ -11,11 +11,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.EnumHelper;
+import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -30,7 +30,7 @@ import cpw.mods.fml.common.registry.VillagerRegistry;
 import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
-import enviromine.handlers.CamelPackRefillHandler;
+import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.items.EnviroArmor;
@@ -43,6 +43,7 @@ import enviromine.items.EnviroItemSaltWaterBottle;
 
 public class EnviroMine
 {
+	public static Logger logger;
 	public static Item badWaterBottle;
 	public static Item saltWaterBottle;
 	public static Item coldWaterBottle;
@@ -59,6 +60,11 @@ public class EnviroMine
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event)
 	{
+		logger = event.getModLog();
+		logger.setParent(FMLLog.getLogger());
+		
+		proxy.preInit(event);
+		
 		// Load Configuration files And Custom files
 		 EM_ConfigHandler.initConfig();
 		 
@@ -81,22 +87,31 @@ public class EnviroMine
 	@EventHandler
 	public static void init(FMLInitializationEvent event)
 	{
+		proxy.init(event);
+		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
 		LanguageRegistry.addName(camelPack, "Camel Pack");
-		
+
+		EnviroPotion.hypothermia = (EnviroPotion)new EnviroPotion(EM_Settings.hypothermiaPotionID, true, 8171462).setPotionName("potion.hypothermia").setIconIndex(4, 0);
+		EnviroPotion.heatstroke = (EnviroPotion)new EnviroPotion(EM_Settings.heatstrokePotionID, true, EM_GuiEnviroMeters.getColorFromRGBA(255,0,0,255)).setPotionName("potion.heatstroke").setIconIndex(3, 0);
 		EnviroPotion.frostbite = (EnviroPotion)new EnviroPotion(EM_Settings.frostBitePotionID, true, 8171462).setPotionName("potion.frostbite").setIconIndex(0, 0);
 		EnviroPotion.dehydration = (EnviroPotion)new EnviroPotion(EM_Settings.dehydratePotionID, true, 3035801).setPotionName("potion.dehydration").setIconIndex(1, 0);
 		EnviroPotion.insanity = (EnviroPotion)new EnviroPotion(EM_Settings.insanityPotionID, true, 5578058).setPotionName("potion.insanity").setIconIndex(2, 0);
-		
+
+		LanguageRegistry.instance().addStringLocalization("potion.hypothermia", "Hypothermia");
+		LanguageRegistry.instance().addStringLocalization("potion.heatstroke", "Heat Stroke");
 		LanguageRegistry.instance().addStringLocalization("potion.frostbite", "Frostbite");
 		LanguageRegistry.instance().addStringLocalization("potion.dehydration", "Dehydration");
 		LanguageRegistry.instance().addStringLocalization("potion.insanity", "Insanity");
 		
 		GameRegistry.addSmelting(badWaterBottle.itemID, new ItemStack(ItemPotion.potion.itemID, 1, 0), 0.0F);
 		GameRegistry.addSmelting(saltWaterBottle.itemID, new ItemStack(ItemPotion.potion.itemID, 1, 0), 0.0F);
+		GameRegistry.addSmelting(coldWaterBottle.itemID, new ItemStack(ItemPotion.potion.itemID, 1, 0), 0.0F);
 		GameRegistry.addShapelessRecipe(new ItemStack(coldWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Item.snowball, 1));
+		GameRegistry.addShapelessRecipe(new ItemStack(badWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.dirt, 1));
+		GameRegistry.addShapelessRecipe(new ItemStack(saltWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.sand, 1));
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
 	
@@ -105,7 +120,7 @@ public class EnviroMine
         KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
 	
 		
-		System.out.println("Registering Handlers for EnviroMine");
+		EnviroMine.logger.log(Level.INFO, "Registering Handlers");
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}
@@ -113,5 +128,6 @@ public class EnviroMine
 	@EventHandler
 	public static void postInit(FMLPostInitializationEvent event)
 	{
+		proxy.postInit(event);
 	}
 }

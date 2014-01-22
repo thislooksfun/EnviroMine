@@ -2,8 +2,10 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
+import enviromine.trackers.BlockProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBed;
@@ -160,7 +162,7 @@ public class EM_PhysManager
         	waterLogged = chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining();
         }
         
-		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48)))
+		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y, z))))
 		{
 			if(EM_Settings.enableLandslide == false) { return; } // If Landslides Disable stop here
     		if(block.blockID == Block.dirt.blockID)
@@ -171,9 +173,25 @@ public class EM_PhysManager
 	    			{
 	    				for(int k = -1; k < 2; k++)
 	    				{
+	    					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+	    					{
+	    						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+	    						{
+	    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)).holdsOthers)
+	    							{
+	    								return;
+	    							}
+	    						} else if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)))
+	    						{
+	    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z)).holdsOthers)
+	    							{
+	    								return;
+	    							}
+	    						}
+	    					}
 	    					if(world.getBlockId(i + x, j + y, k + z) == Block.glowStone.blockID)
 	    					{
-	    						return;
+								return;
 	    					}
 	    				}
 	    			}
@@ -206,45 +224,59 @@ public class EM_PhysManager
     		int dropType = 0;
     		
     		boolean isCustom = false;
-    		Object[] blockProps = null;
+    		boolean defaultDrop = true;
+    		BlockProperties blockProps = null;
     		
-    		if(EM_Settings.blockProperties.containsKey(block.blockID))
+    		if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
     		{
-    			blockProps = EM_Settings.blockProperties.get(block.blockID);
-    			if((Integer)blockProps[1] == world.getBlockMetadata(x, y, z) || (Integer)blockProps[1] == -1)
+    			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
+    			{
+    				blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
+    			} else
+    			{
+    				blockProps = EM_Settings.blockProperties.get("" + block.blockID);
+    			}
+    			
+    			if(blockProps.meta == world.getBlockMetadata(x, y, z) || blockProps.meta == -1)
     			{
     				isCustom = true;
+    				defaultDrop = false;
     				
-        			if((Integer)blockProps[2] == 0)
+    				if(blockProps.dropID < 0)
+    				{
+        				dropType = 1;
+        				defaultDrop = true;
+        				dropNum = blockProps.dropNum;
+    				} else if(blockProps.dropID == 0)
         			{
         				dropType = 0;
         				dropBlock = 0;
         				dropMeta = 0;
         				dropNum = 0;
-        			} else if(Block.blocksList[(Integer)blockProps[2]] != null && (Integer)blockProps[4] <= 0)
+        			} else if(Block.blocksList[blockProps.dropID] != null && blockProps.dropNum <= 0)
         			{
         				dropType = 1;
-        				dropBlock = (Integer)blockProps[2];
-        				if((Integer)blockProps[3] <= -1)
+        				dropBlock = blockProps.dropID;
+        				if(blockProps.dropMeta <= -1)
         				{
         					dropMeta = -1;
         				} else
         				{
-        					dropMeta = (Integer)blockProps[3];
+        					dropMeta = blockProps.dropMeta;
         				}
         				dropNum = 0;
-        			} else if(Item.itemsList[(Integer)blockProps[2]] != null && (Integer)blockProps[4] > 0)
+        			} else if(Item.itemsList[blockProps.dropID] != null && blockProps.dropNum > 0)
         			{
         				dropType = 2;
-        				dropBlock = (Integer)blockProps[2];
-        				if((Integer)blockProps[3] <= -1)
+        				dropBlock = blockProps.dropID;
+        				if(blockProps.dropMeta <= -1)
         				{
         					dropMeta = -1;
         				} else
         				{
-        					dropMeta = (Integer)blockProps[3];
+        					dropMeta = blockProps.dropMeta;
         				}
-        				dropNum = (Integer)blockProps[4];
+        				dropNum = blockProps.dropNum;
         			} else
         			{
         				dropType = 0;
@@ -255,7 +287,7 @@ public class EM_PhysManager
     			}
     		}
     		
-			if(isCustom)
+			if(!defaultDrop)
 			{
 			} else if(dropBlock <= 0)
     		{
@@ -289,8 +321,8 @@ public class EM_PhysManager
     		
     		if(isCustom)
     		{
-    			minThreshold = (Integer)blockProps[8];
-    			maxThreshold = (Integer)blockProps[9];
+    			minThreshold = blockProps.minFall;
+    			maxThreshold = blockProps.maxFall;
     		} else if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian)
     		{
     			minThreshold = 22;
@@ -307,10 +339,26 @@ public class EM_PhysManager
     		
     		for(int i = -1; i < 2; i++)
     		{
-    			for(int j = -1; j < 1; j++)
+    			for(int j = -1; j < 2; j++)
     			{
     				for(int k = -1; k < 2; k++)
     				{
+    					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+    					{
+    						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+    						{
+    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)).holdsOthers)
+    							{
+    								return;
+    							}
+    						} else if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)))
+    						{
+    							if(EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z)).holdsOthers)
+    							{
+    								return;
+    							}
+    						}
+    					}
     					if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i, j, k) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
     					{
         					missingBlocks++;
@@ -325,7 +373,7 @@ public class EM_PhysManager
     			}
     		}
     		
-    		missingBlocks += 9;
+    		//missingBlocks += 9;
     		
     		int dropChance = maxThreshold - missingBlocks;
     		
@@ -388,7 +436,7 @@ public class EM_PhysManager
     	        	world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
     	        	
     				EntityPhysicsBlock entityphysblock;
-    				if(isCustom && dropMeta != -1)
+    				if(isCustom && dropMeta > -1)
     				{
     					entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, dropMeta, false);
         			} else

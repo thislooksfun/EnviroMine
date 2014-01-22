@@ -2,7 +2,6 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 import enviromine.EnviroDamageSource;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -15,7 +14,6 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
@@ -39,21 +37,29 @@ public class EnviroDataTracker
 	public boolean isDisabled = false;
 	public int itemUse = 0;
 	
-	public int frostBiteTime = 0;
-	public boolean frozenHands = false;
-	public boolean frozenLegs = false;
+	public int frostbiteLevel = 0;
+	
+	public boolean brokenLeg = false;
+	public boolean brokenArm = false;
+	public boolean bleedingOut = false;
+	
+	public int timeBelow34 = 0;
+	
+	public int updateTimer = 0;
 	
 	public EnviroDataTracker(EntityLivingBase entity)
 	{
 		trackedEntity = entity;
 		airQuality = maxQuality;
-		bodyTemp = 20F;
+		bodyTemp = 37F;
 		hydration = 100F;
 		sanity = 100F;
 	}
 	
 	public void updateData()
 	{
+		updateTimer = 0;
+		
 		if(trackedEntity == null)
 		{
 			EM_StatusManager.removeTracker(this);
@@ -173,24 +179,38 @@ public class EnviroDataTracker
 			}
 		}
 		
-		if(trackedEntity.getHealth() <= 2F && sanity >= 1F)
+		if((trackedEntity.getHealth() <= 2F || bodyTemp <= 32F || bodyTemp >= 41F) && sanity >= 1F)
 		{
-			sanity -= 1F;
-		} else if(trackedEntity.getHealth() <= 2F && sanity <= 1F)
+			sanity -= 0.1F;
+		} else if((trackedEntity.getHealth() <= 2F || bodyTemp <= 32F || bodyTemp >= 41F) && sanity <= 1F)
 		{
 			sanity = 0F;
+		}
+		
+		if(bodyTemp <= 34F)
+		{
+			timeBelow34 += 1;
+		} else
+		{
+			timeBelow34 = 0;
 		}
 		
 		//Check for custom properties
 		boolean enableAirQ = true;
 		boolean enableBodyTemp = true;
-		boolean enablHydrate = true;
-		if(EM_Settings.livingProperties.containsKey(trackedEntity.getClass().getSimpleName()))
+		boolean enableHydrate = true;
+		boolean enableFrostbite = true;
+		boolean enableHeat = true;
+		if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(trackedEntity)))
 		{
-			Object[] livingProps = EM_Settings.livingProperties.get(trackedEntity.getClass().getSimpleName());
-			enablHydrate = (Boolean)livingProps[1];
-			enableBodyTemp = (Boolean)livingProps[2];
-			enableAirQ = (Boolean)livingProps[3];
+			EntityProperties livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(trackedEntity));
+			enableHydrate = livingProps.dehydration;
+			enableBodyTemp = livingProps.bodyTemp;
+			enableAirQ = livingProps.airQ;
+			enableFrostbite = !livingProps.immuneToFrost;
+		} else if((trackedEntity instanceof EntitySheep) || (trackedEntity instanceof EntityWolf))
+		{
+			enableFrostbite = false;
 		}
 		
 		//Reset Disabled Values
@@ -200,9 +220,9 @@ public class EnviroDataTracker
 		}
 		if(!EM_Settings.enableBodyTemp || !enableBodyTemp)
 		{
-			bodyTemp = 20F;
+			bodyTemp = 37F;
 		}
-		if(!EM_Settings.enableHydrate || !enablHydrate)
+		if(!EM_Settings.enableHydrate || !enableHydrate)
 		{
 			hydration = 100F;
 		}
@@ -223,9 +243,9 @@ public class EnviroDataTracker
 					plate.setItemDamage(plate.getItemDamage() + 1);
 					hydration += 1F;
 					
-					if(bodyTemp >= 21F)
+					if(bodyTemp >= 37.1F)
 					{
-						bodyTemp -= 1F;
+						bodyTemp -= 0.1F;
 					}
 				}
 			}
@@ -242,14 +262,52 @@ public class EnviroDataTracker
 				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 2.0F);
 			}
 			
-			if(bodyTemp <= -5F && !(trackedEntity instanceof EntitySheep) && !(trackedEntity instanceof EntityWolf))
+			if(bodyTemp >= 39F && enableHeat)
 			{
-				if(bodyTemp <= -10F)
+				if(bodyTemp >= 43F)
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 2));
+				} else if(bodyTemp >= 41F)
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 1));
+				} else
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 0));
+				}
+			}
+			
+			if(bodyTemp <= 35F && enableFrostbite)
+			{
+				if(bodyTemp <= 30F)
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.hypothermia.id, 200, 2));
+				} else if(bodyTemp <= 32F)
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.hypothermia.id, 200, 1));
+				} else
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.hypothermia.id, 200, 0));
+				}
+			}
+			
+			if(((airTemp <= 10F && timeBelow34 >= 60 && enableFrostbite) || frostbiteLevel >= 1))
+			{
+				if(timeBelow34 >= 120 || frostbiteLevel >= 2)
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.frostbite.id, 200, 1));
+					
+					if(frostbiteLevel <= 2)
+					{
+						frostbiteLevel = 2;
+					}
 				} else
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.frostbite.id, 200, 0));
+					
+					if(frostbiteLevel <= 1)
+					{
+						frostbiteLevel = 1;
+					}
 				}
 			}
 			
@@ -288,7 +346,8 @@ public class EnviroDataTracker
 	public void fixFloatinfPointErrors()
 	{
 		airQuality = new BigDecimal(String.valueOf(airQuality)).setScale(2, RoundingMode.HALF_UP).floatValue();
-		bodyTemp = new BigDecimal(String.valueOf(bodyTemp)).setScale(2, RoundingMode.HALF_UP).floatValue();
+		bodyTemp = new BigDecimal(String.valueOf(bodyTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
+		airTemp = new BigDecimal(String.valueOf(airTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
 		hydration = new BigDecimal(String.valueOf(hydration)).setScale(2, RoundingMode.HALF_UP).floatValue();
 		sanity = new BigDecimal(String.valueOf(sanity)).setScale(2, RoundingMode.HALF_UP).floatValue();
 	}
@@ -296,6 +355,11 @@ public class EnviroDataTracker
 	public static boolean isLegalType(EntityLivingBase entity)
 	{
 		String name = EntityList.getEntityString(entity);
+		
+		if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(entity)))
+		{
+			return EM_Settings.livingProperties.get(EntityList.getEntityString(entity)).shouldTrack;
+		}
 		
 		if(entity.isEntityUndead() || entity instanceof EntityMob)
 		{

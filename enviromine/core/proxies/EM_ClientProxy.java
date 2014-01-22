@@ -2,6 +2,9 @@ package enviromine.core.proxies;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import enviromine.gui.EM_GuiEnviroMeters;
@@ -42,4 +45,19 @@ public class EM_ClientProxy extends EM_CommonProxy
 		super.registerEventHandlers();
 		MinecraftForge.EVENT_BUS.register(new EM_GuiEnviroMeters(Minecraft.getMinecraft()));
     }
+	
+	public void preInit(FMLPreInitializationEvent event)
+	{
+		super.preInit(event);
+	}
+	
+	public void init(FMLInitializationEvent event)
+	{
+		super.init(event);
+	}
+	
+	public void postInit(FMLPostInitializationEvent event)
+	{
+		super.postInit(event);
+	}
 }

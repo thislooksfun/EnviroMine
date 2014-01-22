@@ -16,6 +16,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class EnviroPotion extends Potion
 {
+	public static EnviroPotion hypothermia;
+	public static EnviroPotion heatstroke;
 	public static EnviroPotion frostbite;
 	public static EnviroPotion dehydration;
 	public static EnviroPotion insanity;
@@ -34,13 +36,78 @@ public class EnviroPotion extends Potion
 			return;
 		}
 		
+		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(entityLiving);
+		
+		if(entityLiving.isPotionActive(heatstroke))
+		{
+			if(entityLiving.getActivePotionEffect(heatstroke).duration == 0)
+			{
+				entityLiving.removePotionEffect(heatstroke.id);
+			}
+			
+			PotionEffect effect = entityLiving.getActivePotionEffect(heatstroke);
+			
+			if(effect.getAmplifier() >= 2 && entityLiving.getRNG().nextInt(10) == 0)
+			{
+				entityLiving.attackEntityFrom(EnviroDamageSource.heatstroke, 2.0F);
+			}
+			
+			if(effect.getAmplifier() >= 1)
+			{
+				entityLiving.addPotionEffect(new PotionEffect(Potion.weakness.id, 200, 0));
+				entityLiving.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 200, 0));
+				entityLiving.addPotionEffect(new PotionEffect(Potion.hunger.id, 200, 0));
+				
+				if(entityLiving.getRNG().nextInt(10) == 0)
+				{
+					entityLiving.addPotionEffect(new PotionEffect(Potion.confusion.id, 200, 0));
+				}
+			}
+		}
+		
+		if(entityLiving.isPotionActive(hypothermia))
+		{
+			if(entityLiving.getActivePotionEffect(hypothermia).duration == 0)
+			{
+				entityLiving.removePotionEffect(hypothermia.id);
+			}
+			
+			PotionEffect effect = entityLiving.getActivePotionEffect(hypothermia);
+			
+			if(effect.getAmplifier() >= 2 && entityLiving.getRNG().nextInt(10) == 0)
+			{
+				entityLiving.attackEntityFrom(EnviroDamageSource.organfailure, 2.0F);
+			}
+			
+			if(effect.getAmplifier() >= 1)
+			{
+				entityLiving.addPotionEffect(new PotionEffect(Potion.weakness.id, 200, 0));
+				entityLiving.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 200, 0));
+			}
+		}
 		if(entityLiving.isPotionActive(frostbite))
 		{
 			if(entityLiving.getActivePotionEffect(frostbite).duration == 0)
 			{
 				entityLiving.removePotionEffect(frostbite.id);
 			}
-			entityLiving.attackEntityFrom(EnviroDamageSource.frostbite, 2.0F + (entityLiving.getActivePotionEffect(frostbite).getAmplifier() * 1.0F));
+			
+			if(entityLiving.getRNG().nextInt(10) == 0 && entityLiving.getActivePotionEffect(frostbite).getAmplifier() >= 2)
+			{
+				entityLiving.attackEntityFrom(EnviroDamageSource.frostbite, 2.0F);
+			}
+			
+			if(entityLiving.getHeldItem() != null)
+			{
+				if(entityLiving.getActivePotionEffect(EnviroPotion.frostbite) != null)
+				{
+					if(entityLiving.getRNG().nextInt(20) == 0)
+					{
+						entityLiving.dropItem(entityLiving.getHeldItem().itemID, entityLiving.getHeldItem().stackSize);
+						entityLiving.setCurrentItemOrArmor(0, null);
+					}
+				}
+			}
 		}
 		if(entityLiving.isPotionActive(dehydration.id))
 		{
@@ -48,8 +115,6 @@ public class EnviroPotion extends Potion
 			{
 				entityLiving.removePotionEffect(dehydration.id);
 			}
-			
-			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(entityLiving);
 			
 			if(tracker != null)
 			{
@@ -64,25 +129,18 @@ public class EnviroPotion extends Potion
 				entityLiving.removePotionEffect(insanity.id);
 			}
 			
-			if(entityLiving.getRNG().nextInt(50) == 0)
-			{
-				if(effect.getAmplifier() >= 2)
-				{
-					entityLiving.addPotionEffect(new PotionEffect(Potion.blindness.id, 100));
-				}
-			}
+			int chance = 50 / (effect.getAmplifier() + 1);
 			
-			if(entityLiving.getRNG().nextInt(50) == 0)
+			if(entityLiving.getRNG().nextInt(chance) == 0)
 			{
 				if(effect.getAmplifier() >= 1)
 				{
 					entityLiving.addPotionEffect(new PotionEffect(Potion.confusion.id, 200));
-					entityLiving.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 200));
 				}
 			}
 			
 			String sound = "";
-			if(entityLiving.getRNG().nextInt(50) == 0 && entityLiving instanceof EntityPlayer)
+			if(entityLiving.getRNG().nextInt(chance) == 0 && entityLiving instanceof EntityPlayer)
 			{
 				switch(entityLiving.getRNG().nextInt(10))
 				{

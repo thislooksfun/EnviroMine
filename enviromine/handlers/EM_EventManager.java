@@ -1,5 +1,7 @@
 package enviromine.handlers;
 
+import java.util.UUID;
+
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -10,6 +12,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeInstance;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityZombie;
@@ -23,6 +28,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -35,10 +41,10 @@ import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
-import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
@@ -154,16 +160,16 @@ public class EM_EventManager
 				{
 					fillBottle(event.entityPlayer.worldObj, event.entityPlayer, event.x, event.y, event.z, item, event);
 				}
-			} else if(item.getItem() == null && !event.entityPlayer.worldObj.isRemote)
+			}
+		} else if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_BLOCK && item == null)
+		{
+			if(!event.entityPlayer.worldObj.isRemote)
 			{
 				drinkWater(event.entityPlayer, event);
 			}
 		} else if(event.getResult() != Result.DENY && event.action == Action.LEFT_CLICK_BLOCK)
 		{
 			EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, event.x, event.y, event.z, true, false);
-		} else if(event.getResult() != Result.DENY && event.action != Action.LEFT_CLICK_BLOCK && item == null && !event.entityPlayer.worldObj.isRemote)
-		{
-			drinkWater(event.entityPlayer, event);
 		} else if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_AIR && item != null)
 		{
 			if(item.getItem() instanceof ItemGlassBottle && !event.entityPlayer.worldObj.isRemote)
@@ -276,6 +282,21 @@ public class EM_EventManager
                 int j = mop.blockY;
                 int k = mop.blockZ;
                 
+                int[] hitBlock = getAdjacentBlockCoordsFromSide(i, j, k, mop.sideHit);
+                
+                int x = hitBlock[0];
+                int y = hitBlock[1];
+                int z = hitBlock[2];
+                
+                if(entityPlayer.worldObj.getBlockMaterial(i, j, k) != Material.water && entityPlayer.worldObj.getBlockMaterial(x, y, z) == Material.water)
+                {
+                	i = x;
+                	j = y;
+                	k = z;
+                }
+                
+                System.out.println("Found block " + Block.blocksList[entityPlayer.worldObj.getBlockId(i, j, k)].getLocalizedName());
+                
                 boolean isValidCauldron = (entityPlayer.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && entityPlayer.worldObj.getBlockMetadata(i, j, k) > 0);
                 
 				if(entityPlayer.worldObj.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)
@@ -285,9 +306,9 @@ public class EM_EventManager
 						int type = getWaterType(entityPlayer.worldObj, i, j, k);
 						if(type == 0)
 						{
-							if(tracker.bodyTemp >= 21)
+							if(tracker.bodyTemp >= 37.05F)
 							{
-								tracker.bodyTemp -= 1;
+								tracker.bodyTemp -= 0.05;
 							}
 							tracker.hydrate(10F);
 						} else if(type == 1)
@@ -310,9 +331,9 @@ public class EM_EventManager
 							tracker.hydrate(5F);
 						} else if(type == 3)
 						{
-							if(tracker.bodyTemp >= 5)
+							if(tracker.bodyTemp >= 20.1)
 							{
-								tracker.bodyTemp -= 5;
+								tracker.bodyTemp -= 0.1;
 							}
 							tracker.hydrate(10F);
 						}
@@ -353,7 +374,7 @@ public class EM_EventManager
 		}
 	}
 
-	public int[] getAdjacentBlockCoordsFromSide(int x, int y, int z, int side)
+	public static int[] getAdjacentBlockCoordsFromSide(int x, int y, int z, int side)
 	{
 		int[] coords = new int[3];
 		coords[0] = x;
@@ -422,6 +443,11 @@ public class EM_EventManager
 	@ForgeSubscribe
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
+		if(event.entityLiving.isDead)
+		{
+			return;
+		}
+		
 		if(event.entityLiving.worldObj.isRemote)
 		{
 			if(event.entityLiving.getRNG().nextInt(5) == 0)
@@ -450,10 +476,94 @@ public class EM_EventManager
 		if(event.entityLiving instanceof EntityPlayer)
 		{
 			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
+			
+			if(tracker == null)
+			{
+				return;
+			}
+			
+			EM_StatusManager.updateTracker(tracker);
+			UUID EM_FROST1_ID = EM_Settings.FROST1_UUID;
+			UUID EM_FROST2_ID = EM_Settings.FROST2_UUID;
+			UUID EM_FROST3_ID = EM_Settings.FROST3_UUID;
+			UUID EM_HEAT1_ID = EM_Settings.HEAT1_UUID;
+			
+			if(event.entityLiving.isPotionActive(EnviroPotion.heatstroke))
+			{
+				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+				AttributeModifier mod = new AttributeModifier(EM_HEAT1_ID, "EM_Heat", -0.25D, 2);
+				
+				if(mod != null && attribute.getModifier(mod.getID()) == null)
+				{
+					attribute.applyModifier(mod);
+				}
+			} else
+			{
+				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+				
+				if(attribute.getModifier(EM_HEAT1_ID) != null)
+				{
+					attribute.removeModifier(attribute.getModifier(EM_HEAT1_ID));
+				}
+			}
+			
+			if(event.entityLiving.isPotionActive(EnviroPotion.hypothermia) || event.entityLiving.isPotionActive(EnviroPotion.frostbite))
+			{
+				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+				AttributeModifier mod = new AttributeModifier(EM_FROST1_ID, "EM_Frost_Cold", -0.25D, 2);
+				String msg = "";
+				
+				if(event.entityLiving.isPotionActive(EnviroPotion.frostbite))
+				{
+					if(event.entityLiving.getActivePotionEffect(EnviroPotion.frostbite).getAmplifier() > 0)
+					{
+						mod = new AttributeModifier(EM_FROST3_ID, "EM_Frost_NOLEGS", -0.99D, 2);
+						
+						if(event.entityLiving instanceof EntityPlayer)
+						{
+							msg = "Your legs stiffen as they succumb to frostbite";
+						}
+					} else
+					{
+						mod = new AttributeModifier(EM_FROST2_ID, "EM_Frost_NOHANDS", -0.5D, 2);
+						
+						if(event.entityLiving instanceof EntityPlayer)
+						{
+							msg = "Your fingers start to feel numb and unresponsive";
+						}
+					}
+				}
+				if(mod != null && attribute.getModifier(mod.getID()) == null)
+				{
+					attribute.applyModifier(mod);
+					
+					if(event.entityLiving instanceof EntityPlayer && mod.getID() != EM_FROST1_ID)
+					{
+						((EntityPlayer)event.entityLiving).sendChatToPlayer(ChatMessageComponent.createFromText(msg));
+					}
+				}
+			} else
+			{
+				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+				
+				if(attribute.getModifier(EM_FROST1_ID) != null)
+				{
+					attribute.removeModifier(attribute.getModifier(EM_FROST1_ID));
+				}
+				if(attribute.getModifier(EM_FROST2_ID) != null && tracker.frostbiteLevel < 1)
+				{
+					attribute.removeModifier(attribute.getModifier(EM_FROST2_ID));
+				}
+				if(attribute.getModifier(EM_FROST3_ID) != null && tracker.frostbiteLevel < 2)
+				{
+					attribute.removeModifier(attribute.getModifier(EM_FROST3_ID) );
+				}
+			}
+			
 			ItemStack item = null;
 			int itemUse = 0;
 			
-			if(((EntityPlayer)event.entityLiving).isPlayerSleeping())
+			if(((EntityPlayer)event.entityLiving).isPlayerSleeping() && tracker != null)
 			{
 				if(((EntityPlayer)event.entityLiving).isPlayerFullyAsleep())
 				{
@@ -495,9 +605,9 @@ public class EM_EventManager
 					itemUse = 0;
 					if(item.itemID == Item.potion.itemID)
 					{
-						if(tracker.bodyTemp >= 25F)
+						if(tracker.bodyTemp >= 37.05F)
 						{
-							tracker.bodyTemp -= 5F;
+							tracker.bodyTemp -= 0.05F;
 						}
 						tracker.hydrate(25.0F);
 					} else if(item.itemID == Item.melon.itemID || item.itemID == Item.carrot.itemID || item.itemID == Item.goldenCarrot.itemID || item.itemID == Item.appleRed.itemID)
@@ -510,7 +620,7 @@ public class EM_EventManager
 							tracker.hydration = 100F;
 							tracker.sanity = 100F;
 							tracker.airQuality = 100F;
-							tracker.bodyTemp = 20F;
+							tracker.bodyTemp = 37F;
 							if(!EnviroMine.proxy.isClient() || EnviroMine.proxy.isOpenToLAN())
 							{
 								EM_StatusManager.syncMultiplayerTracker(tracker);
@@ -522,9 +632,9 @@ public class EM_EventManager
 						}
 					} else if(item.itemID == Item.bowlSoup.itemID || item.itemID == Item.pumpkinPie.itemID)
 					{
-						if(tracker.bodyTemp <= 50F)
+						if(tracker.bodyTemp <= 40F)
 						{
-							tracker.bodyTemp += 1F;
+							tracker.bodyTemp += 0.05F;
 						}
 						tracker.hydrate(5F);
 					} else if(item.itemID == Item.bucketMilk.itemID)
@@ -532,9 +642,9 @@ public class EM_EventManager
 						tracker.hydrate(10F);
 					} else if(item.itemID == Item.porkCooked.itemID || item.itemID == Item.beefCooked.itemID || item.itemID == Item.chickenCooked.itemID || item.itemID == Item.bakedPotato.itemID)
 					{
-						if(tracker.bodyTemp <= 50F)
+						if(tracker.bodyTemp <= 40F)
 						{
-							tracker.bodyTemp += 1F;
+							tracker.bodyTemp += 0.05F;
 						}
 						if(!EnviroMine.proxy.isClient() || EnviroMine.proxy.isOpenToLAN())
 						{
@@ -548,6 +658,18 @@ public class EM_EventManager
 						tracker.dehydrate(5F);
 					}
 				}
+			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onJump(LivingJumpEvent event)
+	{
+		if(event.entityLiving.isPotionActive(EnviroPotion.frostbite))
+		{
+			if(event.entityLiving.getActivePotionEffect(EnviroPotion.frostbite).getAmplifier() > 0)
+			{
+				event.entityLiving.motionY = 0;
 			}
 		}
 	}

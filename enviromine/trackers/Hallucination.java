@@ -2,7 +2,6 @@ package enviromine.trackers;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 import enviromine.core.EnviroMine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityCreature;
@@ -12,7 +11,6 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.EnumSkyBlock;
 
@@ -78,7 +76,6 @@ public class Hallucination
 			return;
 		}
 		list.add(this);
-		System.out.println("Spawning hallucination at " + x + ", " + y + ", " + z);
 		
 		if(EnviroMine.proxy.isClient())
 		{

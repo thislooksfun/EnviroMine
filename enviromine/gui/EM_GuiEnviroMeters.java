@@ -1,7 +1,5 @@
 package enviromine.gui;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.nio.ByteOrder;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
@@ -79,7 +77,7 @@ public class EM_GuiEnviroMeters extends Gui
 		if(tracker == null)
 		{
 			Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
-			tracker = EM_StatusManager.lookupPlayerTrackerFromName(this.mc.thePlayer.username);
+			tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
 		} else if(tracker.isDisabled)
 		{
 			tracker = null;
@@ -353,14 +351,34 @@ public class EM_GuiEnviroMeters extends Gui
 			
 
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
+
 			
 			// Screen Overlays FX Screen
 			if(tracker.bodyTemp <= 0F)
+
+			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/new_ui.png"));
+            
+			if(tracker.bodyTemp >= 39)
 			{
-				int grad = (int)(Math.abs(tracker.bodyTemp)/10 * 64);
-				if(tracker.bodyTemp <= -10F)
+				int grad = 0;
+				if(tracker.bodyTemp >= 41F)
 				{
 					grad = 64;
+				} else
+				{
+					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39))/3)) * 96);
+				}
+				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(255, 255, 255, grad), getColorFromRGBA(255, 255, 255, grad));
+			} 
+			else if(tracker.bodyTemp <= 35F)
+			{
+				int grad = 0;
+				if(tracker.bodyTemp <= 32F)
+				{
+					grad = 64;
+				} else
+				{
+					grad = (int)(((Math.abs(3 - (tracker.bodyTemp - 32))/3)) * 64);
 				}
 				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(125, 255, 255, grad), getColorFromRGBA(125, 255, 255, grad));
 			} else if(tracker.airQuality < 50F)
