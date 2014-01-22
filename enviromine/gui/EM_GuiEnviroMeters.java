@@ -17,6 +17,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.ForgeSubscribe;
+import org.lwjgl.opengl.GL11;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import enviromine.core.EM_Settings;
+import enviromine.handlers.EM_StatusManager;
+import enviromine.trackers.EnviroDataTracker;
 
 public class EM_GuiEnviroMeters extends Gui
 {
@@ -29,6 +35,9 @@ public class EM_GuiEnviroMeters extends Gui
 	public static final int barWidth = 64;
 	public static final int textWidth = 32;
 	
+	private static int ticktimer = 1;
+	private static boolean blink = false;
+
 	public static EnviroDataTracker tracker = null;
 	
 	public EM_GuiEnviroMeters(Minecraft mc)
@@ -36,17 +45,28 @@ public class EM_GuiEnviroMeters extends Gui
 		this.mc = mc;
 	}
 	
-	
 	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
 	public void onGuiRender(RenderGameOverlayEvent event)
 	{
+		
 		
 		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCancelable())
 		{
 			return;
 		}
 
+				
+		
+		// count gui ticks
+		if (ticktimer >= 60) 
+		{
+			//System.out.println("Tick timer hit " +ticktimer);
+			blink = !blink; // blink for warning system 
+			ticktimer = 1; 
+		}
+		else ticktimer++;
+		
 		int xPos = 4;
 		int yPos = 4;
 		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
@@ -170,6 +190,7 @@ public class EM_GuiEnviroMeters extends Gui
 				int curMeterHeight = 0;
 				int curPosX = 0;
 				int curPosY = 0;
+				int frameborder = 4;
 				
 				if(EM_Settings.ShowText_actual == true) addTW = textWidth;
 				if(!(barTrue[i])) { if(i <= 2) i+=1; else break;}  	
@@ -246,7 +267,8 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(curPosX + sanityBar - 2, curPosY + 2, 28, 64, 4, 4);
 	
 					// sanity frame
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
+					if(blink && tracker.sanity < 25) frameborder = 5;
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 
 					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,SAcurY - 4, 32, 80, 14,14);
 				}
@@ -260,7 +282,8 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(curPosX + airBar - 2, curPosY + 2, 8, 64, 4, 4);
 		
 					// oxygen frame
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
+					if(blink && tracker.airQuality < 25) frameborder = 5;
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 			
 					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,AQcurY - 4, 46, 80, 14,14);
 					
@@ -276,8 +299,14 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
 					
 				    // water frame
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
-					if(EM_Settings.ShowGuiIcons_actual == true)  this.drawTexturedModalRect(iconPos ,WAcurY - 4, 18, 80, 14,14);
+					
+					if(blink && tracker.hydration < 25) frameborder = 5;
+					
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
+					if(EM_Settings.ShowGuiIcons_actual == true)  
+					{
+						this.drawTexturedModalRect(iconPos ,WAcurY - 4, 18, 80, 14,14);
+					}
 
 				}
 				// 3 = Heat Bar
@@ -291,7 +320,8 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(curPosX + heatBar - 2, curPosY + 2, 20, 64, 4, 4);
 					
 					// heat frame
-					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*4, meterWidth-32, meterHeight);
+					if(blink && tracker.bodyTemp < 35 || blink && tracker.bodyTemp > 39) frameborder = 5; 
+					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 
 					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,HTcurY - 4, 4, 80, 14,14);
 				}
