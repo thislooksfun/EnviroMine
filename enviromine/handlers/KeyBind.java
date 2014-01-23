@@ -52,6 +52,12 @@ public class KeyBind extends KeyHandler
 				Minecraft.getMinecraft().thePlayer.addChatMessage("Single player only function.");
 				return;
 			}
+			Minecraft mc = Minecraft.getMinecraft();
+			// prevents key press firing while gui screen or chat open, if that's what you want
+			// if you want your key to be able to close the gui screen, handle it outside this if statement
+			if (mc.currentScreen == null)
+			{
+
 			try
 			{
 				EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
@@ -90,7 +96,7 @@ public class KeyBind extends KeyHandler
 			{
 
 			}
-		
+			}
 		} 
 
 

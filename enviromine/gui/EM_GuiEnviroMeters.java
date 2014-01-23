@@ -338,7 +338,7 @@ public class EM_GuiEnviroMeters extends Gui
 				this.drawTexturedModalRect(SAcurX,SAcurY, 64, meterHeight*4, 32, meterHeight);
 			
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
-				if(EM_Settings.useFarenheit)
+				if(EM_Settings.useFarenheit == true)
 				{
 					Minecraft.getMinecraft().fontRenderer.drawString(((dispHeat * (9/5))+32F) + "F", HTcurX, HTcurY, 16777215);
 				} else
