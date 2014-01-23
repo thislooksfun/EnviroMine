@@ -57,6 +57,8 @@ public class EM_Settings
 		
     public static boolean ShowText_default = false;
     	public static boolean ShowText_actual = false;
+    public static boolean ShowDebug_default = true;
+    	public static boolean ShowDebug_actual;	
 	
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
@@ -123,6 +125,8 @@ public class EM_Settings
     	sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
     	oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. \\n Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
     	ShowText_actual = config.get(GuiSetCat, "Show Gui Text",  ShowText_default).getBoolean(ShowText_default);
+    	ShowDebug_actual = config.get(GuiSetCat, "Show Debugging Info",  ShowDebug_default).getBoolean(ShowDebug_default);
+    	
     	ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons",  ShowGuiIcons_default, "Show Hide Gui Text Display and Icons").getBoolean(ShowGuiIcons_default);
         
         //removed

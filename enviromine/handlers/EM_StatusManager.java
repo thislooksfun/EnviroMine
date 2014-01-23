@@ -1,10 +1,14 @@
 package enviromine.handlers;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.common.base.Stopwatch;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
@@ -134,8 +138,14 @@ public class EM_StatusManager
 		return trackerList.get(username);
 	}
 	
+	private static Stopwatch timer = new Stopwatch();
+	
 	public static float[] getSurroundingData(EntityLivingBase entityLiving, int range)
 	{
+
+		
+		timer.start();
+		
 		float[] data = new float[8];
 		
 		float sanityRate = 0;
@@ -630,16 +640,29 @@ public class EM_StatusManager
 		
 	    
 	    EM_GuiEnviroMeters.DB_nearLava = nearLava;
-	    EM_GuiEnviroMeters.DB_abientTemp = temp;
+	    EM_GuiEnviroMeters.DB_abientTemp = tempFin;
 	    EM_GuiEnviroMeters.DB_sanityrate = sanityRate/10;
 	    EM_GuiEnviroMeters.DB_airquality= quality;
 	    EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
 	    EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
 	    EM_GuiEnviroMeters.DB_cooling = cooling;
 	    EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
+	    EM_GuiEnviroMeters.DB_biomeName = biome.biomeName;
 	    
+	    timer.stop();
+	    EM_GuiEnviroMeters.DB_timer = timer.toString();
+	    timer.reset();
 		return data;
 	}
+	
+	public static float getBiomeTemprature(int x, int y,BiomeGenBase biome)
+	{
+		float temp = 0;
+		
+		return temp;
+		
+	}
+	
 	
 	public static void removeTracker(EnviroDataTracker tracker)
 	{
