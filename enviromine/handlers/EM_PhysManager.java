@@ -68,7 +68,7 @@ public class EM_PhysManager
 		
 		for(int i = -1; i <= 1; i++)
 		{
-			for(int j = -1; j <= 1; j++)
+			for(int j = 1; j >= -1; j--)
 			{
 				for(int k = -1; k <= 1; k++)
 				{
@@ -99,7 +99,7 @@ public class EM_PhysManager
 		
 		for(int i = -1; i <= 1; i++)
 		{
-			for(int j = -1; j <= 1; j++)
+			for(int j = 1; j >= -1; j--)
 			{
 				for(int k = -1; k <= 1; k++)
 				{
@@ -169,7 +169,7 @@ public class EM_PhysManager
     		{
 	    		for(int i = -1; i < 2; i++)
 	    		{
-	    			for(int j = -1; j < 1; j++)
+	    			for(int j = -1; j < 2; j++)
 	    			{
 	    				for(int k = -1; k < 2; k++)
 	    				{
@@ -318,28 +318,33 @@ public class EM_PhysManager
     		int minThreshold = 10;
     		int maxThreshold = 15;
     		int supportDist = 1;
+    		int yMax = 1;
     		
     		if(isCustom)
     		{
     			minThreshold = blockProps.minFall;
     			maxThreshold = blockProps.maxFall;
-    		} else if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian)
+    			supportDist = blockProps.supportDist;
+        		yMax = 2;
+    		} else if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian || block.blockID == Block.stoneBrick.blockID || block.blockID == Block.brick.blockID || block.blockID == Block.blockNetherQuartz.blockID || block instanceof BlockLeaves)
     		{
     			minThreshold = 22;
     			maxThreshold = 25;
-        		supportDist = 5;
-    		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block instanceof BlockIce || block instanceof BlockLeaves)
+        		supportDist = 3;
+        		yMax = 2;
+    		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice)
     		{
         		minThreshold = 15;
         		maxThreshold = 22;
-        		supportDist = 3;
+        		supportDist = 2;
+        		yMax = 1;
     		}
     		
     		int missingBlocks = 0;
     		
     		for(int i = -1; i < 2; i++)
     		{
-    			for(int j = -1; j < 2; j++)
+    			for(int j = -1; j < yMax; j++)
     			{
     				for(int k = -1; k < 2; k++)
     				{
@@ -359,7 +364,10 @@ public class EM_PhysManager
     							}
     						}
     					}
-    					if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i, j, k) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
+    					if(world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(i + x, j + y, k + z, i + x + 1, j + y + 1, k + z + 1)).size() > 0)
+    					{
+        					missingBlocks++;
+    					} else if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
     					{
         					missingBlocks++;
     					} else if(i == 0 && j == 1 && k == 0 && (block.blockMaterial == Material.rock || block.blockMaterial == Material.ground))
@@ -373,7 +381,10 @@ public class EM_PhysManager
     			}
     		}
     		
-    		//missingBlocks += 9;
+    		if(yMax == 1)
+    		{
+    			missingBlocks += 9;
+    		}
     		
     		int dropChance = maxThreshold - missingBlocks;
     		
@@ -406,7 +417,11 @@ public class EM_PhysManager
     	        			block.dropBlockAsItem(world, x, y, z, block.getDamageValue(world, x, y, z),1);
     	        		}
     	        		world.setBlock(x, y, z, 0);
-        				schedulePhysUpdate(world, x, y, z, false, true);
+        				
+        				if(!(block.blockMaterial == Material.ice))
+        				{
+        					schedulePhysUpdate(world, x, y, z, false, true);
+        				}
     	        		return;
     	        	} else if(block.quantityDropped(world.rand) <= 0 || dropType == 0)
 	    	        {
@@ -419,7 +434,11 @@ public class EM_PhysManager
     	        		{
         	        		world.setBlock(x, y, z, 0);
     	        		}
-        				schedulePhysUpdate(world, x, y, z, false, true);
+        				
+        				if(!(block.blockMaterial == Material.ice))
+        				{
+        					schedulePhysUpdate(world, x, y, z, false, true);
+        				}
     	        		return;
     	        	} else if(block instanceof BlockOre || block instanceof BlockRedstoneOre)
     	        	{
@@ -445,7 +464,10 @@ public class EM_PhysManager
     				}
     				world.spawnEntityInWorld(entityphysblock);
     				
-    				schedulePhysUpdate(world, x, y, z, false, true);
+    				if(!(block.blockMaterial == Material.ice))
+    				{
+    					schedulePhysUpdate(world, x, y, z, false, true);
+    				}
 
     			} else if(!world.isRemote && missingBlocks > minThreshold)
         		{
@@ -471,7 +493,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -481,7 +503,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -507,7 +529,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -517,7 +539,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -543,7 +565,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -553,7 +575,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				continue;
 	    			} else
@@ -579,7 +601,7 @@ public class EM_PhysManager
     		{
     			if(j == y)
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				cancel = true;
 	    				break;
@@ -589,7 +611,7 @@ public class EM_PhysManager
 	    			}
     			} else
     			{
-	    			if(blockNotSolid(world, i, j, k) && world.getBlockMaterial(i, j, k) != Material.leaves)
+	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
 	    			{
 	    				continue;
 	    			} else

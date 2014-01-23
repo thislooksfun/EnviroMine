@@ -53,9 +53,9 @@ public class EnviroItemBadWaterBottle extends Item
         	
         	if(tracker != null)
         	{
-				if(tracker.bodyTemp > 30F)
+				if(tracker.bodyTemp > 37.05F)
 				{
-					tracker.bodyTemp -= 5F;
+					tracker.bodyTemp -= 0.05F;
 				}
         		tracker.hydrate(25F);
         	}

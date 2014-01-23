@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -16,6 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -140,8 +142,8 @@ public class EM_StatusManager
 		float quality = 0;
 		int leaves = 0;
 		
-		float dropSpeed = 0.002F;
-		float riseSpeed = 0.002F;
+		float dropSpeed = 0.001F;
+		float riseSpeed = 0.001F;
 		
 		float temp = -999F;
 		float cooling = 0;
@@ -374,7 +376,7 @@ public class EM_StatusManager
 		if(entityLiving.worldObj.isRaining() && entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && biome.rainfall != 0.0F)
 		{
 			bTemp -= 10F;
-			dropSpeed = 0.05F;
+			dropSpeed = 0.005F;
 			animalHostility = -1;
 		}
 		
@@ -406,9 +408,12 @@ public class EM_StatusManager
 		{
 			if(biome.getEnableSnow())
 			{
-				temp -= 10F;
+				bTemp -= 10F;
+			} else
+			{
+				bTemp -= 5F;
 			}
-			dropSpeed = 0.1F;
+			dropSpeed = 0.01F;
 		}
 		
 		List mobList = entityLiving.worldObj.getEntitiesWithinAABBExcludingEntity(entityLiving, AxisAlignedBB.getBoundingBox(entityLiving.posX - 2, entityLiving.posY - 2, entityLiving.posZ - 2, entityLiving.posX + 3, entityLiving.posY + 3, entityLiving.posZ + 3));
@@ -431,6 +436,10 @@ public class EM_StatusManager
 			if(mobTrack != null)
 			{
 				avgEntityTemp += mobTrack.bodyTemp;
+				validEntities += 1;
+			} else if(!(mob instanceof EntityMob))
+			{
+				avgEntityTemp += 37F;
 				validEntities += 1;
 			} else
 			{
@@ -558,12 +567,18 @@ public class EM_StatusManager
 			bTemp += addTemp;
 		}
 		
+		float tempFin = 0F;
+		
 		if(temp > bTemp)
 		{
-			temp = (bTemp + temp) / 2;
+			tempFin = (bTemp + temp) / 2;
+			if(temp > (bTemp + 5F))
+			{
+				riseSpeed = 0.005F;
+			}
 		} else
 		{
-			temp = bTemp;
+			tempFin = bTemp;
 		}
 		
 		if(biome.biomeName == BiomeGenBase.hell.biomeName || nearLava || biome.rainfall == 0.0F)
@@ -592,19 +607,19 @@ public class EM_StatusManager
 		
 		if(entityLiving.worldObj.getBlockId(i, j, k) == Block.lavaStill.blockID || entityLiving.worldObj.getBlockId(i, j, k) == Block.lavaMoving.blockID)
 		{
-			temp = 200F;
+			tempFin = 200F;
 			riseSpeed = 1.0F;
 		} else if(entityLiving.isBurning())
 		{
-			if(temp <= 75F)
+			if(tempFin <= 75F)
 			{
-				temp = 75;
+				tempFin = 75;
 			}
-			riseSpeed = 0.5F;
+			riseSpeed = 0.1F;
 		}
 		
 		data[0] = quality;
-		data[1] = temp;
+		data[1] = tempFin;
 		data[2] = unused;
 		data[3] = dehydrateBonus;
 		data[4] = dropSpeed;

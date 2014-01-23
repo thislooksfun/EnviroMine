@@ -308,10 +308,10 @@ public class EM_ConfigHandler
 		custom.addCustomCategoryComment(entityCat, "Custom Entities");		
 		*/
 		
-		ArmorDefaultSave(ItemArmor.helmetLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
-		ArmorDefaultSave(ItemArmor.plateLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
-		ArmorDefaultSave(ItemArmor.legsLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
-		ArmorDefaultSave(ItemArmor.bootsLeather.itemID	, 0.5F, 0.5F, 0.5F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.helmetLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.plateLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.legsLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F);
+		ArmorDefaultSave(ItemArmor.bootsLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F);
 		
 		ArmorDefaultSave(ItemArmor.helmetIron.itemID	, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
 		ArmorDefaultSave(ItemArmor.plateIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F);
@@ -323,10 +323,10 @@ public class EM_ConfigHandler
 		ArmorDefaultSave(ItemArmor.legsGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
 		ArmorDefaultSave(ItemArmor.bootsGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F);
 		
-		ArmorDefaultSave(ItemArmor.helmetDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
-		ArmorDefaultSave(ItemArmor.plateDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
-		ArmorDefaultSave(ItemArmor.legsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
-		ArmorDefaultSave(ItemArmor.bootsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 0.9F, 0.9F, 0.9F);
+		ArmorDefaultSave(ItemArmor.helmetDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F);
+		ArmorDefaultSave(ItemArmor.plateDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F);
+		ArmorDefaultSave(ItemArmor.legsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F);
+		ArmorDefaultSave(ItemArmor.bootsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F);
 		
 		//custom.save();	
 	}
