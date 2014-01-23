@@ -48,7 +48,7 @@ public class KeyBind extends KeyHandler
 
 		if(tickEnd)
 		{
-			if(!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) {
+			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null) {
 				Minecraft.getMinecraft().thePlayer.addChatMessage("Single player only function.");
 				return;
 			}

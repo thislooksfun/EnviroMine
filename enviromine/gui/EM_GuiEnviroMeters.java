@@ -29,6 +29,7 @@ public class EM_GuiEnviroMeters extends Gui
 	public static final int meterHeight = 8;
 	public static final int barWidth = 64;
 	public static final int textWidth = 32;
+	public static final int iconWidth = 16;
 	
 	private static int ticktimer = 1;
 	private static boolean blink = false;
@@ -141,13 +142,13 @@ public class EM_GuiEnviroMeters extends Gui
 			int Top_Right_X = (width - xPos) - barWidth;
 			int Top_Right_Y = yPos;
 			
-			int Top_Center_X = ((width/2) - xPos) - (barWidth/2);
+			int Top_Center_X = (width/2) - (barWidth/2);
 			int Top_Center_Y = yPos;
 			
-			int Bottom_Center_Left_X = ((width/2) - xPos) - (barWidth/2) - barWidth;
+			int Bottom_Center_Left_X = (width/2) - (barWidth/2) - barWidth;
 			int Bottom_Center_Left_Y = (height - yPos) - 50;
 			
-			int Bottom_Center_Right_X = ((width/2) - xPos) - (barWidth/2) + barWidth;
+			int Bottom_Center_Right_X = (width/2) - (barWidth/2) + barWidth;
 			int Bottom_Center_Right_Y = (height - yPos) - 50;
 			
 			int Bottom_Left_X = xPos;
@@ -198,8 +199,8 @@ public class EM_GuiEnviroMeters extends Gui
 								curMeterHeight = meterHeight * TL;
 								curPosX  = Top_Left_X;
 								curPosY = Top_Left_Y + curMeterHeight;
-								textPos = Top_Left_X + (textWidth*2);
-								iconPos = textPos + addTW;
+								textPos = Top_Left_X + barWidth;
+								iconPos = textPos + textWidth;
 							break;
 					
 					case "top_right":	TR += 2;
@@ -207,23 +208,23 @@ public class EM_GuiEnviroMeters extends Gui
 								curPosX = Top_Right_X;
 								curPosY = Top_Right_Y + curMeterHeight;
 								textPos = Top_Right_X - textWidth;
-								iconPos = Top_Right_X - textWidth/2 - addTW;
+								iconPos = textPos - iconWidth;
 							break;
 					
 					case "top_center": 	TC += 2;
 								curMeterHeight = meterHeight * TC;
 								curPosX = Top_Center_X;
 								curPosY =Top_Center_Y + curMeterHeight;
-								textPos = Top_Center_X + (textWidth*2);
-								iconPos = textPos + addTW;
+								textPos = Top_Center_X + barWidth;
+								iconPos = textPos + textWidth;
 							break;
 					
 					case "bottom_left":  BL += 2;
 								curMeterHeight = meterHeight * BL;
 								curPosX = Bottom_Left_X;
 								curPosY = Bottom_Left_Y - curMeterHeight;
-								textPos = Bottom_Left_X + (textWidth*2);
-								iconPos = textPos + addTW;
+								textPos = Bottom_Left_X + barWidth;
+								iconPos = textPos + textWidth;
 							break;
 					
 					case "bottom_right": BR += 2;
@@ -231,15 +232,15 @@ public class EM_GuiEnviroMeters extends Gui
 								curPosX = Bottom_Right_X;
 								curPosY = Bottom_Right_Y - curMeterHeight;
 								textPos = Bottom_Right_X - textWidth;
-								iconPos = Bottom_Right_X - textWidth/2 - addTW;
+								iconPos = textPos - iconWidth;
 							break;
 					
 					case "bottom_center_right": 	BCR += 2;
 								curMeterHeight = meterHeight * BCR;
 								curPosX = Bottom_Center_Right_X;
 								curPosY = Bottom_Center_Right_Y - curMeterHeight;
-								textPos = Bottom_Center_Right_X + (textWidth*2);
-								iconPos = textPos + addTW;
+								textPos = Bottom_Center_Right_X + barWidth;
+								iconPos = textPos + textWidth;
 							
 							break;
 					
@@ -247,8 +248,8 @@ public class EM_GuiEnviroMeters extends Gui
 								curMeterHeight = meterHeight * BCL;
 								curPosX = Bottom_Center_Left_X;
 								curPosY = Bottom_Center_Left_Y  - curMeterHeight;
-								textPos = Bottom_Center_Left_X - textWidth + 4;
-								iconPos = Bottom_Center_Left_X - textWidth/2 - addTW;
+								textPos = Bottom_Center_Left_X - textWidth;
+								iconPos = textPos - iconWidth;
 							break;
 					
 
@@ -267,7 +268,7 @@ public class EM_GuiEnviroMeters extends Gui
 					if(blink && tracker.sanity < 25) frameborder = 5;
 					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 
-					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,SAcurY - 4, 32, 80, 14,14);
+					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,SAcurY - 4, 32, 80, 16,16);
 				}
 				
 				// 1 = Air Quality Bar
@@ -282,7 +283,7 @@ public class EM_GuiEnviroMeters extends Gui
 					if(blink && tracker.airQuality < 25) frameborder = 5;
 					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 			
-					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,AQcurY - 4, 46, 80, 14,14);
+					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,AQcurY - 4, 48, 80, 16,16);
 					
 				}
 				// 2 = Water Bar
@@ -302,7 +303,7 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 					if(EM_Settings.ShowGuiIcons_actual == true)  
 					{
-						this.drawTexturedModalRect(iconPos ,WAcurY - 4, 18, 80, 14,14);
+						this.drawTexturedModalRect(iconPos ,WAcurY - 4, 16, 80, 16,16);
 					}
 
 				}
@@ -320,7 +321,7 @@ public class EM_GuiEnviroMeters extends Gui
 					if(blink && tracker.bodyTemp < 35 || blink && tracker.bodyTemp > 39) frameborder = 5; 
 					this.drawTexturedModalRect(curPosX,curPosY, 0, meterHeight*frameborder, meterWidth-32, meterHeight);
 
-					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,HTcurY - 4, 4, 80, 14,14);
+					if(EM_Settings.ShowGuiIcons_actual == true) this.drawTexturedModalRect(iconPos ,HTcurY - 4, 0, 80, 16,16);
 				}
 				
 					
@@ -331,10 +332,10 @@ public class EM_GuiEnviroMeters extends Gui
 			// Display Debugging Text
 			if(EM_Settings.ShowText_actual == true)
 			{
-				this.drawTexturedModalRect(AQcurX,AQcurY, 63, meterHeight*4, 33, meterHeight);
-				this.drawTexturedModalRect(HTcurX,HTcurY, 63, meterHeight*4, 33, meterHeight);
-				this.drawTexturedModalRect(WAcurX,WAcurY, 63, meterHeight*4, 33, meterHeight);
-				this.drawTexturedModalRect(SAcurX,SAcurY, 63, meterHeight*4, 33, meterHeight);
+				this.drawTexturedModalRect(AQcurX,AQcurY, 64, meterHeight*4, 32, meterHeight);
+				this.drawTexturedModalRect(HTcurX,HTcurY, 64, meterHeight*4, 32, meterHeight);
+				this.drawTexturedModalRect(WAcurX,WAcurY, 64, meterHeight*4, 32, meterHeight);
+				this.drawTexturedModalRect(SAcurX,SAcurY, 64, meterHeight*4, 32, meterHeight);
 			
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
 				if(EM_Settings.useFarenheit)
