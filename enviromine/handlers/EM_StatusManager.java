@@ -9,6 +9,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
+import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EnviroDataTracker;
@@ -611,6 +612,17 @@ public class EM_StatusManager
 		data[5] = riseSpeed;
 		data[6] = animalHostility;
 		data[7] = sanityRate/10;
+		
+	    
+	    EM_GuiEnviroMeters.DB_nearLava = nearLava;
+	    EM_GuiEnviroMeters.DB_abientTemp = temp;
+	    EM_GuiEnviroMeters.DB_sanityrate = sanityRate/10;
+	    EM_GuiEnviroMeters.DB_airquality= quality;
+	    EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
+	    EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
+	    EM_GuiEnviroMeters.DB_cooling = cooling;
+	    EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
+	    
 		return data;
 	}
 	

@@ -350,12 +350,12 @@ public class EM_ConfigHandler
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.INFO, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
 			return;
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
-			System.out.println("FAILED TO LOAD CONFIGS!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.INFO, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
 			return;
 		}
 		
@@ -368,25 +368,31 @@ public class EM_ConfigHandler
 		if(type == "TILE")
 		{
 			String nameULCat = blockCat+"."+name + " " + (Integer) data[1];
-			config.addCustomCategoryComment((String) nameULCat, name);
-			config.get((String) nameULCat, "1.ID", (Integer) data[0]).getInt(0);
-			config.get((String) nameULCat, "2.MetaID", (Integer) data[1]).getInt(0);
-			config.get((String) nameULCat, "3.DropID",  (Integer) data[0]).getInt(0);
-			config.get((String) nameULCat, "4.DropMetaID", (Integer) data[1]).getInt(0);
-			config.get((String) nameULCat, "5.Temprature", 0.00).getDouble(0.00);     
-			config.get((String) nameULCat, "6.AirQuality", 0.00).getDouble(0.00);
-			config.get((String) nameULCat, "7.Stability", "loose").getString();
-			
+			config.addCustomCategoryComment(nameULCat, name);
+			config.get(nameULCat, "01.ID", (Integer) data[0]).getInt(0);
+			config.get(nameULCat, "02.EnablePhysics", false).getBoolean(false);
+			config.get(nameULCat, "03.MetaID", (Integer) data[1]).getInt(0);
+			config.get(nameULCat, "04.DropID",  (Integer) data[0]).getInt(0);
+			config.get(nameULCat, "05.DropMetaID", (Integer) data[1]).getInt(0);
+			config.get(nameULCat, "06.DropNumber", 0).getInt(0);
+			config.get(nameULCat, "07.EnableTemperature", false).getBoolean(false);
+			config.get(nameULCat, "08.Temprature", 0.00).getDouble(0.00); 
+			config.get(nameULCat, "09.AirQuality", 0.00).getDouble(0.00);
+			config.get(nameULCat, "10.Sanity", 0.00).getDouble(0.00);
+			config.get(nameULCat, "11.Stability", "loose").getString();
+			config.get(nameULCat, "12.Holds Other Blocks", false).getBoolean(false);
+
 		}else if (type == "ENTITY")
 		{
 			String nameEntityCat = entityCat +"."+name;
-			config.addCustomCategoryComment((String) nameEntityCat, "");
-			config.get((String) nameEntityCat, "1.Entity Name", name).toString();
-			config.get((String) nameEntityCat, "2.Enable Dehydration", true).getBoolean(true);
-			config.get((String) nameEntityCat, "3.Enable BodyTemp", true).getBoolean(true);
-			config.get((String) nameEntityCat, "4.Enable Air Quility", true).getBoolean(true);
-			config.get((String) nameEntityCat, "5.ImmuneToFrost", false).getBoolean(false); 
-			
+			config.addCustomCategoryComment(nameEntityCat, "");
+			config.get(nameEntityCat, "1.Entity Name", name).toString();
+			config.get(nameEntityCat, "2.Enable EnviroTracker", true).getBoolean(true);
+			config.get(nameEntityCat, "2.Enable Dehydration", true).getBoolean(true);
+			config.get(nameEntityCat, "3.Enable BodyTemp", true).getBoolean(true);
+			config.get(nameEntityCat, "4.Enable Air Quility", true).getBoolean(true);
+			config.get(nameEntityCat, "5.ImmuneToFrost", false).getBoolean(false); 
+		
 		}
 		
 		config.save();
