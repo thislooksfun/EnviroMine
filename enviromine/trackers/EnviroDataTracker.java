@@ -43,7 +43,7 @@ public class EnviroDataTracker
 	public boolean brokenArm = false;
 	public boolean bleedingOut = false;
 	
-	public int timeBelow34 = 0;
+	public int timeBelow10 = 0;
 	
 	public int updateTimer = 0;
 	
@@ -187,12 +187,12 @@ public class EnviroDataTracker
 			sanity = 0F;
 		}
 		
-		if(bodyTemp <= 34F)
+		if(bodyTemp <= 10F)
 		{
-			timeBelow34 += 1;
+			timeBelow10 += 1;
 		} else
 		{
-			timeBelow34 = 0;
+			timeBelow10 = 0;
 		}
 		
 		//Check for custom properties
@@ -290,9 +290,9 @@ public class EnviroDataTracker
 				}
 			}
 			
-			if(((airTemp <= 10F && timeBelow34 >= 60 && enableFrostbite) || frostbiteLevel >= 1))
+			if(((airTemp <= 10F && timeBelow10 >= 60 && enableFrostbite) || frostbiteLevel >= 1))
 			{
-				if(timeBelow34 >= 120 || frostbiteLevel >= 2)
+				if(timeBelow10 >= 120 || frostbiteLevel >= 2)
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.frostbite.id, 200, 1));
 					
@@ -489,7 +489,7 @@ public class EnviroDataTracker
 	public void resetData()
 	{
 		airQuality = maxQuality;
-		bodyTemp = 20F;
+		bodyTemp = 37F;
 		hydration = 100F;
 		sanity = 100F;
 	}

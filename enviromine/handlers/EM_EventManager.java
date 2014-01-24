@@ -320,6 +320,10 @@ public class EM_EventManager
 							{
 								entityPlayer.addPotionEffect(new PotionEffect(Potion.poison.id, 200));
 							}
+							if(tracker.bodyTemp >= 37.05)
+							{
+								tracker.bodyTemp -= 0.05;
+							}
 							tracker.hydrate(10F);
 						} else if(type == 2)
 						{
@@ -327,10 +331,14 @@ public class EM_EventManager
 							{
 								entityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600));
 							}
+							if(tracker.bodyTemp >= 37.05)
+							{
+								tracker.bodyTemp -= 0.05;
+							}
 							tracker.hydrate(5F);
 						} else if(type == 3)
 						{
-							if(tracker.bodyTemp >= 20.1)
+							if(tracker.bodyTemp >= 30.1)
 							{
 								tracker.bodyTemp -= 0.1;
 							}

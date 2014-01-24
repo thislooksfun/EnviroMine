@@ -44,9 +44,9 @@ public class EnviroItemColdWaterBottle extends Item
         	{
             	if(tracker.bodyTemp >= 0)
             	{
-            		if(tracker.bodyTemp >= 37.05)
+            		if(tracker.bodyTemp >= 30.1)
             		{
-            			tracker.bodyTemp -= 0.05F;
+            			tracker.bodyTemp -= 0.1F;
             		}
                 	tracker.hydrate(25F);
             	}
