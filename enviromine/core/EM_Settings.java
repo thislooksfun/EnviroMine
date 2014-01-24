@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
+import enviromine.trackers.ItemProperties;
 import net.minecraftforge.common.Configuration;
 
 public class EM_Settings
@@ -79,6 +80,7 @@ public class EM_Settings
 	public static HashMap<Integer,ArmorProperties> armorProperties = new HashMap<Integer,ArmorProperties>();
 	public static HashMap<String,BlockProperties> blockProperties = new HashMap<String,BlockProperties>();
 	public static HashMap<String,EntityProperties> livingProperties = new HashMap<String,EntityProperties>();
+	public static HashMap<String,ItemProperties> itemProperties = new HashMap<String,ItemProperties>();
     
 	public static void loadGeneralConfig(File file)
 	{

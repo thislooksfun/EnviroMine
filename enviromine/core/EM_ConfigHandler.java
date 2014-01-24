@@ -8,9 +8,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
+import enviromine.trackers.ItemProperties;
 import net.minecraft.item.ItemArmor;
 import net.minecraftforge.common.Configuration;
 
@@ -27,7 +29,6 @@ public class EM_ConfigHandler
 	static String blockCat = "blocks";
 	static String entityCat = "entity";
 	static String itemsCat = "items";
-	//static String foodCat = "food";
 	
 	public static void initConfig()
 	{
@@ -56,6 +57,7 @@ public class EM_ConfigHandler
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.armorProperties.size() + " armor properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.blockProperties.size() + " block properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.livingProperties.size() + " entity properties");
+		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.itemProperties.size() + " item properties");
 		
 		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
 	}
@@ -151,6 +153,7 @@ public class EM_ConfigHandler
 			config.addCustomCategoryComment(armorCat, "Custom armor properties");
 			config.addCustomCategoryComment(blockCat, "Custom block properties");
 			config.addCustomCategoryComment(entityCat, "Custom entity properties");
+			config.addCustomCategoryComment(itemsCat, "Custom item properties");
 			
 			// 	Grab all Categories in File
 			List<String> catagory = new ArrayList<String>();
@@ -181,6 +184,7 @@ public class EM_ConfigHandler
 						LoadArmorProperty(config, catagory.get(x));
 					} else if(parent.equals(itemsCat))
 					{
+						LoadItemProperty(config, catagory.get(x));
 					} else if(parent.equals(entityCat))
 					{
 						LoadLivingProperty(config, catagory.get(x));
@@ -193,6 +197,33 @@ public class EM_ConfigHandler
 			}
 			
 			config.save();
+		}
+	}
+	
+	private static void LoadItemProperty(Configuration config, String category)
+	{
+
+		config.addCustomCategoryComment(category, "");
+		int id = config.get(category, "01.ID", 0).getInt(0);
+		int meta = config.get(category, "02.MetaID", 0).getInt(0);
+		boolean enableTemp = config.get(category, "03.EnableTemperature", false).getBoolean(false);
+		float ambTemp = (float)config.get(category, "04.Ambient Temprature", 0.00).getDouble(0.00);
+		float ambAir = (float)config.get(category, "05.Ambient Air Quality", 0.00).getDouble(0.00);
+		float ambSanity = (float)config.get(category, "06.Ambient Sanity", 0.00).getDouble(0.00);
+		float ambHydration = (float)config.get(category, "07.Ambient Hydration", 0.00).getDouble(0.00);
+		float effTemp = (float)config.get(category, "08.Effect Temprature", 0.00).getDouble(0.00);
+		float effAir = (float)config.get(category, "09.Effect Air Quality", 0.00).getDouble(0.00);
+		float effSanity = (float)config.get(category, "10.Effect Sanity", 0.00).getDouble(0.00);
+		float effHydration = (float)config.get(category, "11.Effect Hydration", 0.00).getDouble(0.00);
+		
+		ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, ambHydration, effTemp, effAir, effSanity, effHydration);
+		
+		if(meta < 0)
+		{
+			EM_Settings.itemProperties.put("" + id, entry);
+		} else
+		{
+			EM_Settings.itemProperties.put("" + id + "," + meta, entry);
 		}
 	}
 	
