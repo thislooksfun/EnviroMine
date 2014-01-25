@@ -133,7 +133,7 @@ public class EnviroMine
 	@SideOnly(Side.CLIENT)
 	public static void registerKeyBindings(FMLInitializationEvent event)
 	{
-    	KeyBinding[] key = {new KeyBinding("EnviroMine Add Custom", Keyboard.KEY_G)};
+    	KeyBinding[] key = {new KeyBinding("EnviroMine Add/Remove Custom Object", Keyboard.KEY_J)};
         boolean[] repeat = {false};
         KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
 	}

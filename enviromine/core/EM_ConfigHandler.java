@@ -40,6 +40,8 @@ public class EM_ConfigHandler
 		
 		EnviroMine.logger.log(Level.INFO, "Loading configs");
 		
+		loadDefaultArmorProperties();
+		
 		// Now load Files from "Custom Objects"
 		File[] customFiles = GetFileList(customPath);
 		for(int i = 0; i < customFiles.length; i++)
@@ -48,7 +50,7 @@ public class EM_ConfigHandler
 		}
 		
 		// load defaults
-		loadDefaultArmorProperties();
+		
 		
 		// Load Main Config File And this will go though changes
 		File configFile = new File(configPath + "EnviroMine.cfg");
@@ -368,7 +370,7 @@ public class EM_ConfigHandler
 		EM_Settings.armorProperties.put(id, entry);
 	}
 	
-	public static void SaveMyCustom(String type, String name, Object[] data)
+	public static String SaveMyCustom(String type, String name, Object[] data)
 	{
 		
 		// Check to make sure this is a Data File Before Editing
@@ -382,15 +384,17 @@ public class EM_ConfigHandler
 		{
 			e.printStackTrace();
 			EnviroMine.logger.log(Level.INFO, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
-			return;
+			return "Failed to Open MyCustom.dat";
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
 			EnviroMine.logger.log(Level.INFO, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
-			return;
+			return "Failed to Open MyCustom.dat";
 		}
 		
 		config.load();
+		
+		String returnValue = "";
 		// Load Default Categories
 		config.addCustomCategoryComment(armorCat, "Add Custom Armor");
 		config.addCustomCategoryComment(blockCat, "Add Custom Blocks");
@@ -398,35 +402,104 @@ public class EM_ConfigHandler
 
 		if(type == "TILE")
 		{
-			String nameULCat = blockCat+"."+name + " " + (Integer) data[1];
-			config.addCustomCategoryComment(nameULCat, name);
-			config.get(nameULCat, "01.ID", (Integer) data[0]).getInt(0);
-			config.get(nameULCat, "02.EnablePhysics", false).getBoolean(false);
-			config.get(nameULCat, "03.MetaID", (Integer) data[1]).getInt(0);
-			config.get(nameULCat, "04.DropID",  (Integer) data[0]).getInt(0);
-			config.get(nameULCat, "05.DropMetaID", (Integer) data[1]).getInt(0);
-			config.get(nameULCat, "06.DropNumber", 0).getInt(0);
-			config.get(nameULCat, "07.EnableTemperature", false).getBoolean(false);
-			config.get(nameULCat, "08.Temprature", 0.00).getDouble(0.00); 
-			config.get(nameULCat, "09.AirQuality", 0.00).getDouble(0.00);
-			config.get(nameULCat, "10.Sanity", 0.00).getDouble(0.00);
-			config.get(nameULCat, "11.Stability", "loose").getString();
-			config.get(nameULCat, "12.Holds Other Blocks", false).getBoolean(false);
-
+			String nameULCat = blockCat+"."+name.toLowerCase() + " " + (Integer) data[1];
+			
+			if(config.hasCategory(nameULCat) == true) 
+			{
+					config.removeCategory(config.getCategory(nameULCat));
+			}
+			else
+			{
+				config.addCustomCategoryComment(nameULCat, name);
+				config.get(nameULCat, "01.ID", (Integer) data[0]).getInt(0);
+				config.get(nameULCat, "02.EnablePhysics", true).getBoolean(true);
+				config.get(nameULCat, "03.MetaID", (Integer) data[1]).getInt(0);
+				config.get(nameULCat, "04.DropID",  (Integer) data[0]).getInt(0);
+				config.get(nameULCat, "05.DropMetaID", (Integer) data[1]).getInt(0);
+				config.get(nameULCat, "06.DropNumber", 0).getInt(0);
+				config.get(nameULCat, "07.EnableTemperature", false).getBoolean(false);
+				config.get(nameULCat, "08.Temprature", 0.00).getDouble(0.00); 
+				config.get(nameULCat, "09.AirQuality", 0.00).getDouble(0.00);
+				config.get(nameULCat, "10.Sanity", 0.00).getDouble(0.00);
+				config.get(nameULCat, "11.Stability", "loose").getString();
+				config.get(nameULCat, "12.Holds Other Blocks", false).getBoolean(false);
+				returnValue = "Saved";
+			}
 		}else if (type == "ENTITY")
 		{
-			String nameEntityCat = entityCat +"."+name;
-			config.addCustomCategoryComment(nameEntityCat, "");
-			config.get(nameEntityCat, "1.Entity Name", name).toString();
-			config.get(nameEntityCat, "2.Enable EnviroTracker", true).getBoolean(true);
-			config.get(nameEntityCat, "2.Enable Dehydration", true).getBoolean(true);
-			config.get(nameEntityCat, "3.Enable BodyTemp", true).getBoolean(true);
-			config.get(nameEntityCat, "4.Enable Air Quility", true).getBoolean(true);
-			config.get(nameEntityCat, "5.ImmuneToFrost", false).getBoolean(false); 
+			
+			String nameEntityCat = entityCat +"."+name.toLowerCase();
+			
+			if(config.hasCategory(nameEntityCat) == true) 
+			{
+					config.removeCategory(config.getCategory(nameEntityCat));
+					returnValue = "Removed";
+			}
+			else
+			{
+				config.addCustomCategoryComment(nameEntityCat, "");
+				config.get(nameEntityCat, "1.Entity Name", name).toString();
+				config.get(nameEntityCat, "2.Enable EnviroTracker", true).getBoolean(true);
+				config.get(nameEntityCat, "2.Enable Dehydration", true).getBoolean(true);
+				config.get(nameEntityCat, "3.Enable BodyTemp", true).getBoolean(true);
+				config.get(nameEntityCat, "4.Enable Air Quility", true).getBoolean(true);
+				config.get(nameEntityCat, "5.ImmuneToFrost", false).getBoolean(false);
+				returnValue = "Saved";
+			}
 		
+		}else if (type == "ITEM")
+		{
+
+			String nameItemCat = itemsCat+ "." + name.toLowerCase();
+			
+			if(config.hasCategory(nameItemCat) == true) 
+			{
+					config.removeCategory(config.getCategory(nameItemCat));
+					returnValue = "Removed";
+			}
+			else
+			{
+				config.addCustomCategoryComment(nameItemCat, name);
+				config.get(nameItemCat, "01.ID", (Integer) data[0]).getInt(0);
+				config.get(nameItemCat, "02.MetaID", (Integer) data[1]).getInt(0);
+				config.get(nameItemCat, "03.EnableTemperature", false).getBoolean(false);
+				config.get(nameItemCat, "04.Ambient Temprature", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "05.Ambient Air Quality", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "06.Ambient Sanity", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "07.Ambient Hydration", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "08.Effect Temprature", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "09.Effect Air Quality", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "10.Effect Sanity", 0.00).getDouble(0.00);
+				config.get(nameItemCat, "11.Effect Hydration", 0.00).getDouble(0.00);
+				returnValue = "Saved";
+			}
+			
+		}else if (type == "ARMOR")
+		{
+			String nameArmorCat = armorCat + "." + name.toLowerCase();
+			
+			if(config.hasCategory(nameArmorCat) == true) 
+			{
+					config.removeCategory(config.getCategory(nameArmorCat));
+					returnValue = "Removed";
+			}
+			else
+			{
+				config.addCustomCategoryComment(nameArmorCat, name);
+				config.get(nameArmorCat, "1.ID", (Integer) data[0]).getInt(0);
+				config.get(nameArmorCat, "2.nightTemp", 0.00).getDouble(0);
+				config.get(nameArmorCat, "3.shadeTemp", 0.00).getDouble(0);
+				config.get(nameArmorCat, "4.sunTemp", -1.00).getDouble(0);
+				config.get(nameArmorCat, "5.nightMult", 1).getDouble(1);
+				config.get(nameArmorCat, "6.shadeMult", 1).getDouble(1);
+				config.get(nameArmorCat, "7.sunMult", 1).getDouble(1);
+				returnValue = "Saved";
+			}
 		}
+	
 		
 		config.save();
+		return returnValue;
 	}
 	
 	
