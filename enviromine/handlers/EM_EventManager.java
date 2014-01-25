@@ -8,6 +8,7 @@ import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.Hallucination;
+import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -610,7 +611,73 @@ public class EM_EventManager
 				if(itemUse >= Item.itemsList[item.itemID].getMaxItemUseDuration(item) - 1)
 				{
 					itemUse = 0;
-					if(item.itemID == Item.potion.itemID)
+					if((false) && EM_Settings.itemProperties.containsKey("" + item.itemID) || EM_Settings.itemProperties.containsKey("" + item.itemID + "" + item.getItemDamage()))
+					{
+						ItemProperties itemProps;
+						if(EM_Settings.itemProperties.containsKey("" + item.itemID + "" + item.getItemDamage()))
+						{
+							itemProps = EM_Settings.itemProperties.get("" + item.itemID + "" + item.getItemDamage());
+						} else
+						{
+							itemProps = EM_Settings.itemProperties.get("" + item.itemID);
+						}
+						
+						if(itemProps.effTemp > 0F)
+						{
+							if(tracker.bodyTemp + itemProps.effTemp > itemProps.effTempCap)
+							{
+								if(tracker.bodyTemp <= itemProps.effTempCap)
+								{
+									tracker.bodyTemp = itemProps.effTempCap;
+								}
+							} else
+							{
+								tracker.bodyTemp += itemProps.effTemp;
+							}
+						} else
+						{
+							if(tracker.bodyTemp + itemProps.effTemp < itemProps.effTempCap)
+							{
+								if(tracker.bodyTemp >= itemProps.effTempCap)
+								{
+									tracker.bodyTemp = itemProps.effTempCap;
+								}
+							} else
+							{
+								tracker.bodyTemp += itemProps.effTemp;
+							}
+						}
+						
+						if(tracker.sanity + itemProps.effSanity >= 100F)
+						{
+							tracker.sanity = 100F;
+						} else if(tracker.sanity + itemProps.effSanity <= 0F)
+						{
+							tracker.sanity = 0F;
+						} else
+						{
+							tracker.sanity += itemProps.effSanity;
+						}
+						
+						if(itemProps.effHydration > 0F)
+						{
+							tracker.hydrate(itemProps.effHydration);
+						} else if(itemProps.effHydration < 0F)
+						{
+							tracker.dehydrate(itemProps.effHydration);
+						}
+						
+						if(tracker.airQuality + itemProps.effAir >= 100F)
+						{
+							tracker.airQuality = 100F;
+						} else if(tracker.airQuality + itemProps.effAir <= 0F)
+						{
+							tracker.airQuality = 0F;
+						} else
+						{
+							tracker.airQuality += itemProps.effAir;
+						}
+					} else if(item.itemID == Item.potion.itemID)
 					{
 						if(tracker.bodyTemp >= 37.05F)
 						{
