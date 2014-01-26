@@ -69,9 +69,9 @@ public class EM_EventManager
 			if(EnviroDataTracker.isLegalType((EntityLivingBase)event.entity))
 			{
 				// If Not tracking mob/animals and not a player than stop
-				if(!(event.entity instanceof EntityPlayer) && EM_Settings.trackNonPlayer_actual == false)	
-				{ 
-					return; 
+				if(!(event.entity instanceof EntityPlayer) && EM_Settings.trackNonPlayer_actual == false)
+				{
+					return;
 				}
 				
 				EnviroDataTracker emTrack = new EnviroDataTracker((EntityLivingBase)event.entity);
@@ -182,94 +182,93 @@ public class EM_EventManager
 			}
 		}
 	}
-
+	
 	public static void fillBottle(World world, EntityPlayer player, int x, int y, int z, ItemStack item, PlayerInteractEvent event)
 	{
-        MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(world, player, true);
-
-        if (movingobjectposition == null)
-        {
-            return;
-        }
-        else
-        {
-            if (movingobjectposition.typeOfHit == EnumMovingObjectType.TILE)
-            {
-                int i = movingobjectposition.blockX;
-                int j = movingobjectposition.blockY;
-                int k = movingobjectposition.blockZ;
-                
-                boolean isValidCauldron = (player.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && player.worldObj.getBlockMetadata(i, j, k) > 0);
-
-                if (!world.canMineBlock(player, i, j, k))
-                {
-                    return;
-                }
-
-                if (!player.canPlayerEdit(i, j, k, movingobjectposition.sideHit, item))
-                {
-                    return;
-                }
-
-                if (world.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)
-                {
-                    Item newItem = Item.potion;
-                    
-                    switch(getWaterType(world, i, j, k))
-                    {
-                    	case 0:
-                    	{
-                    		newItem = Item.potion;
-                    		break;
-                    	}
-                    	case 1:
-                    	{
-                    		newItem = EnviroMine.badWaterBottle;
-                    		break;
-                    	}
-                    	case 2:
-                    	{
-                    		newItem = EnviroMine.saltWaterBottle;
-                    		break;
-                    	}
-                    	case 3:
-                    	{
-                    		newItem = EnviroMine.coldWaterBottle;
-                    		break;
-                    	}
-                    }
-                    
-                    if(isValidCauldron && (world.getBlockId(i, j - 1, k) == Block.fire.blockID || world.getBlockId(i, j - 1, k) == Block.lavaMoving.blockID || world.getBlockId(i, j - 1, k) == Block.lavaStill.blockID))
-                    {
-                    	newItem = Item.potion;
-                    }
-                    
-                    if(isValidCauldron)
-                    {
-						player.worldObj.setBlockMetadataWithNotify(i, j, k, player.worldObj.getBlockMetadata(i, j, k)-1, 2);
-                    }
-                    
-                    --item.stackSize;
-                	
-                    if (item.stackSize <= 0)
-                    {
-                    	item.itemID = newItem.itemID;
-                    	item.stackSize = 1;
-                    	item.setItemDamage(0);
-                    } else
-                    {
-                        EntityItem itemDrop = player.dropPlayerItem(new ItemStack(newItem.itemID, 1, 0));
-                        itemDrop.delayBeforeCanPickup = 0;
-                    }
-                    
-                    event.setCanceled(true);
-                }
-            }
-
-            return;
-        }
+		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(world, player, true);
+		
+		if(movingobjectposition == null)
+		{
+			return;
+		} else
+		{
+			if(movingobjectposition.typeOfHit == EnumMovingObjectType.TILE)
+			{
+				int i = movingobjectposition.blockX;
+				int j = movingobjectposition.blockY;
+				int k = movingobjectposition.blockZ;
+				
+				boolean isValidCauldron = (player.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && player.worldObj.getBlockMetadata(i, j, k) > 0);
+				
+				if(!world.canMineBlock(player, i, j, k))
+				{
+					return;
+				}
+				
+				if(!player.canPlayerEdit(i, j, k, movingobjectposition.sideHit, item))
+				{
+					return;
+				}
+				
+				if(world.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)
+				{
+					Item newItem = Item.potion;
+					
+					switch(getWaterType(world, i, j, k))
+					{
+						case 0:
+						{
+							newItem = Item.potion;
+							break;
+						}
+						case 1:
+						{
+							newItem = EnviroMine.badWaterBottle;
+							break;
+						}
+						case 2:
+						{
+							newItem = EnviroMine.saltWaterBottle;
+							break;
+						}
+						case 3:
+						{
+							newItem = EnviroMine.coldWaterBottle;
+							break;
+						}
+					}
+					
+					if(isValidCauldron && (world.getBlockId(i, j - 1, k) == Block.fire.blockID || world.getBlockId(i, j - 1, k) == Block.lavaMoving.blockID || world.getBlockId(i, j - 1, k) == Block.lavaStill.blockID))
+					{
+						newItem = Item.potion;
+					}
+					
+					if(isValidCauldron)
+					{
+						player.worldObj.setBlockMetadataWithNotify(i, j, k, player.worldObj.getBlockMetadata(i, j, k) - 1, 2);
+					}
+					
+					--item.stackSize;
+					
+					if(item.stackSize <= 0)
+					{
+						item.itemID = newItem.itemID;
+						item.stackSize = 1;
+						item.setItemDamage(0);
+					} else
+					{
+						EntityItem itemDrop = player.dropPlayerItem(new ItemStack(newItem.itemID, 1, 0));
+						itemDrop.delayBeforeCanPickup = 0;
+					}
+					
+					event.setCanceled(true);
+				}
+			}
+			
+			return;
+		}
 	}
-
+	
 	public static void drinkWater(EntityPlayer entityPlayer, PlayerInteractEvent event)
 	{
 		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(entityPlayer);
@@ -277,29 +276,29 @@ public class EM_EventManager
 		
 		if(mop != null)
 		{
-			if (mop.typeOfHit == EnumMovingObjectType.TILE)
-            {
-                int i = mop.blockX;
-                int j = mop.blockY;
-                int k = mop.blockZ;
-                
-                int[] hitBlock = getAdjacentBlockCoordsFromSide(i, j, k, mop.sideHit);
-                
-                int x = hitBlock[0];
-                int y = hitBlock[1];
-                int z = hitBlock[2];
-                
-                if(entityPlayer.worldObj.getBlockMaterial(i, j, k) != Material.water && entityPlayer.worldObj.getBlockMaterial(x, y, z) == Material.water)
-                {
-                	i = x;
-                	j = y;
-                	k = z;
-                }
-                
-                System.out.println("Found block " + Block.blocksList[entityPlayer.worldObj.getBlockId(i, j, k)].getLocalizedName());
-                
-                boolean isValidCauldron = (entityPlayer.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && entityPlayer.worldObj.getBlockMetadata(i, j, k) > 0);
-                
+			if(mop.typeOfHit == EnumMovingObjectType.TILE)
+			{
+				int i = mop.blockX;
+				int j = mop.blockY;
+				int k = mop.blockZ;
+				
+				int[] hitBlock = getAdjacentBlockCoordsFromSide(i, j, k, mop.sideHit);
+				
+				int x = hitBlock[0];
+				int y = hitBlock[1];
+				int z = hitBlock[2];
+				
+				if(entityPlayer.worldObj.getBlockMaterial(i, j, k) != Material.water && entityPlayer.worldObj.getBlockMaterial(x, y, z) == Material.water)
+				{
+					i = x;
+					j = y;
+					k = z;
+				}
+				
+				System.out.println("Found block " + Block.blocksList[entityPlayer.worldObj.getBlockId(i, j, k)].getLocalizedName());
+				
+				boolean isValidCauldron = (entityPlayer.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && entityPlayer.worldObj.getBlockMetadata(i, j, k) > 0);
+				
 				if(entityPlayer.worldObj.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)
 				{
 					if(tracker != null)
@@ -349,16 +348,16 @@ public class EM_EventManager
 						
 						if(isValidCauldron)
 						{
-							entityPlayer.worldObj.setBlockMetadataWithNotify(i, j, k, entityPlayer.worldObj.getBlockMetadata(i, j, k)-1, 2);
+							entityPlayer.worldObj.setBlockMetadataWithNotify(i, j, k, entityPlayer.worldObj.getBlockMetadata(i, j, k) - 1, 2);
 						}
 						
 						event.setCanceled(true);
 					}
 				}
-            }
+			}
 		}
 	}
-
+	
 	public static int getWaterType(World world, int x, int y, int z)
 	{
 		BiomeGenBase biome = world.getBiomeGenForCoords(x, z);
@@ -382,7 +381,7 @@ public class EM_EventManager
 			return 0;
 		}
 	}
-
+	
 	public static int[] getAdjacentBlockCoordsFromSide(int x, int y, int z, int side)
 	{
 		int[] coords = new int[3];
@@ -390,48 +389,48 @@ public class EM_EventManager
 		coords[1] = y;
 		coords[2] = z;
 		
-        ForgeDirection dir = ForgeDirection.getOrientation(side);
-        switch(dir)
-        {
-        	case NORTH:
-        	{
-        		coords[2] -= 1;
-        		break;
-        	}
-        	case SOUTH:
-        	{
-        		coords[2] += 1;
-        		break;
-        	}
-        	case WEST:
-        	{
-        		coords[0] -= 1;
-        		break;
-        	}
-        	case EAST:
-        	{
-        		coords[0] += 1;
-        		break;
-        	}
-        	case UP:
-        	{
-        		coords[1] += 1;
-        		break;
-        	}
-        	case DOWN:
-        	{
-        		coords[1] -= 1;
-        		break;
-        	}
-        	case UNKNOWN:
-        	{
-        		break;
-        	}
-        }
-        
-        return coords;
+		ForgeDirection dir = ForgeDirection.getOrientation(side);
+		switch(dir)
+		{
+			case NORTH:
+			{
+				coords[2] -= 1;
+				break;
+			}
+			case SOUTH:
+			{
+				coords[2] += 1;
+				break;
+			}
+			case WEST:
+			{
+				coords[0] -= 1;
+				break;
+			}
+			case EAST:
+			{
+				coords[0] += 1;
+				break;
+			}
+			case UP:
+			{
+				coords[1] += 1;
+				break;
+			}
+			case DOWN:
+			{
+				coords[1] -= 1;
+				break;
+			}
+			case UNKNOWN:
+			{
+				break;
+			}
+		}
+		
+		return coords;
 	}
-
+	
 	@ForgeSubscribe
 	public void onBreakBlock(HarvestDropsEvent event)
 	{
@@ -565,7 +564,7 @@ public class EM_EventManager
 				}
 				if(attribute.getModifier(EM_FROST3_ID) != null && tracker.frostbiteLevel < 2)
 				{
-					attribute.removeModifier(attribute.getModifier(EM_FROST3_ID) );
+					attribute.removeModifier(attribute.getModifier(EM_FROST3_ID));
 				}
 			}
 			
@@ -576,10 +575,10 @@ public class EM_EventManager
 			{
 				if(((EntityPlayer)event.entityLiving).isPlayerFullyAsleep())
 				{
-					tracker.sanity += 5.0F;
-				} else
+					tracker.sanity = 100.0F;
+				} else if(tracker.sanity <= 99F)
 				{
-					tracker.sanity += 1.0F;
+					tracker.sanity += 0.01F;
 				}
 			}
 			
@@ -757,43 +756,45 @@ public class EM_EventManager
 			EM_PhysManager.schedulePhysUpdate(event.entityLiving.worldObj, MathHelper.floor_double(event.entityLiving.posX), MathHelper.floor_double(event.entityLiving.posY - 1), MathHelper.floor_double(event.entityLiving.posZ), true, false);
 		}
 	}
-
+	
 	@ForgeSubscribe
 	public void onWorldUnload(Unload event)
 	{
 		EM_StatusManager.saveAndDeleteWorldTrackers(event.world);
 	}
-
+	
 	@ForgeSubscribe
 	public void onWorldSave(Save event)
 	{
-		if(EM_Settings.trackNonPlayer_actual == false) {EM_StatusManager.removeNpcTrackers();}
+		if(EM_Settings.trackNonPlayer_actual == false)
+		{
+			EM_StatusManager.removeNpcTrackers();
+		}
 		
 		EM_StatusManager.saveAllWorldTrackers(event.world);
 	}
 	
-	
-    protected static MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityPlayer par2EntityPlayer, boolean par3)
-    {
-        float f = 1.0F;
-        float f1 = par2EntityPlayer.prevRotationPitch + (par2EntityPlayer.rotationPitch - par2EntityPlayer.prevRotationPitch) * f;
-        float f2 = par2EntityPlayer.prevRotationYaw + (par2EntityPlayer.rotationYaw - par2EntityPlayer.prevRotationYaw) * f;
-        double d0 = par2EntityPlayer.prevPosX + (par2EntityPlayer.posX - par2EntityPlayer.prevPosX) * (double)f;
-        double d1 = par2EntityPlayer.prevPosY + (par2EntityPlayer.posY - par2EntityPlayer.prevPosY) * (double)f + (double)(par1World.isRemote ? par2EntityPlayer.getEyeHeight() - par2EntityPlayer.getDefaultEyeHeight() : par2EntityPlayer.getEyeHeight()); // isRemote check to revert changes to ray trace position due to adding the eye height clientside and player yOffset differences
-        double d2 = par2EntityPlayer.prevPosZ + (par2EntityPlayer.posZ - par2EntityPlayer.prevPosZ) * (double)f;
-        Vec3 vec3 = par1World.getWorldVec3Pool().getVecFromPool(d0, d1, d2);
-        float f3 = MathHelper.cos(-f2 * 0.017453292F - (float)Math.PI);
-        float f4 = MathHelper.sin(-f2 * 0.017453292F - (float)Math.PI);
-        float f5 = -MathHelper.cos(-f1 * 0.017453292F);
-        float f6 = MathHelper.sin(-f1 * 0.017453292F);
-        float f7 = f4 * f5;
-        float f8 = f3 * f5;
-        double d3 = 5.0D;
-        if (par2EntityPlayer instanceof EntityPlayerMP)
-        {
-            d3 = ((EntityPlayerMP)par2EntityPlayer).theItemInWorldManager.getBlockReachDistance();
-        }
-        Vec3 vec31 = vec3.addVector((double)f7 * d3, (double)f6 * d3, (double)f8 * d3);
-        return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
-    }
+	protected static MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityPlayer par2EntityPlayer, boolean par3)
+	{
+		float f = 1.0F;
+		float f1 = par2EntityPlayer.prevRotationPitch + (par2EntityPlayer.rotationPitch - par2EntityPlayer.prevRotationPitch) * f;
+		float f2 = par2EntityPlayer.prevRotationYaw + (par2EntityPlayer.rotationYaw - par2EntityPlayer.prevRotationYaw) * f;
+		double d0 = par2EntityPlayer.prevPosX + (par2EntityPlayer.posX - par2EntityPlayer.prevPosX) * (double)f;
+		double d1 = par2EntityPlayer.prevPosY + (par2EntityPlayer.posY - par2EntityPlayer.prevPosY) * (double)f + (double)(par1World.isRemote ? par2EntityPlayer.getEyeHeight() - par2EntityPlayer.getDefaultEyeHeight() : par2EntityPlayer.getEyeHeight()); // isRemote check to revert changes to ray trace position due to adding the eye height clientside and player yOffset differences
+		double d2 = par2EntityPlayer.prevPosZ + (par2EntityPlayer.posZ - par2EntityPlayer.prevPosZ) * (double)f;
+		Vec3 vec3 = par1World.getWorldVec3Pool().getVecFromPool(d0, d1, d2);
+		float f3 = MathHelper.cos(-f2 * 0.017453292F - (float)Math.PI);
+		float f4 = MathHelper.sin(-f2 * 0.017453292F - (float)Math.PI);
+		float f5 = -MathHelper.cos(-f1 * 0.017453292F);
+		float f6 = MathHelper.sin(-f1 * 0.017453292F);
+		float f7 = f4 * f5;
+		float f8 = f3 * f5;
+		double d3 = 5.0D;
+		if(par2EntityPlayer instanceof EntityPlayerMP)
+		{
+			d3 = ((EntityPlayerMP)par2EntityPlayer).theItemInWorldManager.getBlockReachDistance();
+		}
+		Vec3 vec31 = vec3.addVector((double)f7 * d3, (double)f6 * d3, (double)f8 * d3);
+		return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
+	}
 }

@@ -39,13 +39,13 @@ public class EM_ClientProxy extends EM_CommonProxy
 	{
 		super.registerTickHandlers();
 		TickRegistry.registerTickHandler(new EM_ClientScheduledTickHandler(), Side.CLIENT);
-    }
+	}
 	
 	public void registerEventHandlers()
 	{
 		super.registerEventHandlers();
 		MinecraftForge.EVENT_BUS.register(new EM_GuiEnviroMeters(Minecraft.getMinecraft()));
-    }
+	}
 	
 	public void preInit(FMLPreInitializationEvent event)
 	{

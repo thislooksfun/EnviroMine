@@ -391,7 +391,7 @@ public class EnviroDataTracker
 		} else if(name == "MushroomCow")
 		{
 			return false;
-		}else if(name == "WitherBoss")
+		} else if(name == "WitherBoss")
 		{
 			return false;
 		} else if(name == "EnderDragon")
@@ -452,7 +452,7 @@ public class EnviroDataTracker
 			EM_StatusManager.syncMultiplayerTracker(this);
 		}
 	}
-
+	
 	public void loadNBTTags()
 	{
 		NBTTagCompound tags = trackedEntity.getEntityData();
@@ -474,7 +474,7 @@ public class EnviroDataTracker
 			sanity = tags.getFloat("ENVIRO_SAN");
 		}
 	}
-
+	
 	public int getAndIncrementItemUse()
 	{
 		itemUse += 1;
@@ -485,7 +485,7 @@ public class EnviroDataTracker
 	{
 		itemUse = 0;
 	}
-
+	
 	public void resetData()
 	{
 		airQuality = maxQuality;

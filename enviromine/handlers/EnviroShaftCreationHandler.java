@@ -14,7 +14,7 @@ public class EnviroShaftCreationHandler implements IVillageCreationHandler
 	@Override
 	public StructureVillagePieceWeight getVillagePieceWeight(Random random, int i)
 	{
-        return new StructureVillagePieceWeight(EM_VillageMineshaft.class, 1, 1);
+		return new StructureVillagePieceWeight(EM_VillageMineshaft.class, 1, 1);
 	}
 	
 	@Override

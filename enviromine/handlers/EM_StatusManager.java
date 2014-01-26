@@ -75,7 +75,7 @@ public class EM_StatusManager
 		if(tracker.updateTimer >= 30)
 		{
 			tracker.updateData();
-
+			
 			if(!EnviroMine.proxy.isClient() || EnviroMine.proxy.isOpenToLAN())
 			{
 				syncMultiplayerTracker(tracker);
@@ -99,8 +99,8 @@ public class EM_StatusManager
 		
 		try
 		{
-	        outputStream.writeBytes(dataString);
-		} catch (Exception ex)
+			outputStream.writeBytes(dataString);
+		} catch(Exception ex)
 		{
 			ex.printStackTrace();
 		}
@@ -144,7 +144,6 @@ public class EM_StatusManager
 	
 	public static float[] getSurroundingData(EntityLivingBase entityLiving, int range)
 	{
-
 		
 		timer.start();
 		
@@ -213,10 +212,9 @@ public class EM_StatusManager
 					int meta = 0;
 					// These need to be here to reset
 					boolean isCustom = false;
-					BlockProperties blockProps = null;						
-
-					id = entityLiving.worldObj.getBlockId(i + x, j + y, k + z);
+					BlockProperties blockProps = null;
 					
+					id = entityLiving.worldObj.getBlockId(i + x, j + y, k + z);
 					
 					if(id != 0)
 					{
@@ -237,12 +235,12 @@ public class EM_StatusManager
 						{
 							isCustom = true;
 						}
-
+						
 					}
 					
 					if(isCustom && blockProps != null)
 					{
-
+						
 						if(quality <= blockProps.air)
 						{
 							quality = blockProps.air;
@@ -328,7 +326,7 @@ public class EM_StatusManager
 		{
 			EntityPlayer player = (EntityPlayer)entityLiving;
 			
-			for(int slot = 0; slot < 9; slot ++)
+			for(int slot = 0; slot < 9; slot++)
 			{
 				ItemStack stack = player.inventory.mainInventory[slot];
 				
@@ -441,10 +439,10 @@ public class EM_StatusManager
 		{
 			if(bTemp < 20F)
 			{
-				bTemp += (50 * (1 - (entityLiving.posY/48)));
+				bTemp += (50 * (1 - (entityLiving.posY / 48)));
 			} else
 			{
-				bTemp += (20 * (1 - (entityLiving.posY/48)));
+				bTemp += (20 * (1 - (entityLiving.posY / 48)));
 			}
 		}
 		
@@ -538,7 +536,7 @@ public class EM_StatusManager
 			
 			if(bTemp < avgEntityTemp)
 			{
-				bTemp = (bTemp + avgEntityTemp)/2;
+				bTemp = (bTemp + avgEntityTemp) / 2;
 			}
 		}
 		
@@ -752,31 +750,29 @@ public class EM_StatusManager
 		data[6] = animalHostility;
 		data[7] = sanityRate;
 		
-	    
-	    EM_GuiEnviroMeters.DB_nearLava = nearLava;
-	    EM_GuiEnviroMeters.DB_abientTemp = tempFin;
-	    EM_GuiEnviroMeters.DB_sanityrate = sanityRate;
-	    EM_GuiEnviroMeters.DB_airquality= quality;
-	    EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
-	    EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
-	    EM_GuiEnviroMeters.DB_cooling = cooling;
-	    EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
-	    EM_GuiEnviroMeters.DB_biomeName = biome.biomeName;
-	    
-	    timer.stop();
-	    EM_GuiEnviroMeters.DB_timer = timer.toString();
-	    timer.reset();
+		EM_GuiEnviroMeters.DB_nearLava = nearLava;
+		EM_GuiEnviroMeters.DB_abientTemp = tempFin;
+		EM_GuiEnviroMeters.DB_sanityrate = sanityRate;
+		EM_GuiEnviroMeters.DB_airquality = quality;
+		EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
+		EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
+		EM_GuiEnviroMeters.DB_cooling = cooling;
+		EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
+		EM_GuiEnviroMeters.DB_biomeName = biome.biomeName;
+		
+		timer.stop();
+		EM_GuiEnviroMeters.DB_timer = timer.toString();
+		timer.reset();
 		return data;
 	}
 	
-	public static float getBiomeTemprature(int x, int y,BiomeGenBase biome)
+	public static float getBiomeTemprature(int x, int y, BiomeGenBase biome)
 	{
 		float temp = 0;
 		
 		return temp;
 		
 	}
-	
 	
 	public static void removeTracker(EnviroDataTracker tracker)
 	{
@@ -845,10 +841,10 @@ public class EM_StatusManager
 			tags.setFloat("ENVIRO_HYD", tracker.hydration);
 			tags.setFloat("ENVIRO_TMP", tracker.bodyTemp);
 			tags.setFloat("ENVIRO_SAN", tracker.sanity);
- 		}
+		}
 		trackerList.clear();
 	}
-
+	
 	public static void saveAndDeleteWorldTrackers(World world)
 	{
 		HashMap<String,EnviroDataTracker> tempList = new HashMap<String,EnviroDataTracker>(trackerList);
@@ -875,7 +871,7 @@ public class EM_StatusManager
 			}
 		}
 	}
-
+	
 	public static void saveAllWorldTrackers(World world)
 	{
 		HashMap<String,EnviroDataTracker> tempList = new HashMap<String,EnviroDataTracker>(trackerList);
@@ -894,7 +890,7 @@ public class EM_StatusManager
 			}
 		}
 	}
-
+	
 	public static EntityPlayer findPlayer(String username)
 	{
 		World[] worlds = new World[3];
@@ -947,14 +943,14 @@ public class EM_StatusManager
 					trackerList.remove(i);
 				}
 			}
-	*/
+		*/
 	}
-
+	
 	public static void createFX(EntityLivingBase entityLiving)
 	{
-		float rndX = (entityLiving.getRNG().nextFloat() * entityLiving.width*2) - entityLiving.width;
+		float rndX = (entityLiving.getRNG().nextFloat() * entityLiving.width * 2) - entityLiving.width;
 		float rndY = entityLiving.getRNG().nextFloat() * entityLiving.height;
-		float rndZ = (entityLiving.getRNG().nextFloat() * entityLiving.width*2) - entityLiving.width;
+		float rndZ = (entityLiving.getRNG().nextFloat() * entityLiving.width * 2) - entityLiving.width;
 		EnviroDataTracker tracker = lookupTracker(entityLiving);
 		
 		if(entityLiving instanceof EntityPlayer && !(entityLiving instanceof EntityPlayerMP))

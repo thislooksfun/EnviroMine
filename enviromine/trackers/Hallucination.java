@@ -87,7 +87,7 @@ public class Hallucination
 	{
 		if(list.size() >= 1)
 		{
-			for(int i = list.size() -1; i >= 0; i -= 1)
+			for(int i = list.size() - 1; i >= 0; i -= 1)
 			{
 				Hallucination subject = list.get(i);
 				if(subject.time >= maxTime)
@@ -104,35 +104,34 @@ public class Hallucination
 	
 	public static boolean isAtValidSpawn(EntityCreature creature)
 	{
-        return creature.worldObj.checkNoEntityCollision(creature.boundingBox) && creature.worldObj.getCollidingBoundingBoxes(creature, creature.boundingBox).isEmpty() && !creature.worldObj.isAnyLiquid(creature.boundingBox) && isValidLightLevel(creature);
+		return creature.worldObj.checkNoEntityCollision(creature.boundingBox) && creature.worldObj.getCollidingBoundingBoxes(creature, creature.boundingBox).isEmpty() && !creature.worldObj.isAnyLiquid(creature.boundingBox) && isValidLightLevel(creature);
 	}
-
-    /**
-     * Checks to make sure the light is not too bright where the mob is spawning
-     */
-    protected static boolean isValidLightLevel(EntityCreature creature)
-    {
-        int i = MathHelper.floor_double(creature.posX);
-        int j = MathHelper.floor_double(creature.boundingBox.minY);
-        int k = MathHelper.floor_double(creature.posZ);
-
-        if (creature.worldObj.getSavedLightValue(EnumSkyBlock.Sky, i, j, k) > creature.getRNG().nextInt(32))
-        {
-            return false;
-        }
-        else
-        {
-            int l = creature.worldObj.getBlockLightValue(i, j, k);
-
-            if (creature.worldObj.isThundering())
-            {
-                int i1 = creature.worldObj.skylightSubtracted;
-                creature.worldObj.skylightSubtracted = 10;
-                l = creature.worldObj.getBlockLightValue(i, j, k);
-                creature.worldObj.skylightSubtracted = i1;
-            }
-
-            return l <= creature.getRNG().nextInt(8);
-        }
-    }
+	
+	/**
+	 * Checks to make sure the light is not too bright where the mob is spawning
+	 */
+	protected static boolean isValidLightLevel(EntityCreature creature)
+	{
+		int i = MathHelper.floor_double(creature.posX);
+		int j = MathHelper.floor_double(creature.boundingBox.minY);
+		int k = MathHelper.floor_double(creature.posZ);
+		
+		if(creature.worldObj.getSavedLightValue(EnumSkyBlock.Sky, i, j, k) > creature.getRNG().nextInt(32))
+		{
+			return false;
+		} else
+		{
+			int l = creature.worldObj.getBlockLightValue(i, j, k);
+			
+			if(creature.worldObj.isThundering())
+			{
+				int i1 = creature.worldObj.skylightSubtracted;
+				creature.worldObj.skylightSubtracted = 10;
+				l = creature.worldObj.getBlockLightValue(i, j, k);
+				creature.worldObj.skylightSubtracted = i1;
+			}
+			
+			return l <= creature.getRNG().nextInt(8);
+		}
+	}
 }

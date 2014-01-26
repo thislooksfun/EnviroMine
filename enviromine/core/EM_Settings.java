@@ -26,7 +26,6 @@ public class EM_Settings
 	public static final String Name = "EnviroMine";
 	public static final String Proxy = "enviromine.core.proxies";
 	
-	
 	public static boolean enablePhysics = true;
 	public static boolean enableLandslide = true;
 	public static boolean enableAirQ = true;
@@ -34,39 +33,40 @@ public class EM_Settings
 	public static boolean enableSanity = true;
 	public static boolean enableBodyTemp = true;
 	public static boolean trackNonPlayer_default = true;
-		public static boolean trackNonPlayer_actual;
-		
-	public static boolean ShowGuiIcons_default = true;
-		public static boolean ShowGuiIcons_actual;
-	//public static boolean saddleRecipe = true;
+	public static boolean trackNonPlayer_actual;
 	
+	public static boolean ShowGuiIcons_default = true;
+	public static boolean ShowGuiIcons_actual;
+	public static boolean saddleRecipe = true;
+	
+	public static boolean spreadIce = false;
 	
 	//Gui settings
 	public static boolean sweatParticals_default = true;
-		public static boolean sweatParticals_actual;
+	public static boolean sweatParticals_actual;
 	public static boolean insaneParticals_default = true;
-		public static boolean insaneParticals_actual;
+	public static boolean insaneParticals_actual;
 	
 	public static boolean useFarenheit = false;
 	public static String heatBarPos_default = "Bottom_Left";
-		public static String heatBarPos_actual;
+	public static String heatBarPos_actual;
 	public static String waterBarPos_default = "Bottom_Left";
-		public static String waterBarPos_actual;
+	public static String waterBarPos_actual;
 	public static String sanityBarPos_default = "Bottom_Right";
-		public static String sanityBarPos_actual;
+	public static String sanityBarPos_actual;
 	public static String oxygenBarPos_default = "Bottom_Right";
-		public static String oxygenBarPos_actual;
-		
-    public static boolean ShowText_default = false;
-    	public static boolean ShowText_actual = false;
-    public static boolean ShowDebug_default = true;
-    	public static boolean ShowDebug_actual;	
+	public static String oxygenBarPos_actual;
+	
+	public static boolean ShowText_default = true;
+	public static boolean ShowText_actual = true;
+	public static boolean ShowDebug_default = true;
+	public static boolean ShowDebug_actual;
 	
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
 	public static int coldBottleID = 5003;
 	public static int camelPackID = 5004;
-
+	
 	public static int hypothermiaPotionID = 27;
 	public static int heatstrokePotionID = 28;
 	public static int frostBitePotionID = 29;
@@ -87,11 +87,11 @@ public class EM_Settings
 	
 	public static float convertToFarenheit(float num)
 	{
-		return ((num *(9/5))+32F);
+		return((num * (9 / 5)) + 32F);
 	}
 	
 	public static float convertToCelcius(float num)
 	{
-		return ((num-32F) * (5/9));
+		return((num - 32F) * (5 / 9));
 	}
 }

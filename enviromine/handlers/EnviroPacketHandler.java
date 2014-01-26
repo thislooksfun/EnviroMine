@@ -25,7 +25,7 @@ public class EnviroPacketHandler implements IPacketHandler
 	{
 		String[] data;
 		EnviroDataTracker tracker;
-
+		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream outputStream = new DataOutputStream(bos);
 		try

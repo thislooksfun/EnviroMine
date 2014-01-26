@@ -22,7 +22,7 @@ public class EnviroPotion extends Potion
 	public static EnviroPotion dehydration;
 	public static EnviroPotion insanity;
 	
-	public static ResourceLocation textureResource = new ResourceLocation("enviromine", "textures/gui/bars.png");
+	public static ResourceLocation textureResource = new ResourceLocation("enviromine", "textures/gui/status_Gui.png");
 	
 	public EnviroPotion(int par1, boolean par2, int par3)
 	{
@@ -207,10 +207,10 @@ public class EnviroPotion extends Potion
 				}
 				
 				EntityPlayer player = ((EntityPlayer)entityLiving);
-
-				float rndX = (player.getRNG().nextInt(6)-3) * player.getRNG().nextFloat();
-				float rndY = (player.getRNG().nextInt(6)-3) * player.getRNG().nextFloat();
-				float rndZ = (player.getRNG().nextInt(6)-3) * player.getRNG().nextFloat();
+				
+				float rndX = (player.getRNG().nextInt(6) - 3) * player.getRNG().nextFloat();
+				float rndY = (player.getRNG().nextInt(6) - 3) * player.getRNG().nextFloat();
+				float rndZ = (player.getRNG().nextInt(6) - 3) * player.getRNG().nextFloat();
 				
 				Packet62LevelSound packet = new Packet62LevelSound(sound, entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 1.0F, 0.2F);
 				
@@ -224,27 +224,25 @@ public class EnviroPotion extends Potion
 			}
 		}
 	}
-
-	@Override
-    @SideOnly(Side.CLIENT)
-
-    /**
-     * Returns true if the potion has a associated status icon to display in then inventory when active.
-     */
-    public boolean hasStatusIcon()
-    {
-    	Minecraft.getMinecraft().renderEngine.bindTexture(textureResource);
-        return true;
-    }
 	
 	@Override
-    @SideOnly(Side.CLIENT)
-
-    /**
-     * This method returns true if the potion effect is bad - negative - for the entity.
-     */
-    public boolean isBadEffect()
-    {
-        return true;
-    }
+	@SideOnly(Side.CLIENT)
+	/**
+	 * Returns true if the potion has a associated status icon to display in then inventory when active.
+	 */
+	public boolean hasStatusIcon()
+	{
+		Minecraft.getMinecraft().renderEngine.bindTexture(textureResource);
+		return true;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	/**
+	 * This method returns true if the potion effect is bad - negative - for the entity.
+	 */
+	public boolean isBadEffect()
+	{
+		return true;
+	}
 }

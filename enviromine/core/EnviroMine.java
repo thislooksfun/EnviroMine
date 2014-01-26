@@ -44,7 +44,6 @@ import enviromine.items.EnviroItemSaltWaterBottle;
 
 @Mod(modid = EM_Settings.ID, name = EM_Settings.Name, version = EM_Settings.Version)
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = {EM_Settings.Channel}, packetHandler = EnviroPacketHandler.class)
-
 public class EnviroMine
 {
 	public static Logger logger;
@@ -56,7 +55,7 @@ public class EnviroMine
 	public static ItemArmor camelPack;
 	
 	@Instance("EM_Instance")
-    public static EnviroMine instance;
+	public static EnviroMine instance;
 	
 	@SidedProxy(clientSide = EM_Settings.Proxy + ".EM_ClientProxy", serverSide = EM_Settings.Proxy + ".EM_CommonProxy")
 	public static EM_CommonProxy proxy;
@@ -70,14 +69,14 @@ public class EnviroMine
 		proxy.preInit(event);
 		
 		// Load Configuration files And Custom files
-		 EM_ConfigHandler.initConfig();
-		 
+		EM_ConfigHandler.initConfig();
+		
 		// Create Items
 		badWaterBottle = new EnviroItemBadWaterBottle(EM_Settings.dirtBottleID).setMaxStackSize(1).setUnlocalizedName("dirtyWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("saltWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("coldWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		
-		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{0,0,0,0}, 0);
+		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{0, 0, 0, 0}, 0);
 		
 		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
 		
@@ -97,13 +96,13 @@ public class EnviroMine
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
 		LanguageRegistry.addName(camelPack, "Camel Pack");
-
-		EnviroPotion.hypothermia = (EnviroPotion)new EnviroPotion(EM_Settings.hypothermiaPotionID, true, 8171462).setPotionName("potion.hypothermia").setIconIndex(4, 0);
-		EnviroPotion.heatstroke = (EnviroPotion)new EnviroPotion(EM_Settings.heatstrokePotionID, true, EM_GuiEnviroMeters.getColorFromRGBA(255,0,0,255)).setPotionName("potion.heatstroke").setIconIndex(3, 0);
+		
 		EnviroPotion.frostbite = (EnviroPotion)new EnviroPotion(EM_Settings.frostBitePotionID, true, 8171462).setPotionName("potion.frostbite").setIconIndex(0, 0);
 		EnviroPotion.dehydration = (EnviroPotion)new EnviroPotion(EM_Settings.dehydratePotionID, true, 3035801).setPotionName("potion.dehydration").setIconIndex(1, 0);
 		EnviroPotion.insanity = (EnviroPotion)new EnviroPotion(EM_Settings.insanityPotionID, true, 5578058).setPotionName("potion.insanity").setIconIndex(2, 0);
-
+		EnviroPotion.heatstroke = (EnviroPotion)new EnviroPotion(EM_Settings.heatstrokePotionID, true, EM_GuiEnviroMeters.getColorFromRGBA(255, 0, 0, 255)).setPotionName("potion.heatstroke").setIconIndex(3, 0);
+		EnviroPotion.hypothermia = (EnviroPotion)new EnviroPotion(EM_Settings.hypothermiaPotionID, true, 8171462).setPotionName("potion.hypothermia").setIconIndex(4, 0);
+		
 		LanguageRegistry.instance().addStringLocalization("potion.hypothermia", "Hypothermia");
 		LanguageRegistry.instance().addStringLocalization("potion.heatstroke", "Heat Stroke");
 		LanguageRegistry.instance().addStringLocalization("potion.frostbite", "Frostbite");
@@ -123,7 +122,7 @@ public class EnviroMine
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}
-
+	
 	@EventHandler
 	public static void postInit(FMLPostInitializationEvent event)
 	{
@@ -133,8 +132,8 @@ public class EnviroMine
 	@SideOnly(Side.CLIENT)
 	public static void registerKeyBindings(FMLInitializationEvent event)
 	{
-    	KeyBinding[] key = {new KeyBinding("EnviroMine Add/Remove Custom Object", Keyboard.KEY_J)};
-        boolean[] repeat = {false};
-        KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
+		KeyBinding[] key = {new KeyBinding("EnviroMine Add/Remove Custom Object", Keyboard.KEY_J)};
+		boolean[] repeat = {false};
+		KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
 	}
 }

@@ -32,7 +32,7 @@ public class ItemProperties
 		this.effAir = effAir;
 		this.effSanity = effSanity;
 		this.effHydration = effHydration;
-
+		
 		this.effTempCap = effTempCap;
 	}
 }

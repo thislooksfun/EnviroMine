@@ -26,9 +26,9 @@ public class EM_CommonProxy
 	
 	public void registerTickHandlers()
 	{
-        TickRegistry.registerTickHandler(new EM_ServerScheduledTickHandler(), Side.SERVER);
+		TickRegistry.registerTickHandler(new EM_ServerScheduledTickHandler(), Side.SERVER);
 	}
-
+	
 	public void registerEventHandlers()
 	{
 		MinecraftForge.EVENT_BUS.register(new EM_EventManager());

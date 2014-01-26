@@ -22,8 +22,7 @@ public class EM_ConfigHandler
 	
 	// Dirs for Custom Files
 	public static String configPath = "config/enviromine/";
-	static String dataPath = configPath + "EnviroProperties/";
-	static String customPath = configPath + "CustomObjects/";
+	static String customPath = configPath + "CustomProperties/";
 	
 	// Categories for Custom Objects
 	static String armorCat = "armor";
@@ -34,7 +33,6 @@ public class EM_ConfigHandler
 	public static void initConfig()
 	{
 		// Check for Data Directory 
-		CheckDir(new File(dataPath));
 		CheckDir(new File(customPath));
 		
 		//CheckFile(new File(configPath + "Help_File_Custom.txt"));
@@ -65,7 +63,7 @@ public class EM_ConfigHandler
 		
 		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
 	}
-    
+	
 	public static void loadGeneralConfig(File file)
 	{
 		Configuration config;
@@ -84,55 +82,52 @@ public class EM_ConfigHandler
 			return;
 		}
 		
-        config.load();
-        
-        
-        //World Generation
-        
-        EM_Settings.shaftGen_actual =  config.get("Wold Generations", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
-        
-        //General Settings
-        EM_Settings.enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
-        EM_Settings.enableLandslide =  config.get(Configuration.CATEGORY_GENERAL, "Enable Physics Landslide", true).getBoolean(true);
-        EM_Settings.enableSanity = config.get(Configuration.CATEGORY_GENERAL, "Allow Sanity", true).getBoolean(true);
-        EM_Settings.enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Allow Hydration", true).getBoolean(true);
-        EM_Settings.enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
-        EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
-        EM_Settings.trackNonPlayer_actual = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", EM_Settings.trackNonPlayer_default , "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(EM_Settings.trackNonPlayer_default);
-        
-        
-        // Gui settings
-        String GuiSetCat = "GUI Settings";
-        EM_Settings.sweatParticals_actual = config.get(GuiSetCat, "Show Sweat Particales",  EM_Settings.sweatParticals_default).getBoolean(true);
-        EM_Settings.insaneParticals_actual =  config.get(GuiSetCat, "Show Insanity Particles", EM_Settings.insaneParticals_default ,"Show/Hide Particales").getBoolean(true);
-        EM_Settings.useFarenheit = config.get(GuiSetCat, "Use Farenheit instead of Celsius", false, "Will display either Farenhit or Celcius on GUI").getBoolean(false);
-        EM_Settings.heatBarPos_actual = config.get(GuiSetCat, "Position Heat Bat", "Bottom_Left").getString();
-        EM_Settings.waterBarPos_actual = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
-    	EM_Settings.sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
-    	EM_Settings.oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. \\n Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
-    	EM_Settings.ShowText_actual = config.get(GuiSetCat, "Show Gui Text",  EM_Settings.ShowText_default).getBoolean(EM_Settings.ShowText_default);
-    	EM_Settings.ShowDebug_actual = config.get(GuiSetCat, "Show Debugging Info",  EM_Settings.ShowDebug_default).getBoolean(EM_Settings.ShowDebug_default);
-    	
-    	EM_Settings.ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons",  EM_Settings.ShowGuiIcons_default, "Show Hide Gui Text Display and Icons").getBoolean(EM_Settings.ShowGuiIcons_default);
-        
-        //removed
-        //saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true , "True will allow you to build Saddles for horses.").getBoolean(true);
-        
-        // Config Item ID's
-    	EM_Settings.dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
-        EM_Settings.saltBottleID = config.get(Configuration.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
-        EM_Settings.coldBottleID = config.get(Configuration.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
-        EM_Settings.camelPackID= config.get(Configuration.CATEGORY_ITEM, "Camel Pack", 5004).getInt(5004);
-
-        
-        // Potion ID's
-        EM_Settings.frostBitePotionID = config.get("Potions", "Hypothermia", 27).getInt(27);
-        EM_Settings.frostBitePotionID = config.get("Potions", "Heat Stroke", 28).getInt(28);
-        EM_Settings.frostBitePotionID = config.get("Potions", "Frostbite", 29).getInt(29);
-        EM_Settings.dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(30);
-        EM_Settings.insanityPotionID = config.get("Potions", "Insanity", 31).getInt(31);
-
-        config.save();
+		config.load();
+		
+		//World Generation
+		
+		EM_Settings.shaftGen_actual = config.get("Wold Generations", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
+		
+		//General Settings
+		EM_Settings.enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
+		EM_Settings.enableLandslide = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics Landslide", true).getBoolean(true);
+		EM_Settings.enableSanity = config.get(Configuration.CATEGORY_GENERAL, "Allow Sanity", true).getBoolean(true);
+		EM_Settings.enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Allow Hydration", true).getBoolean(true);
+		EM_Settings.enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
+		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
+		EM_Settings.trackNonPlayer_actual = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", EM_Settings.trackNonPlayer_default, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(EM_Settings.trackNonPlayer_default);
+		
+		// Gui settings
+		String GuiSetCat = "GUI Settings";
+		EM_Settings.sweatParticals_actual = config.get(GuiSetCat, "Show Sweat Particales", EM_Settings.sweatParticals_default).getBoolean(true);
+		EM_Settings.insaneParticals_actual = config.get(GuiSetCat, "Show Insanity Particles", EM_Settings.insaneParticals_default, "Show/Hide Particales").getBoolean(true);
+		EM_Settings.useFarenheit = config.get(GuiSetCat, "Use Farenheit instead of Celsius", false, "Will display either Farenhit or Celcius on GUI").getBoolean(false);
+		EM_Settings.heatBarPos_actual = config.get(GuiSetCat, "Position Heat Bat", "Bottom_Left").getString();
+		EM_Settings.waterBarPos_actual = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
+		EM_Settings.sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
+		EM_Settings.oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. \\n Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
+		EM_Settings.ShowText_actual = config.get(GuiSetCat, "Show Gui Text", EM_Settings.ShowText_default).getBoolean(EM_Settings.ShowText_default);
+		EM_Settings.ShowDebug_actual = config.get(GuiSetCat, "Show Debugging Info", EM_Settings.ShowDebug_default).getBoolean(EM_Settings.ShowDebug_default);
+		
+		EM_Settings.ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons", EM_Settings.ShowGuiIcons_default, "Show Hide Gui Text Display and Icons").getBoolean(EM_Settings.ShowGuiIcons_default);
+		
+		//removed
+		//saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true , "True will allow you to build Saddles for horses.").getBoolean(true);
+		
+		// Config Item ID's
+		EM_Settings.dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
+		EM_Settings.saltBottleID = config.get(Configuration.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
+		EM_Settings.coldBottleID = config.get(Configuration.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
+		EM_Settings.camelPackID = config.get(Configuration.CATEGORY_ITEM, "Camel Pack", 5004).getInt(5004);
+		
+		// Potion ID's
+		EM_Settings.frostBitePotionID = config.get("Potions", "Hypothermia", 27).getInt(27);
+		EM_Settings.frostBitePotionID = config.get("Potions", "Heat Stroke", 28).getInt(28);
+		EM_Settings.frostBitePotionID = config.get("Potions", "Frostbite", 29).getInt(29);
+		EM_Settings.dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(30);
+		EM_Settings.insanityPotionID = config.get("Potions", "Insanity", 31).getInt(31);
+		
+		config.save();
 	}
 	
 	//#######################################
@@ -275,7 +270,7 @@ public class EM_ConfigHandler
 	
 	private static void LoadItemProperty(Configuration config, String category)
 	{
-
+		
 		config.addCustomCategoryComment(category, "");
 		int id = config.get(category, "01.ID", 0).getInt(0);
 		int meta = config.get(category, "02.Damage", 0).getInt(0);
@@ -405,25 +400,25 @@ public class EM_ConfigHandler
 		custom.addCustomCategoryComment(entityCat, "Custom Entities");		
 		*/
 		
-		ArmorDefaultSave(ItemArmor.helmetLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.plateLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.legsLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.bootsLeather.itemID	, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.helmetLeather.itemID, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.plateLeather.itemID, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.legsLeather.itemID, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.bootsLeather.itemID, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F);
 		
-		ArmorDefaultSave(ItemArmor.helmetIron.itemID	, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.plateIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.legsIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.bootsIron.itemID		, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.helmetIron.itemID, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.plateIron.itemID, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.legsIron.itemID, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.bootsIron.itemID, -0.5F, 0.0F, 2.5F, 1.0F, 1.0F, 1.1F, 0.0F, 0.0F);
 		
-		ArmorDefaultSave(ItemArmor.helmetGold.itemID	, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.plateGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.legsGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.bootsGold.itemID		, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.helmetGold.itemID, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.plateGold.itemID, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.legsGold.itemID, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.bootsGold.itemID, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.2F, 0.0F, 0.0F);
 		
-		ArmorDefaultSave(ItemArmor.helmetDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.plateDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.legsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
-		ArmorDefaultSave(ItemArmor.bootsDiamond.itemID	, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.helmetDiamond.itemID, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.plateDiamond.itemID, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.legsDiamond.itemID, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
+		ArmorDefaultSave(ItemArmor.bootsDiamond.itemID, 0.0F, 0.0F, 0.0F, 1.1F, 1.0F, 0.9F, 0.0F, 0.0F);
 		
 		//custom.save();	
 	}
@@ -463,43 +458,41 @@ public class EM_ConfigHandler
 		config.addCustomCategoryComment(armorCat, "Add Custom Armor");
 		config.addCustomCategoryComment(blockCat, "Add Custom Blocks");
 		config.addCustomCategoryComment(entityCat, "Custom Entities");
-
+		
 		if(type == "TILE")
 		{
-			String nameULCat = blockCat+"."+name.toLowerCase() + " " + (Integer) data[1];
+			String nameULCat = blockCat + "." + name.toLowerCase() + " " + (Integer)data[1];
 			
-			if(config.hasCategory(nameULCat) == true) 
+			if(config.hasCategory(nameULCat) == true)
 			{
-					config.removeCategory(config.getCategory(nameULCat));
-			}
-			else
+				config.removeCategory(config.getCategory(nameULCat));
+			} else
 			{
 				config.addCustomCategoryComment(nameULCat, name);
-				config.get(nameULCat, "01.ID", (Integer) data[0]).getInt(0);
+				config.get(nameULCat, "01.ID", (Integer)data[0]).getInt(0);
 				config.get(nameULCat, "02.EnablePhysics", true).getBoolean(true);
-				config.get(nameULCat, "03.MetaID", (Integer) data[1]).getInt(0);
-				config.get(nameULCat, "04.DropID",  (Integer) data[0]).getInt(0);
-				config.get(nameULCat, "05.DropMetaID", (Integer) data[1]).getInt(0);
+				config.get(nameULCat, "03.MetaID", (Integer)data[1]).getInt(0);
+				config.get(nameULCat, "04.DropID", (Integer)data[0]).getInt(0);
+				config.get(nameULCat, "05.DropMetaID", (Integer)data[1]).getInt(0);
 				config.get(nameULCat, "06.DropNumber", 0).getInt(0);
 				config.get(nameULCat, "07.EnableTemperature", false).getBoolean(false);
-				config.get(nameULCat, "08.Temprature", 0.00).getDouble(0.00); 
+				config.get(nameULCat, "08.Temprature", 0.00).getDouble(0.00);
 				config.get(nameULCat, "09.AirQuality", 0.00).getDouble(0.00);
 				config.get(nameULCat, "10.Sanity", 0.00).getDouble(0.00);
 				config.get(nameULCat, "11.Stability", "loose").getString();
 				config.get(nameULCat, "12.Holds Other Blocks", false).getBoolean(false);
 				returnValue = "Saved";
 			}
-		}else if (type == "ENTITY")
+		} else if(type == "ENTITY")
 		{
 			
-			String nameEntityCat = entityCat +"."+name.toLowerCase();
+			String nameEntityCat = entityCat + "." + name.toLowerCase();
 			
-			if(config.hasCategory(nameEntityCat) == true) 
+			if(config.hasCategory(nameEntityCat) == true)
 			{
-					config.removeCategory(config.getCategory(nameEntityCat));
-					returnValue = "Removed";
-			}
-			else
+				config.removeCategory(config.getCategory(nameEntityCat));
+				returnValue = "Removed";
+			} else
 			{
 				config.addCustomCategoryComment(nameEntityCat, "");
 				config.get(nameEntityCat, "1.Entity Name", name).toString();
@@ -510,22 +503,21 @@ public class EM_ConfigHandler
 				config.get(nameEntityCat, "5.ImmuneToFrost", false).getBoolean(false);
 				returnValue = "Saved";
 			}
-		
-		}else if (type == "ITEM")
-		{
-
-			String nameItemCat = itemsCat+ "." + name.toLowerCase();
 			
-			if(config.hasCategory(nameItemCat) == true) 
+		} else if(type == "ITEM")
+		{
+			
+			String nameItemCat = itemsCat + "." + name.toLowerCase();
+			
+			if(config.hasCategory(nameItemCat) == true)
 			{
-					config.removeCategory(config.getCategory(nameItemCat));
-					returnValue = "Removed";
-			}
-			else
+				config.removeCategory(config.getCategory(nameItemCat));
+				returnValue = "Removed";
+			} else
 			{
 				config.addCustomCategoryComment(nameItemCat, name);
-				config.get(nameItemCat, "01.ID", (Integer) data[0]).getInt(0);
-				config.get(nameItemCat, "02.MetaID", (Integer) data[1]).getInt(0);
+				config.get(nameItemCat, "01.ID", (Integer)data[0]).getInt(0);
+				config.get(nameItemCat, "02.MetaID", (Integer)data[1]).getInt(0);
 				config.get(nameItemCat, "03.EnableTemperature", false).getBoolean(false);
 				config.get(nameItemCat, "04.Ambient Temprature", 0.00).getDouble(0.00);
 				config.get(nameItemCat, "05.Ambient Air Quality", 0.00).getDouble(0.00);
@@ -538,19 +530,18 @@ public class EM_ConfigHandler
 				returnValue = "Saved";
 			}
 			
-		}else if (type == "ARMOR")
+		} else if(type == "ARMOR")
 		{
 			String nameArmorCat = armorCat + "." + name.toLowerCase();
 			
-			if(config.hasCategory(nameArmorCat) == true) 
+			if(config.hasCategory(nameArmorCat) == true)
 			{
-					config.removeCategory(config.getCategory(nameArmorCat));
-					returnValue = "Removed";
-			}
-			else
+				config.removeCategory(config.getCategory(nameArmorCat));
+				returnValue = "Removed";
+			} else
 			{
 				config.addCustomCategoryComment(nameArmorCat, name);
-				config.get(nameArmorCat, "1.ID", (Integer) data[0]).getInt(0);
+				config.get(nameArmorCat, "1.ID", (Integer)data[0]).getInt(0);
 				config.get(nameArmorCat, "2.nightTemp", 0.00).getDouble(0);
 				config.get(nameArmorCat, "3.shadeTemp", 0.00).getDouble(0);
 				config.get(nameArmorCat, "4.sunTemp", -1.00).getDouble(0);
@@ -560,12 +551,11 @@ public class EM_ConfigHandler
 				returnValue = "Saved";
 			}
 		}
-	
 		
 		config.save();
 		return returnValue;
 	}
-
+	
 	public static void loadStabilityTypes(File file)
 	{
 		Configuration config;
@@ -584,10 +574,10 @@ public class EM_ConfigHandler
 			return;
 		}
 		
-        config.load();
-        
-        loadDefaultStabilityTypes(config);
-        
+		config.load();
+		
+		loadDefaultStabilityTypes(config);
+		
 		// 	Grab all Categories in File
 		List<String> catagory = new ArrayList<String>();
 		Set<String> nameList = config.getCategoryNames();
@@ -614,8 +604,8 @@ public class EM_ConfigHandler
 			
 			EM_Settings.stabilityTypes.put(currentCat, new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		}
-        
-        config.save();
+		
+		config.save();
 	}
 	
 	public static void loadDefaultStabilityTypes(Configuration config)
@@ -628,7 +618,7 @@ public class EM_ConfigHandler
 		boolean holdOther = config.get("sand-like", "6.Holds Up Others", false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("sand-like", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
-
+		
 		physEnable = config.get("loose", "1.Enable Physics", true).getBoolean(true);
 		supportDist = config.get("loose", "2.Max Support Distance", 1).getInt(1);
 		minFall = config.get("loose", "3.Min Missing Blocks To Fall", 10).getInt(10);
@@ -637,7 +627,7 @@ public class EM_ConfigHandler
 		holdOther = config.get("loose", "6.Holds Up Others", false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("loose", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
-
+		
 		physEnable = config.get("average", "1.Enable Physics", true).getBoolean(true);
 		supportDist = config.get("average", "2.Max Support Distance", 2).getInt(2);
 		minFall = config.get("average", "3.Min Missing Blocks To Fall", 15).getInt(15);
@@ -646,7 +636,7 @@ public class EM_ConfigHandler
 		holdOther = config.get("average", "6.Holds Up Others", false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("average", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
-
+		
 		physEnable = config.get("strong", "1.Enable Physics", true).getBoolean(true);
 		supportDist = config.get("strong", "2.Max Support Distance", 3).getInt(3);
 		minFall = config.get("strong", "3.Min Missing Blocks To Fall", 22).getInt(22);

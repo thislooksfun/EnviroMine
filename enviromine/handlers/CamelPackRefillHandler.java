@@ -1,4 +1,5 @@
 package enviromine.handlers;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -18,7 +19,6 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 	public int packDamage;
 	public ArrayList<ItemStack> bottles = new ArrayList<ItemStack>();
 	public ItemStack pack;
-	
 	
 	public CamelPackRefillHandler()
 	{
@@ -70,7 +70,7 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 		if((packDamage == 0 && !fillBottle) || !hasPack || pack == null)
 		{
 			return false;
-		} else if(packDamage - (bottles.size()*25) <= -25 && fillBottle == false)
+		} else if(packDamage - (bottles.size() * 25) <= -25 && fillBottle == false)
 		{
 			return false;
 		} else if(packDamage + 25 > pack.getMaxDamage() && fillBottle == true)
@@ -81,13 +81,13 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 			return hasPack && bottles.size() >= 1;
 		}
 	}
-
+	
 	@Override
 	public ItemStack getCraftingResult(InventoryCrafting inventorycrafting)
 	{
 		return this.getRecipeOutput();
 	}
-
+	
 	@Override
 	public int getRecipeSize()
 	{
@@ -115,10 +115,10 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 			return newItem;
 		} else
 		{
-			if(packDamage > (bottles.size()*25))
+			if(packDamage > (bottles.size() * 25))
 			{
 				ItemStack newItem = new ItemStack(EnviroMine.camelPack);
-				newItem.setItemDamage(packDamage - (bottles.size()*25));
+				newItem.setItemDamage(packDamage - (bottles.size() * 25));
 				return newItem;
 			} else
 			{
@@ -126,7 +126,7 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 			}
 		}
 	}
-
+	
 	@Override
 	public void onCrafting(EntityPlayer player, ItemStack item, IInventory craftMatrix)
 	{
@@ -154,7 +154,7 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 			}
 		}
 	}
-
+	
 	@Override
 	public void onSmelting(EntityPlayer player, ItemStack item)
 	{
