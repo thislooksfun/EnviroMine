@@ -486,7 +486,7 @@ public class EM_GuiEnviroMeters extends Gui
 			return;
 		}
 		
-		if(debuggingText != true) return;
+		if(debuggingText != true || this.mc.gameSettings.showDebugInfo) return;
 		
 		try{
 			if(EM_Settings.useFarenheit == true)

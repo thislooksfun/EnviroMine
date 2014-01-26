@@ -18,6 +18,7 @@ import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EnviroDataTracker;
+import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -25,6 +26,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -286,14 +288,14 @@ public class EM_StatusManager
 					{
 						if(id == Block.plantRed.blockID || id == Block.plantYellow.blockID)
 						{
-							sanityRate = 1F;
+							sanityRate = 0.1F;
 						}
 						leaves += 1;
 					} else if(id == Block.netherrack.blockID && quality >= 0)
 					{
-						if(temp < 25F)
+						if(temp < 35F)
 						{
-							temp = 25F;
+							temp = 35F;
 						}
 					} else if(id == Block.waterMoving.blockID || id == Block.waterStill.blockID || (id == Block.cauldron.blockID && meta > 0))
 					{
@@ -308,12 +310,81 @@ public class EM_StatusManager
 					{
 						if(meta == 1 || meta == 2)
 						{
-							sanityRate = 1F;
+							sanityRate = 0.1F;
 							leaves += 1;
 						} else if(meta != 0 && !(meta >= 7 && meta <= 10))
 						{
 							leaves += 1;
 						}
+					}
+				}
+			}
+		}
+		
+		if(entityLiving instanceof EntityPlayer)
+		{
+			EntityPlayer player = (EntityPlayer)entityLiving;
+			
+			for(int slot = 0; slot < 9; slot ++)
+			{
+				ItemStack stack = player.inventory.mainInventory[slot];
+				
+				if(stack == null)
+				{
+					continue;
+				}
+				
+				if(EM_Settings.itemProperties.containsKey("" + stack.itemID + "," + stack.getItemDamage()) || EM_Settings.itemProperties.containsKey("" + stack.itemID))
+				{
+					ItemProperties itemProps;
+					
+					if(EM_Settings.itemProperties.containsKey("" + stack.itemID + "," + stack.getItemDamage()))
+					{
+						itemProps = EM_Settings.itemProperties.get("" + stack.itemID + "," + stack.getItemDamage());
+					} else
+					{
+						itemProps = EM_Settings.itemProperties.get("" + stack.itemID);
+					}
+					
+					if((quality <= itemProps.ambAir && itemProps.ambAir > 0F) || (quality >= itemProps.ambAir && itemProps.ambAir < 0 && quality <= 0))
+					{
+						quality = itemProps.ambAir;
+					}
+					if(temp <= itemProps.ambTemp && itemProps.enableTemp && itemProps.ambTemp > 0F)
+					{
+						temp = itemProps.ambTemp;
+					} else if(itemProps.enableTemp && itemProps.ambTemp < 0F)
+					{
+						cooling += itemProps.ambTemp;
+					}
+					if((sanityRate <= itemProps.ambSanity && itemProps.ambSanity > 0F) || (sanityRate >= itemProps.ambSanity && itemProps.ambSanity < 0 && sanityRate <= 0))
+					{
+						sanityRate = itemProps.ambSanity;
+					}
+				} else if(stack.getItem() == Item.bucketLava)
+				{
+					if(temp <= 100F)
+					{
+						temp = 100F;
+					}
+				} else if(stack.getItem().equals(new ItemStack(Block.plantRed).getItem()) || stack.getItem().equals(new ItemStack(Block.plantYellow).getItem()))
+				{
+					sanityRate = 0.1F;
+					leaves += 1;
+				} else if(stack.getItem().equals(new ItemStack(Block.leaves).getItem()))
+				{
+					leaves += 1;
+				} else if(stack.getItem().equals(new ItemStack(Block.blockSnow).getItem()) || stack.getItem().equals(new ItemStack(Block.ice).getItem()))
+				{
+					cooling += 0.05F;
+				} else if(stack.getItem().equals(new ItemStack(Block.snow).getItem()))
+				{
+					cooling += 0.01F;
+				} else if(stack.getItem().equals(new ItemStack(Block.netherrack).getItem()))
+				{
+					if(temp <= 35)
+					{
+						temp = 35;
 					}
 				}
 			}
@@ -327,13 +398,13 @@ public class EM_StatusManager
 			
 			if(isDay)
 			{
-				sanityRate = 2F;
+				sanityRate = 0.2F;
 			}
 		} else
 		{
 			if(sanityRate == 0)
 			{
-				sanityRate = -0.1F;
+				sanityRate = -0.01F;
 			}
 		}
 		
@@ -499,6 +570,16 @@ public class EM_StatusManager
 						tempMultTotal += (props.nightMult - 1.0F);
 						addTemp += props.nightTemp;
 					}
+					
+					if(quality <= props.air)
+					{
+						quality = props.air;
+					}
+					
+					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					{
+						sanityRate = props.sanity;
+					}
 				}
 			}
 			if(plate != null)
@@ -522,6 +603,16 @@ public class EM_StatusManager
 					{
 						tempMultTotal += (props.nightMult - 1.0F);
 						addTemp += props.nightTemp;
+					}
+					
+					if(quality <= props.air)
+					{
+						quality = props.air;
+					}
+					
+					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					{
+						sanityRate = props.sanity;
 					}
 				}
 			}
@@ -547,6 +638,16 @@ public class EM_StatusManager
 						tempMultTotal += (props.nightMult - 1.0F);
 						addTemp += props.nightTemp;
 					}
+					
+					if(quality <= props.air)
+					{
+						quality = props.air;
+					}
+					
+					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					{
+						sanityRate = props.sanity;
+					}
 				}
 			}
 			if(boots != null)
@@ -570,6 +671,16 @@ public class EM_StatusManager
 					{
 						tempMultTotal += (props.nightMult - 1.0F);
 						addTemp += props.nightTemp;
+					}
+					
+					if(quality <= props.air)
+					{
+						quality = props.air;
+					}
+					
+					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					{
+						sanityRate = props.sanity;
 					}
 				}
 			}
@@ -636,12 +747,12 @@ public class EM_StatusManager
 		data[4] = dropSpeed;
 		data[5] = riseSpeed;
 		data[6] = animalHostility;
-		data[7] = sanityRate/10;
+		data[7] = sanityRate;
 		
 	    
 	    EM_GuiEnviroMeters.DB_nearLava = nearLava;
 	    EM_GuiEnviroMeters.DB_abientTemp = tempFin;
-	    EM_GuiEnviroMeters.DB_sanityrate = sanityRate/10;
+	    EM_GuiEnviroMeters.DB_sanityrate = sanityRate;
 	    EM_GuiEnviroMeters.DB_airquality= quality;
 	    EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
 	    EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;

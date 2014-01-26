@@ -129,7 +129,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
                                 }
                             }
                         }
-                        else if (this.shouldDropItem && !this.isBreakingAnvil2 && !isLandSlide)
+                        else if (this.shouldDropItem && !this.isBreakingAnvil2)
                         {
                             this.entityDropItem(new ItemStack(this.blockID, 1, Block.blocksList[this.blockID].damageDropped(this.metadata)), 0.0F);
                         }

@@ -10,7 +10,6 @@ public class ItemProperties
 	public float ambTemp;
 	public float ambAir;
 	public float ambSanity;
-	public float ambHydration;
 	
 	public float effTemp;
 	public float effAir;
@@ -19,7 +18,7 @@ public class ItemProperties
 	
 	public float effTempCap;
 	
-	public ItemProperties(int id, int meta, boolean enableTemp, float ambTemp, float ambAir, float ambSanity, float ambHydration, float effTemp, float effAir, float effSanity, float effHydration, float effTempCap)
+	public ItemProperties(int id, int meta, boolean enableTemp, float ambTemp, float ambAir, float ambSanity, float effTemp, float effAir, float effSanity, float effHydration, float effTempCap)
 	{
 		this.id = id;
 		this.meta = meta;
@@ -28,7 +27,6 @@ public class ItemProperties
 		this.ambTemp = ambTemp;
 		this.ambAir = ambAir;
 		this.ambSanity = ambSanity;
-		this.ambHydration = ambHydration;
 		
 		this.effTemp = effTemp;
 		this.effAir = effAir;

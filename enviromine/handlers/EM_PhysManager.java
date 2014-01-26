@@ -6,6 +6,7 @@ import java.util.List;
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.StabilityType;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBed;
@@ -162,7 +163,30 @@ public class EM_PhysManager
         	waterLogged = chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining();
         }
         
-		if(world.getBlockId(x, y - 1, z) != 0 && (block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y, z))))
+        boolean validSlideType = false;
+        
+        if(world.getBlockId(x, y - 1, z) == 0)
+        {
+        	validSlideType = false;
+        } else if(block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y, z)))
+        {
+        	validSlideType = false;
+        } else if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
+		{
+        	BlockProperties slideProps;
+        	
+			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
+			{
+				slideProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
+			} else
+			{
+				slideProps = EM_Settings.blockProperties.get("" + block.blockID);
+			}
+			
+			validSlideType = slideProps.slides;
+		}
+        
+		if(validSlideType)
 		{
 			if(EM_Settings.enableLandslide == false) { return; } // If Landslides Disable stop here
     		if(block.blockID == Block.dirt.blockID)
@@ -173,6 +197,10 @@ public class EM_PhysManager
 	    			{
 	    				for(int k = -1; k < 2; k++)
 	    				{
+	    					
+	    					Block testBlock = Block.blocksList[world.getBlockId(i + x, j + y, k + z)];
+	    					int stabNum = getDefaultStabilityType(testBlock);
+	    					
 	    					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
 	    					{
 	    						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
@@ -188,7 +216,29 @@ public class EM_PhysManager
 	    								return;
 	    							}
 	    						}
-	    					}
+	    					} else if(stabNum == 3)
+	    		    		{
+	    		    			StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
+	    		    			if(strongType != null && strongType.holdOther)
+	    		    			{
+	    		    				return;
+	    		    			}
+	    		    		} else if(stabNum == 2)
+	    		    		{
+	    		    			StabilityType avgType = EM_Settings.stabilityTypes.get("average");
+	    		    			if(avgType != null && avgType.holdOther)
+	    		    			{
+	    		    				return;
+	    		    			}
+	    		    		} else if(stabNum == 1)
+	    		    		{
+	    		    			StabilityType looseType = EM_Settings.stabilityTypes.get("loose");
+	    		    			if(looseType != null && looseType.holdOther)
+	    		    			{
+	    		    				return;
+	    		    			}
+	    		    		}
+	    					
 	    					if(world.getBlockId(i + x, j + y, k + z) == Block.glowStone.blockID)
 	    					{
 								return;
@@ -320,24 +370,53 @@ public class EM_PhysManager
     		int supportDist = 1;
     		int yMax = 1;
     		
+    		int stabNum = getDefaultStabilityType(block);
+    		
     		if(isCustom)
     		{
     			minThreshold = blockProps.minFall;
     			maxThreshold = blockProps.maxFall;
     			supportDist = blockProps.supportDist;
         		yMax = 2;
-    		} else if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian || block.blockID == Block.stoneBrick.blockID || block.blockID == Block.brick.blockID || block.blockID == Block.blockNetherQuartz.blockID || block instanceof BlockLeaves)
+    		} else if(stabNum == 3)
     		{
-    			minThreshold = 22;
-    			maxThreshold = 25;
-        		supportDist = 3;
-        		yMax = 2;
-    		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice)
+    			StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
+    			minThreshold = strongType.minFall;
+    			maxThreshold = strongType.maxFall;
+        		supportDist = strongType.supportDist;
+        		if(strongType.canHang)
+        		{
+        			yMax = 2;
+        		} else
+        		{
+        			yMax = 1;
+        		}
+    		} else if(stabNum == 2)
     		{
-        		minThreshold = 15;
-        		maxThreshold = 22;
-        		supportDist = 2;
-        		yMax = 1;
+    			StabilityType avgType = EM_Settings.stabilityTypes.get("average");
+    			minThreshold = avgType.minFall;
+    			maxThreshold = avgType.maxFall;
+        		supportDist = avgType.supportDist;
+        		if(avgType.canHang)
+        		{
+        			yMax = 2;
+        		} else
+        		{
+        			yMax = 1;
+        		}
+    		} else if(stabNum == 1)
+    		{
+    			StabilityType looseType = EM_Settings.stabilityTypes.get("loose");
+    			minThreshold = looseType.minFall;
+    			maxThreshold = looseType.maxFall;
+        		supportDist = looseType.supportDist;
+        		if(looseType.canHang)
+        		{
+        			yMax = 2;
+        		} else
+        		{
+        			yMax = 1;
+        		}
     		}
     		
     		int missingBlocks = 0;
@@ -370,9 +449,6 @@ public class EM_PhysManager
     					} else if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
     					{
         					missingBlocks++;
-    					} else if(i == 0 && j == 1 && k == 0 && (block.blockMaterial == Material.rock || block.blockMaterial == Material.ground))
-    					{
-    						missingBlocks += 2;
     					} else if(world.getBlockId(i + x, j + y, k + z) == Block.glowStone.blockID)
     					{
     						return;
@@ -483,6 +559,18 @@ public class EM_PhysManager
 
     public static boolean hasSupports(World world, int x, int y, int z, int dist)
 	{
+    	for(int i = x - 1 ; i <= x + 1; i ++)
+    	{
+    		for(int k = z - 1 ; k <= z + 1; k ++)
+    		{
+    			int j = y - 1;
+    			
+    			if(!(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves))
+    			{
+    				return true;
+    			}
+    		}
+    	}
     	for(int i = x + 1; i <= x + dist; i++)
     	{
         	int k = z;
@@ -500,15 +588,6 @@ public class EM_PhysManager
 	    			} else
 	    			{
 	    				continue;
-	    			}
-    			} else
-    			{
-	    			if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
-	    			{
-	    				continue;
-	    			} else
-	    			{
-	    				return true;
 	    			}
     			}
     		}
@@ -647,10 +726,22 @@ public class EM_PhysManager
 	public static boolean isLegalType(World world, int x, int y, int z)
 	{
 		int id = world.getBlockId(x, y, z);
+		int meta = world.getBlockMetadata(x, y, z);
 		
 		if(id == 0)
 		{
 			return false;
+		} else if(EM_Settings.blockProperties.containsKey("" + id + "," + meta) || EM_Settings.blockProperties.containsKey("" + id))
+		{
+			if(EM_Settings.blockProperties.containsKey("" + id + "," + meta))
+			{
+				BlockProperties blockProps = EM_Settings.blockProperties.get("" + id + "," + meta);
+				return (!blockProps.hasPhys || blockProps.holdsOthers);
+			} else
+			{
+				BlockProperties blockProps = EM_Settings.blockProperties.get("" + id);
+				return (!blockProps.hasPhys || blockProps.holdsOthers);
+			}
 		} else
 		{
 			if(
@@ -800,5 +891,23 @@ public class EM_PhysManager
     	}
     	
     	return npos;
+	}
+	
+	public static int getDefaultStabilityType(Block block)
+	{
+		int type = 0;
+		
+		if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian || block.blockID == Block.stoneBrick.blockID || block.blockID == Block.brick.blockID || block.blockID == Block.blockNetherQuartz.blockID || block instanceof BlockLeaves)
+		{
+			type = 3;
+		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice)
+		{
+			type = 2;
+		} else
+		{
+			type = 1;
+		}
+		
+		return type;
 	}
 }

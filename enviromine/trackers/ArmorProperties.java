@@ -9,8 +9,10 @@ public class ArmorProperties
 	public float nightMult;
 	public float shadeMult;
 	public float sunMult;
+	public float sanity;
+	public float air;
 	
-	public ArmorProperties(int id, float nightTemp, float shadeTemp, float sunTemp, float nightMult, float shadeMult, float sunMult)
+	public ArmorProperties(int id, float nightTemp, float shadeTemp, float sunTemp, float nightMult, float shadeMult, float sunMult, float sanity, float air)
 	{
 		this.id = id;
 		this.nightTemp = nightTemp;
@@ -19,5 +21,7 @@ public class ArmorProperties
 		this.nightMult = nightMult;
 		this.shadeMult = shadeMult;
 		this.sunMult = sunMult;
+		this.sanity = sanity;
+		this.air = air;
 	}
 }

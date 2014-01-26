@@ -44,6 +44,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
@@ -611,12 +612,12 @@ public class EM_EventManager
 				if(itemUse >= Item.itemsList[item.itemID].getMaxItemUseDuration(item) - 1)
 				{
 					itemUse = 0;
-					if((false) && EM_Settings.itemProperties.containsKey("" + item.itemID) || EM_Settings.itemProperties.containsKey("" + item.itemID + "" + item.getItemDamage()))
+					if(EM_Settings.itemProperties.containsKey("" + item.itemID) || EM_Settings.itemProperties.containsKey("" + item.itemID + "," + item.getItemDamage()))
 					{
 						ItemProperties itemProps;
-						if(EM_Settings.itemProperties.containsKey("" + item.itemID + "" + item.getItemDamage()))
+						if(EM_Settings.itemProperties.containsKey("" + item.itemID + "," + item.getItemDamage()))
 						{
-							itemProps = EM_Settings.itemProperties.get("" + item.itemID + "" + item.getItemDamage());
+							itemProps = EM_Settings.itemProperties.get("" + item.itemID + "," + item.getItemDamage());
 						} else
 						{
 							itemProps = EM_Settings.itemProperties.get("" + item.itemID);
@@ -745,6 +746,15 @@ public class EM_EventManager
 			{
 				event.entityLiving.motionY = 0;
 			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onLand(LivingFallEvent event)
+	{
+		if(event.entityLiving.getRNG().nextInt(5) == 0)
+		{
+			EM_PhysManager.schedulePhysUpdate(event.entityLiving.worldObj, MathHelper.floor_double(event.entityLiving.posX), MathHelper.floor_double(event.entityLiving.posY - 1), MathHelper.floor_double(event.entityLiving.posZ), true, false);
 		}
 	}
 
