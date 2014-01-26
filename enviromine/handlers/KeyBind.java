@@ -7,6 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.util.EnumMovingObjectType;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
@@ -44,15 +46,17 @@ public class KeyBind extends KeyHandler
 	@Override
 	public void keyUp(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd) 
 	{
-		
-
+			
 		if(tickEnd)
 		{
-			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null) {
-				Minecraft.getMinecraft().thePlayer.addChatMessage("Single player only function.");
+			
+			Minecraft mc = Minecraft.getMinecraft();
+			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null) 
+			{
+				
+				mc.thePlayer.addChatMessage("Single player only function.");
 				return;
 			}
-			Minecraft mc = Minecraft.getMinecraft();
 			// prevents key press firing while gui screen or chat open, if that's what you want
 			// if you want your key to be able to close the gui screen, handle it outside this if statement
 			if (mc.currentScreen == null)
@@ -60,16 +64,43 @@ public class KeyBind extends KeyHandler
 
 			try
 			{
-				EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
+				
+				String returnValue = "";
+				if (mc.thePlayer.getHeldItem() != null)
+				{
+					
+					Item item = mc.thePlayer.getHeldItem().getItem();
+					int itemId = mc.thePlayer.getHeldItem().itemID;
+					int itemMeta = mc.thePlayer.getHeldItem().getItem().getMetadata(itemId);
+					String unlocolizedName = mc.thePlayer.getHeldItem().getItem().getUnlocalizedName();
+					String name = mc.thePlayer.getHeldItem().getDisplayName();
+					dataToCustom[0] = itemId; dataToCustom[1] = itemMeta;
+					dataToCustom[2] = unlocolizedName;
+					
+					if(item instanceof ItemArmor)
+					{
+						returnValue = EM_ConfigHandler.SaveMyCustom("ARMOR", name, dataToCustom);
+						mc.thePlayer.addChatMessage(name +" " + returnValue +" in MyCustom.dat file. ");
+					}
+					else if (item instanceof Item)
+					{
+						returnValue = EM_ConfigHandler.SaveMyCustom("ITEM", name, dataToCustom);
+						mc.thePlayer.addChatMessage(name +" " + returnValue +" in MyCustom.dat file. ");
+					}
+					
+					return;
 
+				}
+				
+				EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
+				
 				if (type.name() == "ENTITY")
 				{
 					Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
 					String name = EntityList.getEntityString(lookingAt);
-					// Call CONFIG
-					EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
-					
-					Minecraft.getMinecraft().thePlayer.addChatMessage("Adding " + name + " to MyCustom.dat file.");
+
+					returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
+					mc.thePlayer.addChatMessage(name + " " + returnValue +" in MyCustom.dat file.");
 				}
 				else if(type.name() == "TILE")
 				{
@@ -87,9 +118,8 @@ public class KeyBind extends KeyHandler
 					dataToCustom[2] = blockULName;
 					//System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
 					
-					EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
-					
-					Minecraft.getMinecraft().thePlayer.addChatMessage("Adding " + blockName + "("+ blockID +":"+ blockMeta +") to MyCustom.dat file.");
+					returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
+					mc.thePlayer.addChatMessage(blockName + "("+ blockID +":"+ blockMeta +") " + returnValue +"  in MyCustom.dat file.");
 				} //else if
 			} //try
 			catch (NullPointerException e)

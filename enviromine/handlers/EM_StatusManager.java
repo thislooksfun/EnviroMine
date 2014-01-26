@@ -165,9 +165,6 @@ public class EM_StatusManager
 		int animalHostility = 0;
 		boolean nearLava = false;
 		
-		boolean isCustom = false;
-		BlockProperties blockProps = null;
-		
 		int i = MathHelper.floor_double(entityLiving.posX);
 		int j = MathHelper.floor_double(entityLiving.posY);
 		int k = MathHelper.floor_double(entityLiving.posZ);
@@ -214,8 +211,12 @@ public class EM_StatusManager
 				{
 					int id = 0;
 					int meta = 0;
+					// These need to be here to reset
+					boolean isCustom = false;
+					BlockProperties blockProps = null;						
 
 					id = entityLiving.worldObj.getBlockId(i + x, j + y, k + z);
+					
 					
 					if(id != 0)
 					{
@@ -236,10 +237,12 @@ public class EM_StatusManager
 						{
 							isCustom = true;
 						}
+
 					}
 					
 					if(isCustom && blockProps != null)
 					{
+
 						if(quality <= blockProps.air)
 						{
 							quality = blockProps.air;
