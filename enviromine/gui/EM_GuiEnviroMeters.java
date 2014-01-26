@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EnviroDataTracker;
@@ -370,7 +371,7 @@ public class EM_GuiEnviroMeters extends Gui
 				{
 					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39))/3)) * 96);
 				}
-				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(255, 255, 255, grad), getColorFromRGBA(255, 255, 255, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(255, 255, 255, grad), EnviroMine.getColorFromRGBA(255, 255, 255, grad));
 			} 
 			else if(tracker.bodyTemp <= 35F)
 			{
@@ -382,83 +383,18 @@ public class EM_GuiEnviroMeters extends Gui
 				{
 					grad = (int)(((Math.abs(3 - (tracker.bodyTemp - 32))/3)) * 64);
 				}
-				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(125, 255, 255, grad), getColorFromRGBA(125, 255, 255, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(125, 255, 255, grad), EnviroMine.getColorFromRGBA(125, 255, 255, grad));
 			} else if(tracker.airQuality < 50F)
 			{
 				int grad = (int)((50 - tracker.airQuality)/50 * 64);
-				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(32, 96, 0, grad), getColorFromRGBA(32, 96, 0, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(32, 96, 0, grad), EnviroMine.getColorFromRGBA(32, 96, 0, grad));
 			} else if(tracker.sanity < 50F)
 			{
 				int grad = (int)((50 - tracker.sanity)/50 * 64);
-				this.drawGradientRect(0, 0, width, height, getColorFromRGBA(200, 0, 249, grad), getColorFromRGBA(200, 0, 249, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(200, 0, 249, grad), EnviroMine.getColorFromRGBA(200, 0, 249, grad));
 			}
 		}
 	}
-	
-	public static int getColorFromRGBA_F(float par1, float par2, float par3, float par4)
-	{
-    	int R = (int)(par1 * 255.0F);
-    	int G = (int)(par2 * 255.0F);
-    	int B = (int)(par3 * 255.0F);
-    	int A = (int)(par4 * 255.0F);
-    	
-    	return getColorFromRGBA(R, G, B, A);
-	}
-
-    public static int getColorFromRGBA(int R, int G, int B, int A)
-    {
-        if (R > 255)
-        {
-            R = 255;
-        }
-
-        if (G > 255)
-        {
-            G = 255;
-        }
-
-        if (B > 255)
-        {
-            B = 255;
-        }
-
-        if (A > 255)
-        {
-            A = 255;
-        }
-
-        if (R < 0)
-        {
-            R = 0;
-        }
-
-        if (G < 0)
-        {
-            G = 0;
-        }
-
-        if (B < 0)
-        {
-            B = 0;
-        }
-
-        if (A < 0)
-        {
-            A = 0;
-        }
-
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
-        {
-            return A << 24 | R << 16 | G << 8 | B;
-        }
-        else
-        {
-            return B << 24 | G << 16 | R << 8 | A;
-        }
-    }
-    
-    
-    
     
     public static boolean DB_nearLava =false;
     public static float DB_bodyTemp = 0; 

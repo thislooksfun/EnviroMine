@@ -1,5 +1,6 @@
 package enviromine.core;
 
+import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -100,7 +101,7 @@ public class EnviroMine
 		LanguageRegistry.addName(camelPack, "Camel Pack");
 
 		EnviroPotion.hypothermia = (EnviroPotion)new EnviroPotion(EM_Settings.hypothermiaPotionID, true, 8171462).setPotionName("potion.hypothermia").setIconIndex(4, 0);
-		EnviroPotion.heatstroke = (EnviroPotion)new EnviroPotion(EM_Settings.heatstrokePotionID, true, EM_GuiEnviroMeters.getColorFromRGBA(255,0,0,255)).setPotionName("potion.heatstroke").setIconIndex(3, 0);
+		EnviroPotion.heatstroke = (EnviroPotion)new EnviroPotion(EM_Settings.heatstrokePotionID, true, getColorFromRGBA(255,0,0,255)).setPotionName("potion.heatstroke").setIconIndex(3, 0);
 		EnviroPotion.frostbite = (EnviroPotion)new EnviroPotion(EM_Settings.frostBitePotionID, true, 8171462).setPotionName("potion.frostbite").setIconIndex(0, 0);
 		EnviroPotion.dehydration = (EnviroPotion)new EnviroPotion(EM_Settings.dehydratePotionID, true, 3035801).setPotionName("potion.dehydration").setIconIndex(1, 0);
 		EnviroPotion.insanity = (EnviroPotion)new EnviroPotion(EM_Settings.insanityPotionID, true, 5578058).setPotionName("potion.insanity").setIconIndex(2, 0);
@@ -140,4 +141,66 @@ public class EnviroMine
         boolean[] repeat = {false};
         KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
 	}
+	
+	public static int getColorFromRGBA_F(float par1, float par2, float par3, float par4)
+	{
+    	int R = (int)(par1 * 255.0F);
+    	int G = (int)(par2 * 255.0F);
+    	int B = (int)(par3 * 255.0F);
+    	int A = (int)(par4 * 255.0F);
+    	
+    	return getColorFromRGBA(R, G, B, A);
+	}
+
+    public static int getColorFromRGBA(int R, int G, int B, int A)
+    {
+        if (R > 255)
+        {
+            R = 255;
+        }
+
+        if (G > 255)
+        {
+            G = 255;
+        }
+
+        if (B > 255)
+        {
+            B = 255;
+        }
+
+        if (A > 255)
+        {
+            A = 255;
+        }
+
+        if (R < 0)
+        {
+            R = 0;
+        }
+
+        if (G < 0)
+        {
+            G = 0;
+        }
+
+        if (B < 0)
+        {
+            B = 0;
+        }
+
+        if (A < 0)
+        {
+            A = 0;
+        }
+
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
+        {
+            return A << 24 | R << 16 | G << 8 | B;
+        }
+        else
+        {
+            return B << 24 | G << 16 | R << 8 | A;
+        }
+    }
 }
