@@ -35,6 +35,7 @@ import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.EM_GuiEnviroMeters;
+import enviromine.gui.UpdateNotification;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.items.EnviroArmor;
@@ -118,6 +119,8 @@ public class EnviroMine
 		GameRegistry.addShapelessRecipe(new ItemStack(saltWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.sand, 1));
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
+		
+		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
 		EnviroMine.logger.log(Level.INFO, "Registering Handlers");
 		proxy.registerTickHandlers();
