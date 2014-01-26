@@ -1,16 +1,12 @@
 package enviromine.core;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.logging.Level;
-
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
 import enviromine.trackers.StabilityType;
-import net.minecraftforge.common.Configuration;
 
 public class EM_Settings
 {
@@ -59,7 +55,7 @@ public class EM_Settings
 	
 	public static boolean ShowText_default = true;
 	public static boolean ShowText_actual = true;
-	public static boolean ShowDebug_default = true;
+	public static boolean ShowDebug_default = false;
 	public static boolean ShowDebug_actual;
 	
 	public static int dirtBottleID = 5001;

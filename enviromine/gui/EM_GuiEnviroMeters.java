@@ -2,16 +2,12 @@ package enviromine.gui;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.ByteOrder;
-
 import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
-import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -380,8 +376,9 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			// Screen Overlays FX Screen
 			if(tracker.bodyTemp <= 0F)
-				
-				this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/new_ui.png"));
+			{
+				this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/status_Gui.png"));
+			}
 			
 			if(tracker.bodyTemp >= 39)
 			{
@@ -416,35 +413,36 @@ public class EM_GuiEnviroMeters extends Gui
 			}
 		}
 	}
-    
-    public static boolean DB_nearLava =false;
-    public static float DB_bodyTemp = 0; 
-    public static float DB_abientTemp = 0;
-    public static float DB_sanityrate = 0;
-    public static float DB_airquality= 0;
-    
-    public static float DB_dropspeed = 0.002F;
-    public static float DB_raisespeed = 0.002F;
-    
-    public static float DB_cooling = 0;
-    public static float DB_dehydrateBonus = 0;
-    
-    public static String DB_timer = "";
-    
-    public static String DB_biomeName = "";
-
-    @ForgeSubscribe
+	
+	public static boolean DB_nearLava = false;
+	public static float DB_bodyTemp = 0;
+	public static float DB_abientTemp = 0;
+	public static float DB_sanityrate = 0;
+	public static float DB_airquality = 0;
+	
+	public static float DB_dropspeed = 0.002F;
+	public static float DB_raisespeed = 0.002F;
+	
+	public static float DB_cooling = 0;
+	public static float DB_dehydrateBonus = 0;
+	
+	public static String DB_timer = "";
+	
+	public static String DB_biomeName = "";
+	
+	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
 	public void ShowDebugText(RenderGameOverlayEvent event)
 	{
-		boolean debuggingText = true;
 		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCancelable())
 		{
 			return;
 		}
 		
-		if(debuggingText != true || this.mc.gameSettings.showDebugInfo)
+		if(!EM_Settings.ShowDebug_actual || this.mc.gameSettings.showDebugInfo)
+		{
 			return;
+		}
 		
 		try
 		{

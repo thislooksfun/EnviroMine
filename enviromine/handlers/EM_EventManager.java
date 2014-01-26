@@ -730,6 +730,13 @@ public class EM_EventManager
 					} else if(item.itemID == Item.rottenFlesh.itemID || item.itemID == Item.spiderEye.itemID || item.itemID == Item.poisonousPotato.itemID)
 					{
 						tracker.dehydrate(5F);
+						if(tracker.sanity <= 1F)
+						{
+							tracker.sanity = 0F;
+						} else
+						{
+							tracker.sanity -= 1F;
+						}
 					}
 				}
 			}

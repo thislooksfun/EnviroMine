@@ -96,6 +96,7 @@ public class EM_ConfigHandler
 		EM_Settings.enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
 		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
 		EM_Settings.trackNonPlayer_actual = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", EM_Settings.trackNonPlayer_default, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(EM_Settings.trackNonPlayer_default);
+		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false).getBoolean(false);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
@@ -110,9 +111,6 @@ public class EM_ConfigHandler
 		EM_Settings.ShowDebug_actual = config.get(GuiSetCat, "Show Debugging Info", EM_Settings.ShowDebug_default).getBoolean(EM_Settings.ShowDebug_default);
 		
 		EM_Settings.ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons", EM_Settings.ShowGuiIcons_default, "Show Hide Gui Text Display and Icons").getBoolean(EM_Settings.ShowGuiIcons_default);
-		
-		//removed
-		//saddleRecipe = config.get(Configuration.CATEGORY_GENERAL, "Enable Saddle Recipe", true , "True will allow you to build Saddles for horses.").getBoolean(true);
 		
 		// Config Item ID's
 		EM_Settings.dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);

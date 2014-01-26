@@ -139,9 +139,14 @@ public class EnviroDataTracker
 		// Hydration checks
 		if(hydration > 0F && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
 		{
-			if(bodyTemp > 30F)
+			if(bodyTemp >= 38.01F)
 			{
 				dehydrate(0.05F);
+				
+				if(hydration >= 50.01F)
+				{
+					bodyTemp -= 0.01F;
+				}
 			}
 			
 			dehydrate(0.05F + enviroData[3]);

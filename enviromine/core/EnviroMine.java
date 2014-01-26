@@ -35,7 +35,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
-import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.gui.UpdateNotification;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
@@ -143,63 +142,62 @@ public class EnviroMine
 	
 	public static int getColorFromRGBA_F(float par1, float par2, float par3, float par4)
 	{
-    	int R = (int)(par1 * 255.0F);
-    	int G = (int)(par2 * 255.0F);
-    	int B = (int)(par3 * 255.0F);
-    	int A = (int)(par4 * 255.0F);
-    	
-    	return getColorFromRGBA(R, G, B, A);
+		int R = (int)(par1 * 255.0F);
+		int G = (int)(par2 * 255.0F);
+		int B = (int)(par3 * 255.0F);
+		int A = (int)(par4 * 255.0F);
+		
+		return getColorFromRGBA(R, G, B, A);
 	}
-
-    public static int getColorFromRGBA(int R, int G, int B, int A)
-    {
-        if (R > 255)
-        {
-            R = 255;
-        }
-
-        if (G > 255)
-        {
-            G = 255;
-        }
-
-        if (B > 255)
-        {
-            B = 255;
-        }
-
-        if (A > 255)
-        {
-            A = 255;
-        }
-
-        if (R < 0)
-        {
-            R = 0;
-        }
-
-        if (G < 0)
-        {
-            G = 0;
-        }
-
-        if (B < 0)
-        {
-            B = 0;
-        }
-
-        if (A < 0)
-        {
-            A = 0;
-        }
-
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
-        {
-            return A << 24 | R << 16 | G << 8 | B;
-        }
-        else
-        {
-            return B << 24 | G << 16 | R << 8 | A;
-        }
-    }
+	
+	public static int getColorFromRGBA(int R, int G, int B, int A)
+	{
+		if(R > 255)
+		{
+			R = 255;
+		}
+		
+		if(G > 255)
+		{
+			G = 255;
+		}
+		
+		if(B > 255)
+		{
+			B = 255;
+		}
+		
+		if(A > 255)
+		{
+			A = 255;
+		}
+		
+		if(R < 0)
+		{
+			R = 0;
+		}
+		
+		if(G < 0)
+		{
+			G = 0;
+		}
+		
+		if(B < 0)
+		{
+			B = 0;
+		}
+		
+		if(A < 0)
+		{
+			A = 0;
+		}
+		
+		if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
+		{
+			return A << 24 | R << 16 | G << 8 | B;
+		} else
+		{
+			return B << 24 | G << 16 | R << 8 | A;
+		}
+	}
 }

@@ -2,7 +2,6 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import enviromine.trackers.BlockProperties;
@@ -24,7 +23,6 @@ import net.minecraft.block.BlockSand;
 import net.minecraft.block.BlockSign;
 import net.minecraft.block.BlockWeb;
 import net.minecraft.block.BlockObsidian;
-import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.item.EntityItem;
@@ -69,7 +67,7 @@ public class EM_PhysManager
 		
 		for(int i = -1; i <= 1; i++)
 		{
-			for(int j = 1; j >= -1; j--)
+			for(int j = -1; j <= 1; j++)
 			{
 				for(int k = -1; k <= 1; k++)
 				{
@@ -100,7 +98,7 @@ public class EM_PhysManager
 		
 		for(int i = -1; i <= 1; i++)
 		{
-			for(int j = 1; j >= -1; j--)
+			for(int j = -1; j <= 1; j++)
 			{
 				for(int k = -1; k <= 1; k++)
 				{
@@ -492,11 +490,6 @@ public class EM_PhysManager
 							block.dropBlockAsItem(world, x, y, z, block.getDamageValue(world, x, y, z), 1);
 						}
 						world.setBlock(x, y, z, 0);
-						
-						if(!(block.blockMaterial == Material.ice))
-						{
-							schedulePhysUpdate(world, x, y, z, false, true);
-						}
 						return;
 					} else if(block.quantityDropped(world.rand) <= 0 || dropType == 0)
 					{
@@ -510,7 +503,7 @@ public class EM_PhysManager
 							world.setBlock(x, y, z, 0);
 						}
 						
-						if(!(block.blockMaterial == Material.ice))
+						if(block.blockMaterial != Material.ice && EM_Settings.spreadIce)
 						{
 							schedulePhysUpdate(world, x, y, z, false, true);
 						}
@@ -538,11 +531,6 @@ public class EM_PhysManager
 						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z), false);
 					}
 					world.spawnEntityInWorld(entityphysblock);
-					
-					if(!(block.blockMaterial == Material.ice))
-					{
-						schedulePhysUpdate(world, x, y, z, false, true);
-					}
 					
 				} else if(!world.isRemote && missingBlocks > minThreshold)
 				{
