@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.logging.Level;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumChatFormatting;
 import cpw.mods.fml.common.IPlayerTracker;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
@@ -30,18 +31,18 @@ public class UpdateNotification implements IPlayerTracker
 			
 			if(!(EM_Settings.Version.equals(version)))
 			{
-				player.addChatMessage("§cUpdate " + version + " of EnviroMine is available");
+				player.addChatMessage(EnumChatFormatting.RED + "Update " + version + " of EnviroMine is available");
 				EnviroMine.logger.log(Level.INFO, "Update " + version + " of EnviroMine is available");
-				player.addChatMessage("§rDownload:§9§n " + http);
+				player.addChatMessage(EnumChatFormatting.RESET + "Download: " + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + http);
 				EnviroMine.logger.log(Level.INFO, "Download: " + http);
 				for(int i = 2; i < data.length; i++)
 				{
-					player.addChatMessage("§r" + data[i].trim());
+					player.addChatMessage(EnumChatFormatting.RESET + "" + data[i].trim());
 					EnviroMine.logger.log(Level.INFO, data[i].trim());
 				}
 			} else
 			{
-				player.addChatMessage("§eEnviroMine " + EM_Settings.Version + " is up to date");
+				player.addChatMessage(EnumChatFormatting.YELLOW + "EnviroMine " + EM_Settings.Version + " is up to date");
 				EnviroMine.logger.log(Level.INFO, "EnviroMine " + EM_Settings.Version + " is up to date");
 			}
 			
