@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -45,7 +46,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 	 */
 	public boolean canBeCollidedWith()
 	{
-		return true;
+		return false;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -75,7 +76,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 				
 				if(this.fallTime == 1)
 				{
-					if(this.worldObj.getBlockId(i, j, k) != this.blockID)
+					if(this.worldObj.getBlockId(i, j, k) != this.blockID && !isLandSlide)
 					{
 						this.setDead();
 						return;
@@ -83,6 +84,13 @@ public class EntityPhysicsBlock extends EntityFallingSand
 					
 					this.worldObj.setBlockToAir(i, j, k);
 				}
+				
+		        AxisAlignedBB axisalignedbb = Block.blocksList[blockID].getCollisionBoundingBoxFromPool(this.worldObj, i, j - 1, k);
+		        if(this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, axisalignedbb).size() > 1 && isLandSlide)
+		        {
+		        	this.motionY = 0;
+		        	this.setPosition(i + 0.5D, j + 0.5D, k + 0.5D);
+		        }
 				
 				if(this.onGround)
 				{

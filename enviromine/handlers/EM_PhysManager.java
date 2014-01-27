@@ -189,7 +189,7 @@ public class EM_PhysManager
 		
 		if(validSlideType && EM_Settings.enableLandslide)
 		{
-			if(block.blockID == Block.dirt.blockID)
+			if(!(block instanceof BlockSand))
 			{
 				for(int i = -1; i < 2; i++)
 				{
@@ -255,7 +255,7 @@ public class EM_PhysManager
 			
 			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]))
 			{
-				world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
+				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
 				world.setBlock(x, y, z, 0);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);

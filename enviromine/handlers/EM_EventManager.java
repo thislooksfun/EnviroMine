@@ -86,7 +86,7 @@ public class EM_EventManager
 		{
 			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
 			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata, true);
-			oldSand.setDead();
+			event.setCanceled(true);
 			event.world.spawnEntityInWorld(newSand);
 		}
 	}
