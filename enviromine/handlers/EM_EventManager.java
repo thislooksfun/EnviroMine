@@ -445,6 +445,12 @@ public class EM_EventManager
 			{
 				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false);
 			}
+		} else
+		{
+			if(event.getResult() != Result.DENY)
+			{
+				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false);
+			}
 		}
 	}
 	

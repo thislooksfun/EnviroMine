@@ -202,72 +202,64 @@ public class EM_GuiEnviroMeters extends Gui
 						break;
 				}
 				
-				switch(barPos[i].toString().toLowerCase())
-				{
-					case "top_left":
-						TL += 2;
-						curMeterHeight = meterHeight * TL;
-						curPosX = Top_Left_X;
-						curPosY = Top_Left_Y + curMeterHeight;
-						textPos = Top_Left_X + barWidth;
-						iconPos = textPos + (textWidth * addTW);
-						break;
-					
-					case "top_right":
-						TR += 2;
-						curMeterHeight = meterHeight * TR;
-						curPosX = Top_Right_X;
-						curPosY = Top_Right_Y + curMeterHeight;
-						textPos = Top_Right_X - (textWidth * addTW);
-						iconPos = textPos - iconWidth;
-						break;
-					
-					case "top_center":
-						TC += 2;
-						curMeterHeight = meterHeight * TC;
-						curPosX = Top_Center_X;
-						curPosY = Top_Center_Y + curMeterHeight;
-						textPos = Top_Center_X + barWidth;
-						iconPos = textPos + (textWidth * addTW);
-						break;
-					
-					case "bottom_left":
-						BL += 2;
-						curMeterHeight = meterHeight * BL;
-						curPosX = Bottom_Left_X;
-						curPosY = Bottom_Left_Y - curMeterHeight;
-						textPos = Bottom_Left_X + barWidth;
-						iconPos = textPos + (textWidth * addTW);
-						break;
-					
-					case "bottom_right":
-						BR += 2;
-						curMeterHeight = meterHeight * BR;
-						curPosX = Bottom_Right_X;
-						curPosY = Bottom_Right_Y - curMeterHeight;
-						textPos = Bottom_Right_X - (textWidth * addTW);
-						iconPos = textPos - iconWidth;
-						break;
-					
-					case "bottom_center_right":
-						BCR += 2;
-						curMeterHeight = meterHeight * BCR;
-						curPosX = Bottom_Center_Right_X;
-						curPosY = Bottom_Center_Right_Y - curMeterHeight;
-						textPos = Bottom_Center_Right_X + barWidth;
-						iconPos = textPos + (textWidth * addTW);
-						
-						break;
-					
-					case "bottom_center_left":
-						BCL += 2;
-						curMeterHeight = meterHeight * BCL;
-						curPosX = Bottom_Center_Left_X;
-						curPosY = Bottom_Center_Left_Y - curMeterHeight;
-						textPos = Bottom_Center_Left_X - (textWidth * addTW);
-						iconPos = textPos - iconWidth;
-						break;
+				String barPosName = barPos[i].toLowerCase().trim();
 				
+				if(barPosName.equalsIgnoreCase("top_left"))
+				{
+					TL += 2;
+					curMeterHeight = meterHeight * TL;
+					curPosX = Top_Left_X;
+					curPosY = Top_Left_Y + curMeterHeight;
+					textPos = Top_Left_X + barWidth;
+					iconPos = textPos + (textWidth * addTW);
+				} else if(barPosName.equalsIgnoreCase("top_right"))
+				{
+					TR += 2;
+					curMeterHeight = meterHeight * TR;
+					curPosX = Top_Right_X;
+					curPosY = Top_Right_Y + curMeterHeight;
+					textPos = Top_Right_X - (textWidth * addTW);
+					iconPos = textPos - iconWidth;
+				} else if(barPosName.equalsIgnoreCase("top_center"))
+				{
+					TC += 2;
+					curMeterHeight = meterHeight * TC;
+					curPosX = Top_Center_X;
+					curPosY = Top_Center_Y + curMeterHeight;
+					textPos = Top_Center_X + barWidth;
+					iconPos = textPos + (textWidth * addTW);
+				} else if(barPosName.equalsIgnoreCase("bottom_left"))
+				{
+					BL += 2;
+					curMeterHeight = meterHeight * BL;
+					curPosX = Bottom_Left_X;
+					curPosY = Bottom_Left_Y - curMeterHeight;
+					textPos = Bottom_Left_X + barWidth;
+					iconPos = textPos + (textWidth * addTW);
+				} else if(barPosName.equalsIgnoreCase("bottom_right"))
+				{
+					BR += 2;
+					curMeterHeight = meterHeight * BR;
+					curPosX = Bottom_Right_X;
+					curPosY = Bottom_Right_Y - curMeterHeight;
+					textPos = Bottom_Right_X - (textWidth * addTW);
+					iconPos = textPos - iconWidth;
+				} else if(barPosName.equalsIgnoreCase("bottom_center_right"))
+				{
+					BCR += 2;
+					curMeterHeight = meterHeight * BCR;
+					curPosX = Bottom_Center_Right_X;
+					curPosY = Bottom_Center_Right_Y - curMeterHeight;
+					textPos = Bottom_Center_Right_X + barWidth;
+					iconPos = textPos + (textWidth * addTW);
+				} else if(barPosName.equalsIgnoreCase("bottom_center_left"))
+				{
+					BCL += 2;
+					curMeterHeight = meterHeight * BCL;
+					curPosX = Bottom_Center_Left_X;
+					curPosY = Bottom_Center_Left_Y - curMeterHeight;
+					textPos = Bottom_Center_Left_X - (textWidth * addTW);
+					iconPos = textPos - iconWidth;
 				}
 				
 				// 0 = Sanity Bar

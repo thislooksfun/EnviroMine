@@ -502,6 +502,7 @@ public class EM_PhysManager
 							block.dropBlockAsItem(world, x, y, z, meta, 1);
 						}
 						world.setBlock(x, y, z, 0);
+						schedulePhysUpdate(world, x, y, z, true, true);
 						return;
 					} else if(block.quantityDropped(world.rand) <= 0 || dropType == 0)
 					{
@@ -515,9 +516,9 @@ public class EM_PhysManager
 							world.setBlock(x, y, z, 0);
 						}
 						
-						if(block.blockMaterial != Material.ice && EM_Settings.spreadIce)
+						if(block.blockMaterial != Material.ice || EM_Settings.spreadIce)
 						{
-							schedulePhysUpdate(world, x, y, z, false, true);
+							schedulePhysUpdate(world, x, y, z, true, true);
 						}
 						return;
 					} else if((block instanceof BlockOre || block instanceof BlockRedstoneOre) && !isCustom)
@@ -542,10 +543,10 @@ public class EM_PhysManager
 					EntityPhysicsBlock entityphysblock;
 					if(isCustom && dropMeta > -1)
 					{
-						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, dropMeta, false);
+						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, dropMeta, true);
 					} else
 					{
-						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z), false);
+						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z), true);
 					}
 					world.spawnEntityInWorld(entityphysblock);
 					

@@ -26,9 +26,6 @@ public class UpdateNotification implements IPlayerTracker
 			String version = data[0].trim();
 			String http = data[1].trim();
 			
-			//player.addChatMessage("§eCurrent Version  "+ EM_Settings.Version);
-			//player.addChatMessage("§r"+comments);
-			
 			if(!(EM_Settings.Version.equals(version)))
 			{
 				player.addChatMessage(EnumChatFormatting.RED + "Update " + version + " of EnviroMine is available");
