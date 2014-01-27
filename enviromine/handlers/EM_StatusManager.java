@@ -226,13 +226,15 @@ public class EM_StatusManager
 						}
 					}
 					
-					dist = Math.abs(x)+Math.abs(y)+Math.abs(z);
-					if(dist >= 13) distMulti = (float) .15;
-					else if (dist >= 10) distMulti = (float) .25;
-					else if (dist >= 5) distMulti = (float) .50;
-					else if (dist >= 3) distMulti = (float) .75;
-					else if (dist >= 3) distMulti = 1;
-					else if (dist >= 1) distMulti = (float) 1.25;
+					
+					dist = (int) Math.sqrt(Math.pow(1 - x, 2) + Math.pow(1 - x, 2) + Math.pow(1 - z, 2) );
+
+					if(dist >= 5) distMulti = .15F;
+					else if (dist >= 4) distMulti = .25F;
+					else if (dist >= 3) distMulti = .50F;
+					else if (dist >= 2) distMulti = .75F;
+					else if (dist >= 1) distMulti = 1F;
+
 
 						
 						
@@ -294,7 +296,6 @@ public class EM_StatusManager
 							temp = 200F;
 							heating += Math.round(5 * distMulti);
 							temp = temp * distMulti;
-							
 						}
 						nearLava = true;
 					} else if(id == Block.fire.blockID)
@@ -308,6 +309,7 @@ public class EM_StatusManager
 							temp = 100F;
 							heating += Math.round(1 * distMulti);
 							temp = temp * distMulti;
+
 
 						}
 					} else if((id == Block.torchWood.blockID || id == Block.furnaceBurning.blockID) && quality > -0.25F)
@@ -362,7 +364,6 @@ public class EM_StatusManager
 				}
 			}
 		}
-		System.out.println(heating);
 		
 		if(entityLiving instanceof EntityPlayer)
 		{
