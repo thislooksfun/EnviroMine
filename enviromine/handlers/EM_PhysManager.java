@@ -2,6 +2,7 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import enviromine.trackers.BlockProperties;
@@ -12,6 +13,7 @@ import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockEndPortal;
 import net.minecraft.block.BlockEndPortalFrame;
+import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockGlowStone;
 import net.minecraft.block.BlockGravel;
 import net.minecraft.block.BlockLadder;
@@ -20,6 +22,7 @@ import net.minecraft.block.BlockOre;
 import net.minecraft.block.BlockPortal;
 import net.minecraft.block.BlockRedstoneOre;
 import net.minecraft.block.BlockSand;
+import net.minecraft.block.BlockSapling;
 import net.minecraft.block.BlockSign;
 import net.minecraft.block.BlockWeb;
 import net.minecraft.block.BlockObsidian;
@@ -263,7 +266,7 @@ public class EM_PhysManager
 			}
 		}
 		
-		if(isLegalType(world, x, y, z))
+		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z))
 		{
 			int dropBlock = block.idDropped(block.getDamageValue(world, x, y, z), world.rand, 0);/*idDropped(damage value, random, quantity)*/
 			int dropMeta = -1;//block.damageDropped(block.getDamageValue(world, x, y, z));
@@ -339,14 +342,17 @@ public class EM_PhysManager
 			} else if(dropBlock <= 0)
 			{
 				dropType = 0;
-			} else if(dropBlock >= 4096)
+			} else if(dropBlock >= Block.blocksList.length)
 			{
-				if(dropBlock >= 32000)
+				if(dropBlock >= Item.itemsList.length)
 				{
 					dropType = 0;
 				} else if(Item.itemsList[dropBlock] == null)
 				{
 					dropType = 0;
+				} else
+				{
+					dropType = 2;
 				}
 			} else if(Block.blocksList[dropBlock] == null && Item.itemsList[dropBlock] == null)
 			{
@@ -358,7 +364,13 @@ public class EM_PhysManager
 					dropType = 2;
 				} else if(Block.blocksList[dropBlock] != null)
 				{
-					dropType = 1;
+					if(Block.blocksList[block.blockID] instanceof BlockLeaves)
+					{
+						dropType = 2;
+					} else
+					{
+						dropType = 1;
+					}
 				}
 			}
 			
@@ -473,7 +485,7 @@ public class EM_PhysManager
 			{
 				if(!world.isRemote && ((missingBlocks > minThreshold && world.rand.nextInt(dropChance) == 0) || missingBlocks >= maxThreshold))
 				{
-					if(dropType == 2 && block.quantityDropped(world.rand) > 0 && !(block instanceof BlockOre || block instanceof BlockRedstoneOre))
+					if(dropType == 2 && !((block instanceof BlockOre || block instanceof BlockRedstoneOre) && !isCustom))
 					{
 						world.playAuxSFX(2001, x, y, z, block.blockID + (world.getBlockMetadata(x, y, z) << 12));
 						if(isCustom && dropMeta > -1)
@@ -484,10 +496,10 @@ public class EM_PhysManager
 							}
 						} else if(isCustom && dropNum >= 1)
 						{
-							dropItemstack(world, x, y, z, new ItemStack(dropBlock, dropNum, block.getDamageValue(world, x, y, z)));
+							dropItemstack(world, x, y, z, new ItemStack(dropBlock, dropNum, block.damageDropped(meta)));
 						} else if(!isCustom || (isCustom && dropMeta <= -1 && dropNum != 0))
 						{
-							block.dropBlockAsItem(world, x, y, z, block.getDamageValue(world, x, y, z), 1);
+							block.dropBlockAsItem(world, x, y, z, meta, 1);
 						}
 						world.setBlock(x, y, z, 0);
 						return;
@@ -508,7 +520,7 @@ public class EM_PhysManager
 							schedulePhysUpdate(world, x, y, z, false, true);
 						}
 						return;
-					} else if(block instanceof BlockOre || block instanceof BlockRedstoneOre)
+					} else if((block instanceof BlockOre || block instanceof BlockRedstoneOre) && !isCustom)
 					{
 						dropType = 1;
 						if(block.blockID == Block.oreNetherQuartz.blockID)
@@ -518,6 +530,11 @@ public class EM_PhysManager
 						{
 							dropBlock = Block.cobblestone.blockID;
 						}
+					}
+					
+					if(dropType != 1)
+					{
+						return;
 					}
 					
 					world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
@@ -873,10 +890,10 @@ public class EM_PhysManager
 	{
 		int type = 0;
 		
-		if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian || block.blockID == Block.stoneBrick.blockID || block.blockID == Block.brick.blockID || block.blockID == Block.blockNetherQuartz.blockID || block instanceof BlockLeaves)
+		if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian || block.blockID == Block.stoneBrick.blockID || block.blockID == Block.brick.blockID || block.blockID == Block.blockNetherQuartz.blockID)
 		{
 			type = 3;
-		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice)
+		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice || block instanceof BlockLeaves)
 		{
 			type = 2;
 		} else

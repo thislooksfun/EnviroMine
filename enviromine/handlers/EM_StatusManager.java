@@ -144,8 +144,10 @@ public class EM_StatusManager
 	
 	public static float[] getSurroundingData(EntityLivingBase entityLiving, int range)
 	{
-		
-		timer.start();
+		if(EnviroMine.proxy.isClient())
+		{
+			timer.start();
+		}
 		
 		float[] data = new float[8];
 		
@@ -750,19 +752,22 @@ public class EM_StatusManager
 		data[6] = animalHostility;
 		data[7] = sanityRate;
 		
-		EM_GuiEnviroMeters.DB_nearLava = nearLava;
-		EM_GuiEnviroMeters.DB_abientTemp = tempFin;
-		EM_GuiEnviroMeters.DB_sanityrate = sanityRate;
-		EM_GuiEnviroMeters.DB_airquality = quality;
-		EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
-		EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
-		EM_GuiEnviroMeters.DB_cooling = cooling;
-		EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
-		EM_GuiEnviroMeters.DB_biomeName = biome.biomeName;
-		
-		timer.stop();
-		EM_GuiEnviroMeters.DB_timer = timer.toString();
-		timer.reset();
+		if(EnviroMine.proxy.isClient())
+		{
+			EM_GuiEnviroMeters.DB_nearLava = nearLava;
+			EM_GuiEnviroMeters.DB_abientTemp = tempFin;
+			EM_GuiEnviroMeters.DB_sanityrate = sanityRate;
+			EM_GuiEnviroMeters.DB_airquality = quality;
+			EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
+			EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
+			EM_GuiEnviroMeters.DB_cooling = cooling;
+			EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
+			EM_GuiEnviroMeters.DB_biomeName = biome.biomeName;
+			
+			timer.stop();
+			EM_GuiEnviroMeters.DB_timer = timer.toString();
+			timer.reset();
+		}
 		return data;
 	}
 	
