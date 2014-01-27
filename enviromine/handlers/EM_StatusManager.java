@@ -1,7 +1,5 @@
 package enviromine.handlers;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.HashMap;
@@ -189,6 +187,9 @@ public class EM_StatusManager
 			return data;
 		}
 		
+		float surBiomeTemps = 0;
+		int biomeTempChecks = 0;
+		
 		boolean isDay = entityLiving.worldObj.isDaytime();
 		
 		int lightLev = 0;
@@ -210,6 +211,18 @@ public class EM_StatusManager
 			{
 				for(int z = -range; z <= range; z++)
 				{
+					if(y == 0)
+					{
+						Chunk testChunk = entityLiving.worldObj.getChunkFromBlockCoords((i + x), (k + z));
+						BiomeGenBase testBiome = testChunk.getBiomeGenForWorldCoords((i + x) & 15, (k + z) & 15, entityLiving.worldObj.getWorldChunkManager());
+						
+						if(testBiome != null)
+						{
+							surBiomeTemps += testBiome.temperature;
+							biomeTempChecks += 1;
+						}
+					}
+						
 					int id = 0;
 					int meta = 0;
 					// These need to be here to reset
@@ -424,7 +437,8 @@ public class EM_StatusManager
 			quality = 2F;
 		}
 		
-		float bTemp = biome.temperature * 2.25F;
+		//float bTemp = biome.temperature * 2.25F;
+		float bTemp = (surBiomeTemps / biomeTempChecks);
 		
 		if(bTemp > 1.5F)
 		{
