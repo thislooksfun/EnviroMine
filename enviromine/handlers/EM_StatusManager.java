@@ -950,19 +950,20 @@ public class EM_StatusManager
 	
 	public static void removeNpcTrackers()
 	{
-		/*
-			//System.out.println(trackerList.size() +" Tracker SiZe");
-			for(int i = trackerList.size() - 1; i >= 0; i -= 1)
-			{
-				if(!(trackerList.get(i).trackedEntity instanceof EntityPlayer)) 
-				{ 
-					//System.out.println("Not a Player here: " + trackerList.get(i).trackedEntity.getEntityName());
-					
-					trackerList.get(i).isDisabled = true;
-					trackerList.remove(i);
-				}
+		
+		Iterator<EnviroDataTracker> iterator = trackerList.values().iterator();
+		while(iterator.hasNext())
+		{
+			EnviroDataTracker tracker = iterator.next();
+			
+			if(!(tracker.trackedEntity instanceof EntityPlayer)) 
+			{ 
+				tracker.isDisabled = true;
+				trackerList.remove(tracker);
 			}
-		*/
+
+		}
+		
 	}
 	
 	public static void createFX(EntityLivingBase entityLiving)
@@ -979,12 +980,12 @@ public class EM_StatusManager
 		
 		if(tracker != null)
 		{
-			if(tracker.bodyTemp >= 38F)
+			if(tracker.bodyTemp >= 38F && EM_Settings.sweatParticals_actual == true)
 			{
 				entityLiving.worldObj.spawnParticle("dripWater", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
 			
-			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity))
+			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity) && EM_Settings.insaneParticals_actual == true)
 			{
 				entityLiving.worldObj.spawnParticle("portal", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
