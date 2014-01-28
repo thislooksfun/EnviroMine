@@ -85,12 +85,20 @@ public class EntityPhysicsBlock extends EntityFallingSand
 					this.worldObj.setBlockToAir(i, j, k);
 				}
 				
-		        AxisAlignedBB axisalignedbb = Block.blocksList[blockID].getCollisionBoundingBoxFromPool(this.worldObj, i, j - 1, k);
-		        if(this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, axisalignedbb).size() > 1 && isLandSlide)
-		        {
-		        	this.motionY = 0;
-		        	this.setPosition(i + 0.5D, j + 0.5D, k + 0.5D);
-		        }
+				try
+				{
+			        AxisAlignedBB axisalignedbb = Block.blocksList[blockID].getCollisionBoundingBoxFromPool(this.worldObj, i, j - 1, k);
+			        if(axisalignedbb != null)
+			        {
+				        if(this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, axisalignedbb).size() > 1 && isLandSlide)
+				        {
+				        	this.motionY = 0;
+				        	this.setPosition(i + 0.5D, j + 0.5D, k + 0.5D);
+				        }
+			        }
+				} catch(NullPointerException e)
+				{
+				}
 				
 				if(this.onGround)
 				{
