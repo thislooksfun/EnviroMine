@@ -496,10 +496,10 @@ public class EM_PhysManager
 							}
 						} else if(isCustom && dropNum >= 1)
 						{
-							dropItemstack(world, x, y, z, new ItemStack(dropBlock, dropNum, block.damageDropped(meta)));
-						} else if(!isCustom || (isCustom && dropMeta <= -1 && dropNum != 0))
+							dropItemstack(world, x, y, z, new ItemStack(dropBlock, dropNum, meta));
+						} else if(!isCustom || (isCustom && dropMeta <= -1 && dropNum > 0))
 						{
-							block.dropBlockAsItem(world, x, y, z, meta, 1);
+							block.dropBlockAsItem(world, x, y, z, meta, 0);
 						}
 						world.setBlock(x, y, z, 0);
 						schedulePhysUpdate(world, x, y, z, true, true);
