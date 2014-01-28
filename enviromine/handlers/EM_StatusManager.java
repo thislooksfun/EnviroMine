@@ -159,12 +159,11 @@ public class EM_StatusManager
 		
 		float temp = -999F;
 		float cooling = 0;
-		float heating = 0;
 		float dehydrateBonus = 0.0F;
 		int unused = 0;
 		int animalHostility = 0;
 		boolean nearLava = false;
-		int dist = 0;
+		float dist = 0;
 		float distMulti = 1;
 		
 		int i = MathHelper.floor_double(entityLiving.posX);
@@ -227,16 +226,15 @@ public class EM_StatusManager
 					}
 					
 					
-					dist = (int) Math.sqrt(Math.pow(1 - x, 2) + Math.pow(1 - x, 2) + Math.pow(1 - z, 2) );
-
-					if(dist >= 5) distMulti = .15F;
-					else if (dist >= 4) distMulti = .25F;
-					else if (dist >= 3) distMulti = .50F;
-					else if (dist >= 2) distMulti = .75F;
-					else if (dist >= 1) distMulti = 1F;
-
-
-						
+					dist = (int) Math.sqrt(Math.pow(0 - x, 2) + Math.pow(0 - y, 2) + Math.pow(0 - z, 2) );
+					
+					if(dist <= range)
+					{
+						distMulti = 1 - dist/range;
+					} else
+					{
+						distMulti = 0;
+					}
 						
 					int id = 0;
 					int meta = 0;
@@ -275,10 +273,9 @@ public class EM_StatusManager
 						{
 							quality = blockProps.air;
 						}
-						if(temp <= blockProps.temp && blockProps.enableTemp)
+						if(temp <= blockProps.temp * distMulti && blockProps.enableTemp)
 						{
-							temp = blockProps.temp;
-							temp = temp * distMulti;
+							temp = blockProps.temp * distMulti;
 						}
 						if((sanityRate <= blockProps.sanity && blockProps.sanity > 0F) || (sanityRate >= blockProps.sanity && blockProps.sanity < 0 && sanityRate <= 0))
 						{
@@ -291,11 +288,9 @@ public class EM_StatusManager
 						{
 							quality = -1;
 						}
-						if(temp < 200F)
+						if(temp < 200F * distMulti)
 						{
-							temp = 200F;
-							heating += Math.round(5 * distMulti);
-							temp = temp * distMulti;
+							temp = 200F * distMulti;
 						}
 						nearLava = true;
 					} else if(id == Block.fire.blockID)
@@ -304,11 +299,9 @@ public class EM_StatusManager
 						{
 							quality = -0.5F;
 						}
-						if(temp < 100F)
+						if(temp < 100F * distMulti)
 						{
-							temp = 100F;
-							heating += Math.round(1 * distMulti);
-							temp = temp * distMulti;
+							temp = 100F * distMulti;
 
 
 						}
@@ -318,11 +311,9 @@ public class EM_StatusManager
 						{
 							quality = -0.25F;
 						}
-						if(temp < 50F)
+						if(temp < 50F * distMulti)
 						{
-							temp = 50F;
-							heating += .01;
-							temp = temp * distMulti;
+							temp = 50F * distMulti;
 
 						}
 					} else if(id == Block.leaves.blockID || id == Block.plantYellow.blockID || id == Block.plantRed.blockID || id == Block.waterlily.blockID || id == Block.grass.blockID)
@@ -334,10 +325,9 @@ public class EM_StatusManager
 						leaves += 1;
 					} else if(id == Block.netherrack.blockID && quality >= 0)
 					{
-						if(temp < 35F)
+						if(temp < 35F * distMulti)
 						{
-							temp = 35F;
-							temp = temp * distMulti;
+							temp = 35F * distMulti;
 
 						}
 					} else if(id == Block.waterMoving.blockID || id == Block.waterStill.blockID || (id == Block.cauldron.blockID && meta > 0))
@@ -411,7 +401,6 @@ public class EM_StatusManager
 					{
 						temp = 100F;
 					}
-					heating += 5;
 				} else if(stack.getItem().equals(new ItemStack(Block.plantRed).getItem()) || stack.getItem().equals(new ItemStack(Block.plantYellow).getItem()))
 				{
 					sanityRate = 0.1F;
@@ -492,7 +481,6 @@ public class EM_StatusManager
 		}
 		
 		bTemp -= cooling;
-		bTemp += heating;
 		
 		if(entityLiving instanceof EntityPlayer)
 		{
