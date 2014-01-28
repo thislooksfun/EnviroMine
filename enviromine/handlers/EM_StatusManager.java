@@ -163,6 +163,8 @@ public class EM_StatusManager
 		int unused = 0;
 		int animalHostility = 0;
 		boolean nearLava = false;
+		float dist = 0;
+		float distMulti = 1;
 		
 		int i = MathHelper.floor_double(entityLiving.posX);
 		int j = MathHelper.floor_double(entityLiving.posY);
@@ -222,6 +224,17 @@ public class EM_StatusManager
 							biomeTempChecks += 1;
 						}
 					}
+					
+					
+					dist = (int) Math.sqrt(Math.pow(0 - x, 2) + Math.pow(0 - y, 2) + Math.pow(0 - z, 2) );
+					
+					if(dist <= range)
+					{
+						distMulti = 1 - dist/range;
+					} else
+					{
+						distMulti = 0;
+					}
 						
 					int id = 0;
 					int meta = 0;
@@ -260,9 +273,9 @@ public class EM_StatusManager
 						{
 							quality = blockProps.air;
 						}
-						if(temp <= blockProps.temp && blockProps.enableTemp)
+						if(temp <= blockProps.temp * distMulti && blockProps.enableTemp)
 						{
-							temp = blockProps.temp;
+							temp = blockProps.temp * distMulti;
 						}
 						if((sanityRate <= blockProps.sanity && blockProps.sanity > 0F) || (sanityRate >= blockProps.sanity && blockProps.sanity < 0 && sanityRate <= 0))
 						{
@@ -275,9 +288,9 @@ public class EM_StatusManager
 						{
 							quality = -1;
 						}
-						if(temp < 200F)
+						if(temp < 200F * distMulti)
 						{
-							temp = 200F;
+							temp = 200F * distMulti;
 						}
 						nearLava = true;
 					} else if(id == Block.fire.blockID)
@@ -286,9 +299,11 @@ public class EM_StatusManager
 						{
 							quality = -0.5F;
 						}
-						if(temp < 100F)
+						if(temp < 100F * distMulti)
 						{
-							temp = 100F;
+							temp = 100F * distMulti;
+
+
 						}
 					} else if((id == Block.torchWood.blockID || id == Block.furnaceBurning.blockID) && quality > -0.25F)
 					{
@@ -296,9 +311,10 @@ public class EM_StatusManager
 						{
 							quality = -0.25F;
 						}
-						if(temp < 50F)
+						if(temp < 50F * distMulti)
 						{
-							temp = 50F;
+							temp = 50F * distMulti;
+
 						}
 					} else if(id == Block.leaves.blockID || id == Block.plantYellow.blockID || id == Block.plantRed.blockID || id == Block.waterlily.blockID || id == Block.grass.blockID)
 					{
@@ -309,9 +325,10 @@ public class EM_StatusManager
 						leaves += 1;
 					} else if(id == Block.netherrack.blockID && quality >= 0)
 					{
-						if(temp < 35F)
+						if(temp < 35F * distMulti)
 						{
-							temp = 35F;
+							temp = 35F * distMulti;
+
 						}
 					} else if(id == Block.waterMoving.blockID || id == Block.waterStill.blockID || (id == Block.cauldron.blockID && meta > 0))
 					{
