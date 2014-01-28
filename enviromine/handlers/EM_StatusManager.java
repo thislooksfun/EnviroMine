@@ -165,6 +165,7 @@ public class EM_StatusManager
 		boolean nearLava = false;
 		float dist = 0;
 		float distMulti = 1;
+		float solidBlocks = 0;
 		
 		int i = MathHelper.floor_double(entityLiving.posX);
 		int j = MathHelper.floor_double(entityLiving.posY);
@@ -223,6 +224,11 @@ public class EM_StatusManager
 							surBiomeTemps += testBiome.temperature;
 							biomeTempChecks += 1;
 						}
+					}
+					
+					if(!EM_PhysManager.blockNotSolid(entityLiving.worldObj, x + i, y + j, z + k))
+					{
+						solidBlocks += 1;
 					}
 					
 					
@@ -772,6 +778,11 @@ public class EM_StatusManager
 				tempFin = 75;
 			}
 			riseSpeed = 0.1F;
+		}
+		
+		if(quality < 0)
+		{
+			quality *= solidBlocks/Math.pow(range*2, 3);
 		}
 		
 		data[0] = quality;
