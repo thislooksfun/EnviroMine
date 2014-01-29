@@ -4,12 +4,12 @@
 
 	<property name="build.dir" value="build"/>
 	<property name="src.dir" value="."/>
-	<property name="lang.dir" value="../buildcraft.localization"/>
-	<property name="resources.dir" value="buildcraft_resources"/>
+	<property name="info.dir" value="em_info"/>
+	<property name="resources.dir" value="em_assets"/>
 
 	<property name="download.dir" value="download"/>
 
-	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="classes.dir" value="${build.dir}"/>
 	<property name="jar.dir" value="bin"/>
 
 	<property name="forge.dir" value="${build.dir}/forge"/>
@@ -17,9 +17,9 @@
 
 	<property name="mcpsrc.dir" value="${mcp.dir}/src"/>
 
-	<property name="mc.version" value="1.4.7"/>
-	<property name="forge.version" value="6.6.0.515"/>
-	<property name="project.version" value="3.4.2"/>
+	<property name="mc.version" value="1.6.4"/>
+	<property name="forge.version" value="9.11.1.953"/>
+	<property name="project.version" value="1.1.0"/>
 
 	<property name="forge.name" value="minecraftforge-src-${mc.version}-${forge.version}.zip"/>
 
@@ -138,9 +138,9 @@
 			</fileset>
 		</copy>
 
-		<!-- Copy localizations -->
+		<!-- Copy mod info -->
     	<copy todir="${classes.dir}" failonerror="false">
-    		<fileset dir="${lang.dir}">
+    		<fileset dir="${info.dir}">
                 <exclude name="README.md"/>
     		</fileset>
     	</copy>
@@ -166,5 +166,7 @@
 
 	<!-- Default target to run -->
 	<target name="main" depends="package"/>
+  
+  <target name="test"/>
 
 </project>
