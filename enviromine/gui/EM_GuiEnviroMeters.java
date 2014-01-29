@@ -84,6 +84,7 @@ public class EM_GuiEnviroMeters extends Gui
 			int airBar = MathHelper.ceiling_float_int((tracker.airQuality / 100) * barWidth);
 			
 			float dispHeat = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(2, RoundingMode.DOWN).floatValue();
+			float FdispHeat = new BigDecimal(String.valueOf((tracker.bodyTemp * 1.8)+32)).setScale(2, RoundingMode.DOWN).floatValue();
 			
 			if(waterBar > barWidth)
 			{
@@ -355,7 +356,7 @@ public class EM_GuiEnviroMeters extends Gui
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
 				if(EM_Settings.useFarenheit == true)
 				{
-					Minecraft.getMinecraft().fontRenderer.drawString(((dispHeat * (9 / 5)) + 32F) + "F", HTcurX, HTcurY, 16777215);
+					Minecraft.getMinecraft().fontRenderer.drawString( FdispHeat + "F", HTcurX, HTcurY, 16777215);
 				} else
 				{
 					Minecraft.getMinecraft().fontRenderer.drawString(dispHeat + "C", HTcurX, HTcurY, 16777215);
@@ -442,11 +443,11 @@ public class EM_GuiEnviroMeters extends Gui
 		{
 			if(EM_Settings.useFarenheit == true)
 			{
-				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * (9 / 5)) + 32F) + "%", 10, 10, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + ((DB_abientTemp * (9 / 5)) + 32F) + "% | Cur Biome:" + DB_biomeName, 10, 10 * 2, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Cooling: " + ((DB_cooling * (9 / 5))) + "%", 10, 10 * 3, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Drop Speed: " + ((DB_dropspeed * (9 / 5))) + "%", 10, 10 * 4, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Raise Speed: " + ((DB_raisespeed * (9 / 5))) + "% | Near lava:" + DB_nearLava, 10, 10 * 5, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "%", 10, 10, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + ((DB_abientTemp * 1.8) + 32F) + "% | Cur Biome:" + DB_biomeName, 10, 10 * 2, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Cooling: " + ((DB_cooling * 1.8)) + "%", 10, 10 * 3, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Temp Drop Speed: " + ((DB_dropspeed * 1.8)) + "%", 10, 10 * 4, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Temp Raise Speed: " + ((DB_raisespeed * 1.8)) + "% | Near lava:" + DB_nearLava, 10, 10 * 5, 16777215);
 				
 			} else
 			{

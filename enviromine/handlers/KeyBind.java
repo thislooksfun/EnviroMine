@@ -2,6 +2,8 @@ package enviromine.handlers;
 
 import java.util.EnumSet;
 
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -58,7 +60,8 @@ public class KeyBind extends KeyHandler
 			// if you want your key to be able to close the gui screen, handle it outside this if statement
 			if(mc.currentScreen == null)
 			{
-				
+				if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+				{
 				try
 				{
 					
@@ -123,6 +126,13 @@ public class KeyBind extends KeyHandler
 				{
 					
 				}
+				}
+				else
+				{
+					mc.thePlayer.addChatMessage("Must hold left shift + J to add/remove objects");
+				}
+				
+				
 			}
 		}
 		

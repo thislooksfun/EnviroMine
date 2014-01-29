@@ -53,8 +53,8 @@ public class EM_Settings
 	public static String oxygenBarPos_default = "Bottom_Right";
 	public static String oxygenBarPos_actual;
 	
-	public static boolean ShowText_default = true;
-	public static boolean ShowText_actual = true;
+	public static boolean ShowText_default = false;
+	public static boolean ShowText_actual;
 	public static boolean ShowDebug_default = false;
 	public static boolean ShowDebug_actual;
 	

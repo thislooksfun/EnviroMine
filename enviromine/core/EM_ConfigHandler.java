@@ -96,8 +96,10 @@ public class EM_ConfigHandler
 		EM_Settings.enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
 		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
 		EM_Settings.trackNonPlayer_actual = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", EM_Settings.trackNonPlayer_default, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(EM_Settings.trackNonPlayer_default);
-		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false).getBoolean(false);
-		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", -1).getInt(-1);
+		
+		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
+		
+		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", -1 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(-1);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
@@ -108,10 +110,10 @@ public class EM_ConfigHandler
 		EM_Settings.waterBarPos_actual = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
 		EM_Settings.sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
 		EM_Settings.oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. \\n Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
-		EM_Settings.ShowText_actual = config.get(GuiSetCat, "Show Gui Text", EM_Settings.ShowText_default).getBoolean(EM_Settings.ShowText_default);
-		EM_Settings.ShowDebug_actual = config.get(GuiSetCat, "Show Debugging Info", EM_Settings.ShowDebug_default).getBoolean(EM_Settings.ShowDebug_default);
 		
-		EM_Settings.ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons", EM_Settings.ShowGuiIcons_default, "Show Hide Gui Text Display and Icons").getBoolean(EM_Settings.ShowGuiIcons_default);
+		EM_Settings.ShowDebug_actual = config.get(GuiSetCat, "Show Gui Debugging Info", EM_Settings.ShowDebug_default, "Show Hide Gui Text Display and Icons").getBoolean(EM_Settings.ShowDebug_default);
+		EM_Settings.ShowText_actual = config.get(GuiSetCat, "Show Gui Status Text", EM_Settings.ShowText_default).getBoolean(EM_Settings.ShowText_default);
+		EM_Settings.ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons", EM_Settings.ShowGuiIcons_default).getBoolean(EM_Settings.ShowGuiIcons_default);
 		
 		// Config Item ID's
 		EM_Settings.dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
@@ -466,6 +468,7 @@ public class EM_ConfigHandler
 			if(config.hasCategory(nameULCat) == true)
 			{
 				config.removeCategory(config.getCategory(nameULCat));
+				returnValue = "Removed";
 			} else
 			{
 				config.addCustomCategoryComment(nameULCat, name);

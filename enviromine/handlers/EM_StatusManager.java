@@ -461,7 +461,7 @@ public class EM_StatusManager
 		}
 		
 		//float bTemp = biome.temperature * 2.25F;
-		float bTemp = (surBiomeTemps / biomeTempChecks);
+		float bTemp = (surBiomeTemps / biomeTempChecks)* 2.25F;
 		
 		if(bTemp > 1.5F)
 		{
