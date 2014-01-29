@@ -142,7 +142,7 @@ public class EM_StatusManager
 	
 	public static float[] getSurroundingData(EntityLivingBase entityLiving, int range)
 	{
-		if(EnviroMine.proxy.isClient())
+		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()))
 		{
 			timer.start();
 		}
@@ -794,7 +794,7 @@ public class EM_StatusManager
 		data[6] = animalHostility;
 		data[7] = sanityRate;
 		
-		if(EnviroMine.proxy.isClient())
+		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()))
 		{
 			EM_GuiEnviroMeters.DB_nearLava = nearLava;
 			EM_GuiEnviroMeters.DB_abientTemp = tempFin;
