@@ -87,6 +87,11 @@ public class EnviroDataTracker
 			}
 		}
 		
+		if(!(trackedEntity instanceof EntityPlayer) && !EM_Settings.trackNonPlayer_actual)
+		{
+			EM_StatusManager.saveAndRemoveTracker(this);
+		}
+		
 		int i = MathHelper.floor_double(trackedEntity.posX);
 		int k = MathHelper.floor_double(trackedEntity.posZ);
 		
@@ -206,17 +211,20 @@ public class EnviroDataTracker
 		boolean enableHydrate = true;
 		boolean enableFrostbite = true;
 		boolean enableHeat = true;
-		if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(trackedEntity)))
+		if(EntityList.getEntityString(trackedEntity) != null)
 		{
-			EntityProperties livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(trackedEntity));
-			enableHydrate = livingProps.dehydration;
-			enableBodyTemp = livingProps.bodyTemp;
-			enableAirQ = livingProps.airQ;
-			enableFrostbite = !livingProps.immuneToFrost;
-			enableHeat = !livingProps.immuneToHeat;
-		} else if((trackedEntity instanceof EntitySheep) || (trackedEntity instanceof EntityWolf))
-		{
-			enableFrostbite = false;
+			if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(trackedEntity).toLowerCase()))
+			{
+				EntityProperties livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(trackedEntity).toLowerCase());
+				enableHydrate = livingProps.dehydration;
+				enableBodyTemp = livingProps.bodyTemp;
+				enableAirQ = livingProps.airQ;
+				enableFrostbite = !livingProps.immuneToFrost;
+				enableHeat = !livingProps.immuneToHeat;
+			} else if((trackedEntity instanceof EntitySheep) || (trackedEntity instanceof EntityWolf))
+			{
+				enableFrostbite = false;
+			}
 		}
 		
 		if(trackedEntity instanceof EntityPlayer)

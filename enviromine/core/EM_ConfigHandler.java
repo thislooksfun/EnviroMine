@@ -377,7 +377,7 @@ public class EM_ConfigHandler
 		Boolean immuneToHeat = config.get(catagory, "7.Immune To Heat", false).getBoolean(false);
 		
 		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat);
-		EM_Settings.livingProperties.put(name, entry);
+		EM_Settings.livingProperties.put(name.toLowerCase(), entry);
 	}
 	
 	// RIGHT NOW I AM JUST LOADING DEFAULT ARMOR INTO HASH MAPS

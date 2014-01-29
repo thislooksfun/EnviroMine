@@ -487,16 +487,17 @@ public class EM_EventManager
 			return;
 		}
 		
+		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
+		
+		if(tracker == null)
+		{
+			return;
+		}
+		
+		EM_StatusManager.updateTracker(tracker);
+		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
-			
-			if(tracker == null)
-			{
-				return;
-			}
-			
-			EM_StatusManager.updateTracker(tracker);
 			UUID EM_FROST1_ID = EM_Settings.FROST1_UUID;
 			UUID EM_FROST2_ID = EM_Settings.FROST2_UUID;
 			UUID EM_FROST3_ID = EM_Settings.FROST3_UUID;
@@ -779,11 +780,6 @@ public class EM_EventManager
 	@ForgeSubscribe
 	public void onWorldSave(Save event)
 	{
-		if(EM_Settings.trackNonPlayer_actual == false)
-		{
-			EM_StatusManager.removeNpcTrackers();
-		}
-		
 		EM_StatusManager.saveAllWorldTrackers(event.world);
 	}
 	

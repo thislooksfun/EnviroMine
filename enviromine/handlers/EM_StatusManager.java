@@ -823,6 +823,7 @@ public class EM_StatusManager
 	
 	public static void removeTracker(EnviroDataTracker tracker)
 	{
+		System.out.println("Removing entity " + tracker.trackedEntity.getEntityName());
 		if(trackerList.containsValue(tracker))
 		{
 			tracker.isDisabled = true;
@@ -831,7 +832,7 @@ public class EM_StatusManager
 				trackerList.remove(((EntityPlayer)tracker.trackedEntity).username);
 			} else
 			{
-				trackerList.remove(tracker.trackedEntity.entityId);
+				trackerList.remove("" + tracker.trackedEntity.entityId);
 			}
 		}
 	}
@@ -851,7 +852,7 @@ public class EM_StatusManager
 				trackerList.remove(((EntityPlayer)tracker.trackedEntity).username);
 			} else
 			{
-				trackerList.remove(tracker.trackedEntity.entityId);
+				trackerList.remove("" + tracker.trackedEntity.entityId);
 			}
 		}
 	}
@@ -913,7 +914,7 @@ public class EM_StatusManager
 					trackerList.remove(((EntityPlayer)tracker.trackedEntity).username);
 				} else
 				{
-					trackerList.remove(tracker.trackedEntity.entityId);
+					trackerList.remove("" + tracker.trackedEntity.entityId);
 				}
 			}
 		}
@@ -974,24 +975,6 @@ public class EM_StatusManager
 		}
 		
 		return null;
-	}
-	
-	public static void removeNpcTrackers()
-	{
-		
-		Iterator<EnviroDataTracker> iterator = trackerList.values().iterator();
-		while(iterator.hasNext())
-		{
-			EnviroDataTracker tracker = iterator.next();
-			
-			if(!(tracker.trackedEntity instanceof EntityPlayer)) 
-			{ 
-				tracker.isDisabled = true;
-				trackerList.remove(tracker);
-			}
-
-		}
-		
 	}
 	
 	public static void createFX(EntityLivingBase entityLiving)
