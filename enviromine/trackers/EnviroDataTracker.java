@@ -213,9 +213,21 @@ public class EnviroDataTracker
 			enableBodyTemp = livingProps.bodyTemp;
 			enableAirQ = livingProps.airQ;
 			enableFrostbite = !livingProps.immuneToFrost;
+			enableHeat = !livingProps.immuneToHeat;
 		} else if((trackedEntity instanceof EntitySheep) || (trackedEntity instanceof EntityWolf))
 		{
 			enableFrostbite = false;
+		}
+		
+		if(trackedEntity instanceof EntityPlayer)
+		{
+			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
+			{
+				enableHydrate = false;
+				enableBodyTemp = false;
+				enableAirQ = false;
+				enableFrostbite = false;
+			}
 		}
 		
 		//Reset Disabled Values
@@ -400,6 +412,9 @@ public class EnviroDataTracker
 		{
 			return false;
 		} else if(name == "EnderDragon")
+		{
+			return false;
+		} else if(name == "VillagerGolem")
 		{
 			return false;
 		} else

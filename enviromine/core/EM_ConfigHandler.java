@@ -97,6 +97,7 @@ public class EM_ConfigHandler
 		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
 		EM_Settings.trackNonPlayer_actual = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", EM_Settings.trackNonPlayer_default, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(EM_Settings.trackNonPlayer_default);
 		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false).getBoolean(false);
+		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", -1).getInt(-1);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
@@ -370,9 +371,10 @@ public class EM_ConfigHandler
 		Boolean dehydration = config.get(catagory, "3.Enable Dehydration", true).getBoolean(true);
 		Boolean bodyTemp = config.get(catagory, "4.Enable BodyTemp", true).getBoolean(true);
 		Boolean airQ = config.get(catagory, "5.Enable Air Quility", true).getBoolean(true);
-		Boolean immuneToFrost = config.get(catagory, "6.ImmuneToFrost", false).getBoolean(false);
+		Boolean immuneToFrost = config.get(catagory, "6.Immune To Frost", false).getBoolean(false);
+		Boolean immuneToHeat = config.get(catagory, "7.Immune To Heat", false).getBoolean(false);
 		
-		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost);
+		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat);
 		EM_Settings.livingProperties.put(name, entry);
 	}
 	

@@ -8,8 +8,9 @@ public class EntityProperties
 	public boolean bodyTemp;
 	public boolean airQ;
 	public boolean immuneToFrost;
+	public boolean immuneToHeat;
 	
-	public EntityProperties(String name, boolean track, boolean dehydration, boolean bodyTemp, boolean airQ, boolean immuneToFrost)
+	public EntityProperties(String name, boolean track, boolean dehydration, boolean bodyTemp, boolean airQ, boolean immuneToFrost, boolean immuneToHeat)
 	{
 		this.name = name;
 		this.shouldTrack = track;
@@ -17,5 +18,6 @@ public class EntityProperties
 		this.bodyTemp = bodyTemp;
 		this.airQ = airQ;
 		this.immuneToFrost = immuneToFrost;
+		this.immuneToHeat = immuneToHeat;
 	}
 }

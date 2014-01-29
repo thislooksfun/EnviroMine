@@ -69,7 +69,7 @@ public class EM_EventManager
 			if(EnviroDataTracker.isLegalType((EntityLivingBase)event.entity))
 			{
 				// If Not tracking mob/animals and not a player than stop
-				if(!(event.entity instanceof EntityPlayer) && EM_Settings.trackNonPlayer_actual == false)
+				if(!(event.entity instanceof EntityPlayer) && !EM_Settings.trackNonPlayer_actual)
 				{
 					return;
 				}

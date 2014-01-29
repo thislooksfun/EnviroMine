@@ -3,8 +3,12 @@ package enviromine.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Stopwatch;
+
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
+import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.StabilityType;
 import net.minecraft.block.Block;
@@ -42,6 +46,8 @@ public class EM_PhysManager
 	public static List<Object[]> physSchedule = new ArrayList<Object[]>();
 	public static int updateInterval = 1;
 	public static int currentTime = 0;
+	
+	private static Stopwatch timer = new Stopwatch();
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, boolean exclusions)
 	{
@@ -794,10 +800,26 @@ public class EM_PhysManager
 	
 	public static void updateSchedule()
 	{
+		if(EnviroMine.proxy.isClient())
+		{
+			timer.start();
+			EM_GuiEnviroMeters.DB_physUpdates = physSchedule.size();
+		}
+		
 		boolean canClear = true;
 		if(currentTime >= updateInterval)
 		{
-			for(int i = physSchedule.size() - 1; i >= 0; i -= 1)
+			int updateNum = 0;
+			
+			if(physSchedule.size() <= EM_Settings.updateCap || EM_Settings.updateCap < 0)
+			{
+				updateNum = physSchedule.size();
+			} else
+			{
+				updateNum = EM_Settings.updateCap;
+			}
+			
+			for(int i = updateNum - 1; i >= 0; i -= 1)
 			{
 				Object[] entry = physSchedule.get(i);
 				if((Boolean)entry[5])
@@ -818,6 +840,13 @@ public class EM_PhysManager
 		if(canClear)
 		{
 			excluded.clear();
+		}
+		
+		if(EnviroMine.proxy.isClient())
+		{
+			timer.stop();
+			EM_GuiEnviroMeters.DB_physTimer = timer.toString();
+			timer.reset();
 		}
 	}
 	

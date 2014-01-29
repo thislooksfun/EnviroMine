@@ -80,6 +80,7 @@ public class EM_Settings
 	public static HashMap<String,ItemProperties> itemProperties = new HashMap<String,ItemProperties>();
 	
 	public static HashMap<String,StabilityType> stabilityTypes = new HashMap<String,StabilityType>();
+	public static int updateCap = -1;
 	
 	public static float convertToFarenheit(float num)
 	{

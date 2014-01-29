@@ -419,6 +419,8 @@ public class EM_GuiEnviroMeters extends Gui
 	public static float DB_dehydrateBonus = 0;
 	
 	public static String DB_timer = "";
+	public static String DB_physTimer = "";
+	public static int DB_physUpdates = 0;
 	
 	public static String DB_biomeName = "";
 	
@@ -459,6 +461,8 @@ public class EM_GuiEnviroMeters extends Gui
 			Minecraft.getMinecraft().fontRenderer.drawString("Air Quality Rate: " + DB_airquality + "%", 10, 10 * 7, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Dehydrating Bonus: " + DB_dehydrateBonus + "%", 10, 10 * 8, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Status Update Execution: " + DB_timer, 10, 10 * 9, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Execution: " + DB_physTimer, 10, 10 * 10, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 11, 16777215);
 		} catch(NullPointerException e)
 		{
 			
