@@ -42,10 +42,16 @@ import net.minecraft.world.chunk.Chunk;
 
 public class EM_PhysManager
 {
+	public static List<String> usedSlidePositions = new ArrayList<String>();
 	public static List<String> excluded = new ArrayList<String>();
 	public static List<Object[]> physSchedule = new ArrayList<Object[]>();
 	public static int updateInterval = 1;
 	public static int currentTime = 0;
+	
+	public static int debugInterval = 15;
+	public static int debugTime = 0;
+	
+	public static int debugUpdatesCaptured = 0;
 	
 	private static Stopwatch timer = new Stopwatch();
 	
@@ -175,7 +181,7 @@ public class EM_PhysManager
 		if(world.getBlockId(x, y - 1, z) == 0)
 		{
 			validSlideType = false;
-		} else if(block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y, z)))
+		} else if(block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
 		{
 			validSlideType = true;
 		} else if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
@@ -205,7 +211,15 @@ public class EM_PhysManager
 						{
 							
 							Block testBlock = Block.blocksList[world.getBlockId(i + x, j + y, k + z)];
-							int stabNum = getDefaultStabilityType(testBlock);
+							int stabNum = 0;
+							
+							if(testBlock != null)
+							{
+								stabNum = getDefaultStabilityType(testBlock);
+							} else
+							{
+								continue;
+							}
 							
 							if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
 							{
@@ -259,10 +273,12 @@ public class EM_PhysManager
 			int[] pos = new int[]{x, y, z};
 			int[] npos = slideDirection(world, pos);
 			
-			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]))
+			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[1] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
 				world.setBlock(x, y, z, 0);
+				usedSlidePositions.add("" + npos[0] + "," + npos[1] + "," + npos[2]);
+				usedSlidePositions.add("" + npos[0] + "," + (npos[1] - 1) + "," + npos[2]);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				physBlock.isLandSlide = true;
@@ -802,8 +818,12 @@ public class EM_PhysManager
 	{
 		if(EnviroMine.proxy.isClient())
 		{
-			timer.start();
-			EM_GuiEnviroMeters.DB_physUpdates = physSchedule.size();
+			if(debugTime == 0)
+			{
+				timer.start();
+				debugUpdatesCaptured = 0;
+			}
+			debugUpdatesCaptured += physSchedule.size();
 		}
 		
 		boolean canClear = true;
@@ -842,11 +862,18 @@ public class EM_PhysManager
 			excluded.clear();
 		}
 		
-		if(EnviroMine.proxy.isClient())
+		usedSlidePositions.clear();
+		
+		if(EnviroMine.proxy.isClient() && debugTime >= debugInterval)
 		{
 			timer.stop();
 			EM_GuiEnviroMeters.DB_physTimer = timer.toString();
+			EM_GuiEnviroMeters.DB_physUpdates = debugUpdatesCaptured;
 			timer.reset();
+			debugTime = 0;
+		} else if(EnviroMine.proxy.isClient())
+		{
+			debugTime += 1;
 		}
 	}
 	

@@ -407,14 +407,12 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 	}
 	
-	public static boolean DB_nearLava = false;
 	public static float DB_bodyTemp = 0;
 	public static float DB_abientTemp = 0;
 	public static float DB_sanityrate = 0;
 	public static float DB_airquality = 0;
 	
-	public static float DB_dropspeed = 0.002F;
-	public static float DB_raisespeed = 0.002F;
+	public static float DB_tempchange = 0;
 	
 	public static float DB_cooling = 0;
 	public static float DB_dehydrateBonus = 0;
@@ -429,41 +427,43 @@ public class EM_GuiEnviroMeters extends Gui
 	@SideOnly(Side.CLIENT)
 	public void ShowDebugText(RenderGameOverlayEvent event)
 	{
-		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCancelable())
+		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCanceled())
 		{
 			return;
 		}
 		
-		if(!EM_Settings.ShowDebug_actual || this.mc.gameSettings.showDebugInfo)
+		if(!EM_Settings.ShowDebug_actual || this.mc.gameSettings.showDebugInfo || tracker == null)
 		{
 			return;
 		}
+		
+		DB_abientTemp = tracker.airTemp;
+		DB_biomeName = tracker.trackedEntity.worldObj.getBiomeGenForCoords(MathHelper.floor_double(tracker.trackedEntity.posX), MathHelper.floor_double(tracker.trackedEntity.posZ)).biomeName;
+		DB_tempchange = tracker.bodyTemp - tracker.prevBodyTemp;
+		DB_sanityrate = tracker.sanity - tracker.prevSanity;
+		DB_airquality = tracker.airQuality - tracker.prevAirQuality;
 		
 		try
 		{
 			if(EM_Settings.useFarenheit == true)
 			{
 				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "%", 10, 10, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + ((DB_abientTemp * 1.8) + 32F) + "% | Cur Biome:" + DB_biomeName, 10, 10 * 2, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Cooling: " + ((DB_cooling * 1.8)) + "%", 10, 10 * 3, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Drop Speed: " + ((DB_dropspeed * 1.8)) + "%", 10, 10 * 4, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Raise Speed: " + ((DB_raisespeed * 1.8)) + "% | Near lava:" + DB_nearLava, 10, 10 * 5, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + ((DB_abientTemp * 1.8) + 32F) + "% | Cur Biome: " + DB_biomeName, 10, 10 * 2, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Temp Rate: " + ((DB_tempchange * 1.8) + 32F) + "%", 10, 10 * 3, 16777215);
 				
 			} else
 			{
 				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + tracker.bodyTemp + "%", 10, 10, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + DB_abientTemp + "% | Cur Biome:" + DB_biomeName, 10, 10 * 2, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Cooling: " + DB_cooling + "%", 10, 10 * 3, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Drop Speed: " + DB_dropspeed + "%", 10, 10 * 4, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Raise Speed: " + DB_raisespeed + "% | Near lava:" + DB_nearLava, 10, 10 * 5, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + DB_abientTemp + "% | Cur Biome: " + DB_biomeName, 10, 10 * 2, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Temp Rate: " + DB_tempchange + "%", 10, 10 * 3, 16777215);
 			}
 			
-			Minecraft.getMinecraft().fontRenderer.drawString("Sanity Rate: " + DB_sanityrate + "%", 10, 10 * 6, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("Air Quality Rate: " + DB_airquality + "%", 10, 10 * 7, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("Dehydrating Bonus: " + DB_dehydrateBonus + "%", 10, 10 * 8, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("Status Update Execution: " + DB_timer, 10, 10 * 9, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Execution: " + DB_physTimer, 10, 10 * 10, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 11, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Sanity Rate: " + DB_sanityrate + "%", 10, 10 * 4, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Air Quality Rate: " + DB_airquality + "%", 10, 10 * 5, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Dehydration Rate: " + DB_dehydrateBonus + "%", 10, 10 * 6, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Status Update Speed: " + DB_timer, 10, 10 * 8, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Speed: " + DB_physTimer, 10, 10 * 9, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 10, 16777215);
 		} catch(NullPointerException e)
 		{
 			

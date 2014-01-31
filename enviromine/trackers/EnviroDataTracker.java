@@ -22,8 +22,13 @@ import net.minecraft.util.MathHelper;
 public class EnviroDataTracker
 {
 	public EntityLivingBase trackedEntity;
+	
+	public float prevBodyTemp = 37F;
+	public float prevHydration = 100F;
+	public float prevAirQuality = 100;
+	public float prevSanity = 100F;
+	
 	public float airQuality;
-	public float maxQuality = 100;
 	
 	public float bodyTemp;
 	public float airTemp;
@@ -50,7 +55,7 @@ public class EnviroDataTracker
 	public EnviroDataTracker(EntityLivingBase entity)
 	{
 		trackedEntity = entity;
-		airQuality = maxQuality;
+		airQuality = 100F;
 		bodyTemp = 37F;
 		hydration = 100F;
 		sanity = 100F;
@@ -58,6 +63,11 @@ public class EnviroDataTracker
 	
 	public void updateData()
 	{
+		prevBodyTemp = bodyTemp;
+		prevAirQuality = airQuality;
+		prevHydration = hydration;
+		prevSanity = sanity;
+		
 		updateTimer = 0;
 		
 		if(trackedEntity == null)
@@ -110,9 +120,9 @@ public class EnviroDataTracker
 			airQuality = 0;
 		}
 		
-		if(airQuality >= maxQuality)
+		if(airQuality >= 100F)
 		{
-			airQuality = maxQuality;
+			airQuality = 100F;
 		}
 		
 		// Temperature checks
@@ -223,17 +233,6 @@ public class EnviroDataTracker
 				enableHeat = !livingProps.immuneToHeat;
 			} else if((trackedEntity instanceof EntitySheep) || (trackedEntity instanceof EntityWolf))
 			{
-				enableFrostbite = false;
-			}
-		}
-		
-		if(trackedEntity instanceof EntityPlayer)
-		{
-			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
-			{
-				enableHydrate = false;
-				enableBodyTemp = false;
-				enableAirQ = false;
 				enableFrostbite = false;
 			}
 		}
@@ -364,6 +363,18 @@ public class EnviroDataTracker
 		}
 		
 		EnviroPotion.checkAndApplyEffects(trackedEntity);
+		
+		if(trackedEntity instanceof EntityPlayer)
+		{
+			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
+			{
+				bodyTemp = prevBodyTemp;
+				airQuality = prevAirQuality;
+				hydration = prevHydration;
+				sanity = prevSanity;
+			}
+		}
+		
 		this.fixFloatinfPointErrors();
 		EM_StatusManager.saveTracker(this);
 	}
@@ -516,7 +527,7 @@ public class EnviroDataTracker
 	
 	public void resetData()
 	{
-		airQuality = maxQuality;
+		airQuality = 100F;
 		bodyTemp = 37F;
 		hydration = 100F;
 		sanity = 100F;

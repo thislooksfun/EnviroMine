@@ -796,16 +796,6 @@ public class EM_StatusManager
 		
 		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()))
 		{
-			EM_GuiEnviroMeters.DB_nearLava = nearLava;
-			EM_GuiEnviroMeters.DB_abientTemp = tempFin;
-			EM_GuiEnviroMeters.DB_sanityrate = sanityRate;
-			EM_GuiEnviroMeters.DB_airquality = quality;
-			EM_GuiEnviroMeters.DB_dropspeed = dropSpeed;
-			EM_GuiEnviroMeters.DB_raisespeed = riseSpeed;
-			EM_GuiEnviroMeters.DB_cooling = cooling;
-			EM_GuiEnviroMeters.DB_dehydrateBonus = dehydrateBonus;
-			EM_GuiEnviroMeters.DB_biomeName = biome.biomeName;
-			
 			timer.stop();
 			EM_GuiEnviroMeters.DB_timer = timer.toString();
 			timer.reset();
