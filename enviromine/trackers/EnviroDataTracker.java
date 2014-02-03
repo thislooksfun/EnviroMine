@@ -2,6 +2,7 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import enviromine.EnviroDamageSource;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -11,6 +12,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -234,6 +236,9 @@ public class EnviroDataTracker
 			} else if((trackedEntity instanceof EntitySheep) || (trackedEntity instanceof EntityWolf))
 			{
 				enableFrostbite = false;
+			} else if(trackedEntity instanceof EntityChicken)
+			{
+				enableHeat = false;
 			}
 		}
 		
@@ -286,7 +291,7 @@ public class EnviroDataTracker
 				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 2.0F);
 			}
 			
-			if(bodyTemp >= 39F && enableHeat)
+			if(bodyTemp >= 39F && enableHeat && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
 			{
 				if(bodyTemp >= 43F)
 				{
@@ -300,7 +305,7 @@ public class EnviroDataTracker
 				}
 			}
 			
-			if(bodyTemp <= 35F && enableFrostbite)
+			if(bodyTemp <= 35F && enableFrostbite && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
 			{
 				if(bodyTemp <= 30F)
 				{

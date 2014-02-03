@@ -290,8 +290,8 @@ public class EM_PhysManager
 		
 		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z))
 		{
-			int dropBlock = block.idDropped(block.getDamageValue(world, x, y, z), world.rand, 0);/*idDropped(damage value, random, quantity)*/
-			int dropMeta = -1;//block.damageDropped(block.getDamageValue(world, x, y, z));
+			int dropBlock = block.blockID;//block.idDropped(block.getDamageValue(world, x, y, z), world.rand, 0);
+			int dropMeta = -1;
 			int dropNum = -1;
 			int dropType = 0;
 			
@@ -361,7 +361,7 @@ public class EM_PhysManager
 			
 			if(!defaultDrop)
 			{
-			} else if(dropBlock <= 0)
+			} else if(dropBlock <= 0 || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice)
 			{
 				dropType = 0;
 			} else if(dropBlock >= Block.blocksList.length)
@@ -507,7 +507,7 @@ public class EM_PhysManager
 			{
 				if(!world.isRemote && ((missingBlocks > minThreshold && world.rand.nextInt(dropChance) == 0) || missingBlocks >= maxThreshold))
 				{
-					if(dropType == 2 && !((block instanceof BlockOre || block instanceof BlockRedstoneOre) && !isCustom))
+					if(dropType == 2)
 					{
 						world.playAuxSFX(2001, x, y, z, block.blockID + (world.getBlockMetadata(x, y, z) << 12));
 						if(isCustom && dropMeta > -1)
@@ -526,7 +526,7 @@ public class EM_PhysManager
 						world.setBlock(x, y, z, 0);
 						schedulePhysUpdate(world, x, y, z, true, true);
 						return;
-					} else if(block.quantityDropped(world.rand) <= 0 || dropType == 0)
+					} else if(dropType == 0)
 					{
 						world.playAuxSFX(2001, x, y, z, block.blockID + (world.getBlockMetadata(x, y, z) << 12));
 						
@@ -543,24 +543,19 @@ public class EM_PhysManager
 							schedulePhysUpdate(world, x, y, z, true, true);
 						}
 						return;
-					} else if((block instanceof BlockOre || block instanceof BlockRedstoneOre) && !isCustom)
-					{
-						dropType = 1;
-						if(block.blockID == Block.oreNetherQuartz.blockID)
-						{
-							dropBlock = Block.netherrack.blockID;
-						} else
-						{
-							dropBlock = Block.cobblestone.blockID;
-						}
 					}
 					
 					if(dropType != 1)
 					{
 						return;
 					}
-					
-					world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
+					if(block.blockID == Block.stone.blockID && EM_Settings.stoneCracks)
+					{
+						world.setBlock(x, y, z, Block.cobblestone.blockID);
+					} else
+					{
+						world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
+					}
 					
 					EntityPhysicsBlock entityphysblock;
 					if(isCustom && dropMeta > -1)
@@ -572,12 +567,9 @@ public class EM_PhysManager
 					}
 					world.spawnEntityInWorld(entityphysblock);
 					
-				} else if(!world.isRemote && missingBlocks > minThreshold)
+				} else if(block.blockID == Block.stone.blockID && missingBlocks > minThreshold && !world.isRemote && EM_Settings.stoneCracks)
 				{
-					if(block.blockID == Block.stone.blockID)
-					{
-						world.setBlock(x, y, z, Block.cobblestone.blockID);
-					}
+					world.setBlock(x, y, z, Block.cobblestone.blockID);
 				}
 			}
 		}

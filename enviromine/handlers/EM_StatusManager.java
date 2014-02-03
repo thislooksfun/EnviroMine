@@ -25,6 +25,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -152,7 +153,7 @@ public class EM_StatusManager
 		float sanityRate = 0;
 		
 		float quality = 0;
-		int leaves = 0;
+		double leaves = 0;
 		
 		float dropSpeed = 0.001F;
 		float riseSpeed = 0.001F;
@@ -164,7 +165,6 @@ public class EM_StatusManager
 		int animalHostility = 0;
 		boolean nearLava = false;
 		float dist = 0;
-		float distMulti = 1;
 		float solidBlocks = 0;
 		
 		int i = MathHelper.floor_double(entityLiving.posX);
@@ -232,15 +232,7 @@ public class EM_StatusManager
 					}
 					
 					
-					dist = (int) Math.sqrt(Math.pow(0 - x, 2) + Math.pow(0 - y, 2) + Math.pow(0 - z, 2) );
-					
-					if(dist <= range)
-					{
-						distMulti = 1 - dist/range;
-					} else
-					{
-						distMulti = 0;
-					}
+					dist = (float)Math.abs(Math.sqrt(Math.pow(0 - x, 2) + Math.pow(0 - y, 2) + Math.pow(0 - z, 2)));
 						
 					int id = 0;
 					int meta = 0;
@@ -279,9 +271,15 @@ public class EM_StatusManager
 						{
 							quality = blockProps.air;
 						}
-						if(temp <= blockProps.temp * distMulti && blockProps.enableTemp)
+						if(blockProps.enableTemp)
 						{
-							temp = blockProps.temp * distMulti;
+							if(temp <= getTempFalloff(blockProps.temp, dist, range) && blockProps.temp > 0F)
+							{
+								temp = getTempFalloff(blockProps.temp, dist, range);
+							} else if(blockProps.temp < 0F)
+							{
+								cooling += getTempFalloff(-blockProps.temp, dist, range);
+							}
 						}
 						if((sanityRate <= blockProps.sanity && blockProps.sanity > 0F) || (sanityRate >= blockProps.sanity && blockProps.sanity < 0 && sanityRate <= 0))
 						{
@@ -294,9 +292,9 @@ public class EM_StatusManager
 						{
 							quality = -1;
 						}
-						if(temp < 200F * distMulti)
+						if(temp < getTempFalloff(200, dist, range))
 						{
-							temp = 200F * distMulti;
+							temp = getTempFalloff(200, dist, range);
 						}
 						nearLava = true;
 					} else if(id == Block.fire.blockID)
@@ -305,9 +303,9 @@ public class EM_StatusManager
 						{
 							quality = -0.5F;
 						}
-						if(temp < 100F * distMulti)
+						if(temp < getTempFalloff(100, dist, range))
 						{
-							temp = 100F * distMulti;
+							temp = getTempFalloff(100, dist, range);
 
 
 						}
@@ -317,9 +315,9 @@ public class EM_StatusManager
 						{
 							quality = -0.25F;
 						}
-						if(temp < 50F * distMulti)
+						if(temp < getTempFalloff(75, dist, range))
 						{
-							temp = 50F * distMulti;
+							temp = getTempFalloff(75, dist, range);
 
 						}
 					} else if(id == Block.leaves.blockID || id == Block.plantYellow.blockID || id == Block.plantRed.blockID || id == Block.waterlily.blockID || id == Block.grass.blockID)
@@ -331,9 +329,9 @@ public class EM_StatusManager
 						leaves += 1;
 					} else if(id == Block.netherrack.blockID && quality >= 0)
 					{
-						if(temp < 35F * distMulti)
+						if(temp < getTempFalloff(50, dist, range))
 						{
-							temp = 35F * distMulti;
+							temp = getTempFalloff(50, dist, range);
 
 						}
 					} else if(id == Block.waterMoving.blockID || id == Block.waterStill.blockID || (id == Block.cauldron.blockID && meta > 0))
@@ -341,10 +339,10 @@ public class EM_StatusManager
 						animalHostility = -1;
 					} else if(id == Block.snow.blockID)
 					{
-						cooling += 0.01F;
+						cooling += getTempFalloff(0.01F, dist, range);
 					} else if(id == Block.blockSnow.blockID || id == Block.ice.blockID)
 					{
-						cooling += 0.05F;
+						cooling += getTempFalloff(0.015F, dist, range);
 					} else if(id == Block.flowerPot.blockID && (meta == 1 || meta == 2))
 					{
 						if(meta == 1 || meta == 2)
@@ -385,7 +383,10 @@ public class EM_StatusManager
 						itemProps = EM_Settings.itemProperties.get("" + stack.itemID);
 					}
 					
-					if((quality <= itemProps.ambAir && itemProps.ambAir > 0F) || (quality >= itemProps.ambAir && itemProps.ambAir < 0 && quality <= 0))
+					if(quality <= itemProps.ambAir && itemProps.ambAir > 0F)
+					{
+						leaves = (itemProps.ambAir/0.1);
+					} else if(quality >= itemProps.ambAir && itemProps.ambAir < 0 && quality <= 0)
 					{
 						quality = itemProps.ambAir;
 					}
@@ -394,36 +395,11 @@ public class EM_StatusManager
 						temp = itemProps.ambTemp;
 					} else if(itemProps.enableTemp && itemProps.ambTemp < 0F)
 					{
-						cooling += itemProps.ambTemp;
+						cooling += -itemProps.ambTemp;
 					}
 					if((sanityRate <= itemProps.ambSanity && itemProps.ambSanity > 0F) || (sanityRate >= itemProps.ambSanity && itemProps.ambSanity < 0 && sanityRate <= 0))
 					{
 						sanityRate = itemProps.ambSanity;
-					}
-				} else if(stack.getItem() == Item.bucketLava)
-				{
-					if(temp <= 100F)
-					{
-						temp = 100F;
-					}
-				} else if(stack.getItem().equals(new ItemStack(Block.plantRed).getItem()) || stack.getItem().equals(new ItemStack(Block.plantYellow).getItem()))
-				{
-					sanityRate = 0.1F;
-					leaves += 1;
-				} else if(stack.getItem().equals(new ItemStack(Block.leaves).getItem()))
-				{
-					leaves += 1;
-				} else if(stack.getItem().equals(new ItemStack(Block.blockSnow).getItem()) || stack.getItem().equals(new ItemStack(Block.ice).getItem()))
-				{
-					cooling += 0.05F;
-				} else if(stack.getItem().equals(new ItemStack(Block.snow).getItem()))
-				{
-					cooling += 0.01F;
-				} else if(stack.getItem().equals(new ItemStack(Block.netherrack).getItem()))
-				{
-					if(temp <= 35)
-					{
-						temp = 35;
 					}
 				}
 			}
@@ -611,7 +587,7 @@ public class EM_StatusManager
 						addTemp += props.nightTemp;
 					}
 					
-					if(quality <= props.air)
+					if((quality <= props.air && props.air > 0F) || (quality >= props.air && props.air < 0 && quality <= 0))
 					{
 						quality = props.air;
 					}
@@ -645,7 +621,7 @@ public class EM_StatusManager
 						addTemp += props.nightTemp;
 					}
 					
-					if(quality <= props.air)
+					if((quality <= props.air && props.air > 0F) || (quality >= props.air && props.air < 0 && quality <= 0))
 					{
 						quality = props.air;
 					}
@@ -679,7 +655,7 @@ public class EM_StatusManager
 						addTemp += props.nightTemp;
 					}
 					
-					if(quality <= props.air)
+					if((quality <= props.air && props.air > 0F) || (quality >= props.air && props.air < 0 && quality <= 0))
 					{
 						quality = props.air;
 					}
@@ -713,7 +689,7 @@ public class EM_StatusManager
 						addTemp += props.nightTemp;
 					}
 					
-					if(quality <= props.air)
+					if((quality <= props.air && props.air > 0F) || (quality >= props.air && props.air < 0 && quality <= 0))
 					{
 						quality = props.air;
 					}
@@ -991,5 +967,10 @@ public class EM_StatusManager
 				entityLiving.worldObj.spawnParticle("portal", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
 		}
+	}
+	
+	public static float getTempFalloff(float temp, float dist, int range)
+	{
+		return (float)(temp - ((temp/Math.pow(range, 2)) * Math.pow(dist, 2)));
 	}
 }

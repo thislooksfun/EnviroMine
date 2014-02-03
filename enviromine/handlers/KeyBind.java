@@ -52,8 +52,10 @@ public class KeyBind extends KeyHandler
 			Minecraft mc = Minecraft.getMinecraft();
 			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null)
 			{
-				
-				mc.thePlayer.addChatMessage("Single player only function.");
+				if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+				{
+					mc.thePlayer.addChatMessage("Single player only function.");
+				}
 				return;
 			}
 			// prevents key press firing while gui screen or chat open, if that's what you want
@@ -62,70 +64,70 @@ public class KeyBind extends KeyHandler
 			{
 				if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 				{
-				try
-				{
-					
-					String returnValue = "";
-					if(mc.thePlayer.getHeldItem() != null)
+					try
 					{
 						
-						Item item = mc.thePlayer.getHeldItem().getItem();
-						int itemId = mc.thePlayer.getHeldItem().itemID;
-						int itemMeta = mc.thePlayer.getHeldItem().getItem().getMetadata(itemId);
-						String unlocolizedName = mc.thePlayer.getHeldItem().getItem().getUnlocalizedName();
-						String name = mc.thePlayer.getHeldItem().getDisplayName();
-						dataToCustom[0] = itemId;
-						dataToCustom[1] = itemMeta;
-						dataToCustom[2] = unlocolizedName;
-						
-						if(item instanceof ItemArmor)
+						String returnValue = "";
+						if(mc.thePlayer.getHeldItem() != null)
 						{
-							returnValue = EM_ConfigHandler.SaveMyCustom("ARMOR", name, dataToCustom);
-							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file. ");
-						} else if(item instanceof Item)
-						{
-							returnValue = EM_ConfigHandler.SaveMyCustom("ITEM", name, dataToCustom);
-							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file. ");
+							
+							Item item = mc.thePlayer.getHeldItem().getItem();
+							int itemId = mc.thePlayer.getHeldItem().itemID;
+							int itemMeta = mc.thePlayer.getHeldItem().getItemDamage();
+							String unlocolizedName = mc.thePlayer.getHeldItem().getItem().getUnlocalizedName();
+							String name = mc.thePlayer.getHeldItem().getDisplayName();
+							dataToCustom[0] = itemId;
+							dataToCustom[1] = itemMeta;
+							dataToCustom[2] = unlocolizedName;
+							
+							if(item instanceof ItemArmor)
+							{
+								returnValue = EM_ConfigHandler.SaveMyCustom("ARMOR", name, dataToCustom);
+								mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file. ");
+							} else if(item instanceof Item)
+							{
+								returnValue = EM_ConfigHandler.SaveMyCustom("ITEM", name, dataToCustom);
+								mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file. ");
+							}
+							
+							return;
+							
 						}
 						
-						return;
+						EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
+						
+						if(type.name() == "ENTITY")
+						{
+							Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
+							String name = EntityList.getEntityString(lookingAt);
+							
+							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
+							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file.");
+						} else if(type.name() == "TILE")
+						{
+							
+							int blockX = Minecraft.getMinecraft().objectMouseOver.blockX;
+							int blockY = Minecraft.getMinecraft().objectMouseOver.blockY;
+							int blockZ = Minecraft.getMinecraft().objectMouseOver.blockZ;
+							
+							int blockID = Minecraft.getMinecraft().thePlayer.worldObj.getBlockId(blockX, blockY, blockZ);
+							int blockMeta = Minecraft.getMinecraft().thePlayer.worldObj.getBlockMetadata(blockX, blockY, blockZ);
+							Block block = Block.blocksList[blockID];
+							String blockULName = block.getUnlocalizedName();
+							String blockName = block.getLocalizedName();
+							dataToCustom[0] = blockID;
+							dataToCustom[1] = blockMeta;
+							dataToCustom[2] = blockULName;
+							//System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
+							
+							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
+							mc.thePlayer.addChatMessage(blockName + "(" + blockID + ":" + blockMeta + ") " + returnValue + "  in MyCustom.dat file.");
+						} //else if
+					} //try
+					catch(NullPointerException e)
+					{
 						
 					}
-					
-					EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
-					
-					if(type.name() == "ENTITY")
-					{
-						Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
-						String name = EntityList.getEntityString(lookingAt);
-						
-						returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
-						mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file.");
-					} else if(type.name() == "TILE")
-					{
-						
-						int blockX = Minecraft.getMinecraft().objectMouseOver.blockX;
-						int blockY = Minecraft.getMinecraft().objectMouseOver.blockY;
-						int blockZ = Minecraft.getMinecraft().objectMouseOver.blockZ;
-						
-						int blockID = Minecraft.getMinecraft().thePlayer.worldObj.getBlockId(blockX, blockY, blockZ);
-						int blockMeta = Minecraft.getMinecraft().thePlayer.worldObj.getBlockMetadata(blockX, blockY, blockZ);
-						Block block = Block.blocksList[blockID];
-						String blockULName = block.getUnlocalizedName().toString();
-						String blockName = block.getLocalizedName().toString();
-						dataToCustom[0] = blockID;
-						dataToCustom[1] = blockMeta;
-						dataToCustom[2] = blockULName;
-						//System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
-						
-						returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
-						mc.thePlayer.addChatMessage(blockName + "(" + blockID + ":" + blockMeta + ") " + returnValue + "  in MyCustom.dat file.");
-					} //else if
-				} //try
-				catch(NullPointerException e)
-				{
-					
-				}
 				}
 				else
 				{

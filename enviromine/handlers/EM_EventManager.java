@@ -684,16 +684,6 @@ public class EM_EventManager
 						{
 							tracker.airQuality += itemProps.effAir;
 						}
-					} else if(item.itemID == Item.potion.itemID)
-					{
-						if(tracker.bodyTemp >= 37.05F)
-						{
-							tracker.bodyTemp -= 0.05F;
-						}
-						tracker.hydrate(25.0F);
-					} else if(item.itemID == Item.melon.itemID || item.itemID == Item.carrot.itemID || item.itemID == Item.goldenCarrot.itemID || item.itemID == Item.appleRed.itemID)
-					{
-						tracker.hydrate(5.0F);
 					} else if(item.itemID == Item.appleGold.itemID)
 					{
 						if(item.isItemDamaged())

@@ -44,8 +44,7 @@ public class EM_GuiEnviroMeters extends Gui
 	@SideOnly(Side.CLIENT)
 	public void onGuiRender(RenderGameOverlayEvent event)
 	{
-		
-		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCancelable())
+		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
 		{
 			return;
 		}
@@ -53,8 +52,7 @@ public class EM_GuiEnviroMeters extends Gui
 		// count gui ticks
 		if(ticktimer >= 60)
 		{
-			//System.out.println("Tick timer hit " +ticktimer);
-			blink = !blink; // blink for warning system 
+			blink = !blink;
 			ticktimer = 1;
 		} else
 			ticktimer++;
@@ -153,10 +151,10 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			// Add Bars to String Array for looping
 			String[] barPos = new String[4];
-			barPos[0] = (String)EM_Settings.sanityBarPos_actual.toString();
-			barPos[1] = (String)EM_Settings.oxygenBarPos_actual.toString();
-			barPos[2] = (String)EM_Settings.waterBarPos_actual.toString();
-			barPos[3] = (String)EM_Settings.heatBarPos_actual.toString();
+			barPos[0] = EM_Settings.sanityBarPos_actual;
+			barPos[1] = EM_Settings.oxygenBarPos_actual;
+			barPos[2] = EM_Settings.waterBarPos_actual;
+			barPos[3] = EM_Settings.heatBarPos_actual;
 			
 			boolean[] barTrue = new boolean[4];
 			barTrue[0] = EM_Settings.enableSanity;
@@ -367,12 +365,6 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 			
-			// Screen Overlays FX Screen
-			if(tracker.bodyTemp <= 0F)
-			{
-				this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", "textures/gui/status_Gui.png"));
-			}
-			
 			if(tracker.bodyTemp >= 39)
 			{
 				int grad = 0;
@@ -405,6 +397,8 @@ public class EM_GuiEnviroMeters extends Gui
 				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(200, 0, 249, grad), EnviroMine.getColorFromRGBA(200, 0, 249, grad));
 			}
 		}
+		
+		ShowDebugText(event);
 	}
 	
 	public static float DB_bodyTemp = 0;
@@ -415,7 +409,7 @@ public class EM_GuiEnviroMeters extends Gui
 	public static float DB_tempchange = 0;
 	
 	public static float DB_cooling = 0;
-	public static float DB_dehydrateBonus = 0;
+	public static float DB_dehydrateRate = 0;
 	
 	public static String DB_timer = "";
 	public static String DB_physTimer = "";
@@ -423,11 +417,10 @@ public class EM_GuiEnviroMeters extends Gui
 	
 	public static String DB_biomeName = "";
 	
-	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
-	public void ShowDebugText(RenderGameOverlayEvent event)
+	private void ShowDebugText(RenderGameOverlayEvent event)
 	{
-		if(event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR || event.isCanceled())
+		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
 		{
 			return;
 		}
@@ -439,9 +432,10 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		DB_abientTemp = tracker.airTemp;
 		DB_biomeName = tracker.trackedEntity.worldObj.getBiomeGenForCoords(MathHelper.floor_double(tracker.trackedEntity.posX), MathHelper.floor_double(tracker.trackedEntity.posZ)).biomeName;
-		DB_tempchange = tracker.bodyTemp - tracker.prevBodyTemp;
-		DB_sanityrate = tracker.sanity - tracker.prevSanity;
-		DB_airquality = tracker.airQuality - tracker.prevAirQuality;
+		DB_tempchange = new BigDecimal(String.valueOf(tracker.bodyTemp - tracker.prevBodyTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
+		DB_sanityrate = new BigDecimal(String.valueOf(tracker.sanity - tracker.prevSanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
+		DB_airquality = new BigDecimal(String.valueOf(tracker.airQuality - tracker.prevAirQuality)).setScale(3, RoundingMode.HALF_UP).floatValue();
+		DB_dehydrateRate = new BigDecimal(String.valueOf(tracker.hydration - tracker.prevHydration)).setScale(3, RoundingMode.HALF_UP).floatValue();
 		
 		try
 		{
@@ -460,7 +454,7 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			Minecraft.getMinecraft().fontRenderer.drawString("Sanity Rate: " + DB_sanityrate + "%", 10, 10 * 4, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Air Quality Rate: " + DB_airquality + "%", 10, 10 * 5, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("Dehydration Rate: " + DB_dehydrateBonus + "%", 10, 10 * 6, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("Dehydration Rate: " + DB_dehydrateRate + "%", 10, 10 * 6, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Status Update Speed: " + DB_timer, 10, 10 * 8, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Speed: " + DB_physTimer, 10, 10 * 9, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 10, 16777215);
