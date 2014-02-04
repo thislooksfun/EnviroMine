@@ -76,10 +76,12 @@ public class KeyBind extends KeyHandler
 							int itemMeta = mc.thePlayer.getHeldItem().getItemDamage();
 							String unlocolizedName = mc.thePlayer.getHeldItem().getItem().getUnlocalizedName();
 							String name = mc.thePlayer.getHeldItem().getDisplayName();
+							
+							unlocolizedName = replaceULN(unlocolizedName);
 							dataToCustom[0] = itemId;
 							dataToCustom[1] = itemMeta;
 							dataToCustom[2] = unlocolizedName;
-							
+
 							if(item instanceof ItemArmor)
 							{
 								returnValue = EM_ConfigHandler.SaveMyCustom("ARMOR", name, dataToCustom);
@@ -100,6 +102,7 @@ public class KeyBind extends KeyHandler
 						{
 							Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
 							String name = EntityList.getEntityString(lookingAt);
+							name = replaceULN(name);
 							
 							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
 							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file.");
@@ -115,9 +118,14 @@ public class KeyBind extends KeyHandler
 							Block block = Block.blocksList[blockID];
 							String blockULName = block.getUnlocalizedName();
 							String blockName = block.getLocalizedName();
+							
+							blockULName = replaceULN(blockULName);
+							
 							dataToCustom[0] = blockID;
 							dataToCustom[1] = blockMeta;
 							dataToCustom[2] = blockULName;
+							
+							
 							//System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
 							
 							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
@@ -147,5 +155,16 @@ public class KeyBind extends KeyHandler
 		return tickTypes;
 		
 	}
+	
+	private String replaceULN(String unlocolizedName)
+	{
+		
+		unlocolizedName = unlocolizedName.replaceAll("\\.", "_");
+
+
+		return unlocolizedName;
+		
+	}
+	
 	
 }
