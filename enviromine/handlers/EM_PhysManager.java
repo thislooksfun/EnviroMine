@@ -2,6 +2,7 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import com.google.common.base.Stopwatch;
 
@@ -408,7 +409,13 @@ public class EM_PhysManager
 				minThreshold = blockProps.minFall;
 				maxThreshold = blockProps.maxFall;
 				supportDist = blockProps.supportDist;
-				yMax = 2;
+				if(blockProps.canHang)
+				{
+					yMax = 2;
+				} else
+				{
+					yMax = 1;
+				}
 			} else if(stabNum == 3)
 			{
 				StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
@@ -763,11 +770,11 @@ public class EM_PhysManager
 			if(EM_Settings.blockProperties.containsKey("" + id + "," + meta))
 			{
 				BlockProperties blockProps = EM_Settings.blockProperties.get("" + id + "," + meta);
-				return(!blockProps.hasPhys || blockProps.holdsOthers);
+				return (blockProps.hasPhys && !blockProps.holdsOthers);
 			} else
 			{
 				BlockProperties blockProps = EM_Settings.blockProperties.get("" + id);
-				return(!blockProps.hasPhys || blockProps.holdsOthers);
+				return (blockProps.hasPhys && !blockProps.holdsOthers);
 			}
 		} else
 		{

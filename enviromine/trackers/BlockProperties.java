@@ -23,8 +23,9 @@ public class BlockProperties
 	
 	public boolean holdsOthers;
 	public boolean slides;
+	public boolean canHang;
 	
-	public BlockProperties(int id, int meta, boolean hasPhys, int minFall, int maxFall, int supportDist, int dropID, int dropMeta, int dropNum, boolean enableTemp, float temp, float air, float sanity, boolean holdOther, boolean slides)
+	public BlockProperties(int id, int meta, boolean hasPhys, int minFall, int maxFall, int supportDist, int dropID, int dropMeta, int dropNum, boolean enableTemp, float temp, float air, float sanity, boolean holdOther, boolean slides, boolean canHang)
 	{
 		this.id = id;
 		this.meta = meta;
@@ -41,5 +42,6 @@ public class BlockProperties
 		this.sanity = sanity;
 		this.holdsOthers = holdOther;
 		this.slides = slides;
+		this.canHang = canHang;
 	}
 }

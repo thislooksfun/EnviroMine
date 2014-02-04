@@ -140,12 +140,12 @@ public class EM_ConfigHandler
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
 			return;
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
 			return;
 		}
 		
@@ -247,12 +247,12 @@ public class EM_ConfigHandler
 			dirFlag = Dir.mkdirs();
 		} catch(SecurityException Se)
 		{
-			EnviroMine.logger.log(Level.INFO, "Error while creating config directory:\n" + Se);
+			EnviroMine.logger.log(Level.WARNING, "Error while creating config directory:\n" + Se);
 		}
 		
 		if(!dirFlag)
 		{
-			EnviroMine.logger.log(Level.INFO, "Failed to create config directory!");
+			EnviroMine.logger.log(Level.WARNING, "Failed to create config directory!");
 		}
 	}
 	
@@ -275,12 +275,12 @@ public class EM_ConfigHandler
 			} catch(NullPointerException e)
 			{
 				e.printStackTrace();
-				EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
 				return;
 			} catch(StringIndexOutOfBoundsException e)
 			{
 				e.printStackTrace();
-				EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM CONFIG: " + customFiles.getName() + "\nNEW SETTINGS WILL BE IGNORED!");
 				return;
 			}
 			
@@ -327,7 +327,7 @@ public class EM_ConfigHandler
 						LoadLivingProperty(config, catagory.get(x));
 					} else
 					{
-						EnviroMine.logger.log(Level.INFO, "Failed to load object " + CurCat);
+						EnviroMine.logger.log(Level.WARNING, "Failed to load object " + CurCat);
 					}
 					
 				}
@@ -386,6 +386,7 @@ public class EM_ConfigHandler
 		int maxFall = 99;
 		int supportDist = 5;
 		boolean holdOther = false;
+		boolean canHang = true;
 		
 		if(EM_Settings.stabilityTypes.containsKey(stability))
 		{
@@ -396,16 +397,19 @@ public class EM_ConfigHandler
 			supportDist = stabType.supportDist;
 			hasPhys = stabType.enablePhysics;
 			holdOther = stabType.holdOther;
+			canHang = stabType.canHang;
 		} else
 		{
+			EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
 			minFall = 99;
 			maxFall = 99;
 			supportDist = 9;
 			hasPhys = false;
 			holdOther = false;
+			canHang = true;
 		}
 		
-		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides);
+		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang);
 		
 		if(metaData < 0)
 		{
@@ -462,13 +466,13 @@ public class EM_ConfigHandler
 		catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD DEFAULTS!");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD DEFAULTS!");
 			return;
 		} 
 		catch(StringIndexOutOfBoundsException e)	
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD DEFAULTS!");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD DEFAULTS!");
 			return;
 		}
 		EnviroMine.logger.log(Level.INFO, "Loading Default Config: " + customFile.getAbsolutePath());
@@ -561,12 +565,12 @@ public class EM_ConfigHandler
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
 			return "Failed to Open MyCustom.dat";
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
 			return "Failed to Open MyCustom.dat";
 		}
 		
@@ -688,12 +692,12 @@ public class EM_ConfigHandler
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
 			return;
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.INFO, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD MAIN CONFIG!\nBACKUP SETTINGS ARE NOW IN EFFECT!");
 			return;
 		}
 		
