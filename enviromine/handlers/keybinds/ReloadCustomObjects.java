@@ -10,6 +10,7 @@ import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_ConfigHandler;
+import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 
 public class ReloadCustomObjects extends KeyHandler{
@@ -60,9 +61,14 @@ public class ReloadCustomObjects extends KeyHandler{
 				{
 					try
 					{
-						
+						mc.thePlayer.addChatMessage("Reloading Configs...");
+						EM_Settings.armorProperties.clear();
+						EM_Settings.blockProperties.clear();
+						EM_Settings.itemProperties.clear();
+						EM_Settings.livingProperties.clear();
+						EM_Settings.stabilityTypes.clear();
 						int Total = EM_ConfigHandler.initConfig();
-						mc.thePlayer.addChatMessage("Reloading Config: Loaded " + Total +" custom Objects");
+						mc.thePlayer.addChatMessage("Loaded " + Total +" custom Objects");
 						
 					} //try
 					catch(NullPointerException e)
