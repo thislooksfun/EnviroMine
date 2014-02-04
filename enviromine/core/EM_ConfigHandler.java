@@ -38,7 +38,7 @@ public class EM_ConfigHandler
 	static String[] IPName;
 	static String[] SPName;
 	
-	public static void initConfig()
+	public static int initConfig()
 	{
 		setPropertyNames();
 		// Check for Data Directory 
@@ -71,6 +71,10 @@ public class EM_ConfigHandler
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.itemProperties.size() + " item properties");
 		
 		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
+		
+		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size()+ EM_Settings.itemProperties.size();
+		
+		return Total;
 	}
 	
 	private static void setPropertyNames()
@@ -680,6 +684,7 @@ public class EM_ConfigHandler
 		}
 		
 		config.save();
+		
 		return returnValue;
 	}
 	

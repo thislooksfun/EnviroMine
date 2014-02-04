@@ -1,4 +1,4 @@
-package enviromine.handlers;
+package enviromine.handlers.keybinds;
 
 import java.util.EnumSet;
 
@@ -17,13 +17,13 @@ import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_ConfigHandler;
 import enviromine.core.EnviroMine;
 
-public class KeyBind extends KeyHandler
+public class AddRemoveCustom extends KeyHandler
 {
 	Object[] dataToCustom = new Object[5];
 	
 	public boolean keydown = true;
 	
-	public KeyBind(KeyBinding[] keyBindings, boolean[] repeatings)
+	public AddRemoveCustom(KeyBinding[] keyBindings, boolean[] repeatings)
 	{
 		super(keyBindings, repeatings);
 	}
@@ -139,7 +139,8 @@ public class KeyBind extends KeyHandler
 				}
 				else
 				{
-					mc.thePlayer.addChatMessage("Must hold left shift + J to add/remove objects");
+					
+					mc.thePlayer.addChatMessage("Must hold left shift to add/remove objects");
 				}
 				
 				
