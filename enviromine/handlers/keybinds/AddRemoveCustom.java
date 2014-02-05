@@ -78,6 +78,9 @@ public class AddRemoveCustom extends KeyHandler
 							String name = mc.thePlayer.getHeldItem().getDisplayName();
 							
 							unlocolizedName = replaceULN(unlocolizedName);
+							name = replaceULN(name);
+
+							
 							dataToCustom[0] = itemId;
 							dataToCustom[1] = itemMeta;
 							dataToCustom[2] = unlocolizedName;
@@ -120,7 +123,8 @@ public class AddRemoveCustom extends KeyHandler
 							String blockName = block.getLocalizedName();
 							
 							blockULName = replaceULN(blockULName);
-							
+							blockName = replaceULN(blockName);
+								
 							dataToCustom[0] = blockID;
 							dataToCustom[1] = blockMeta;
 							dataToCustom[2] = blockULName;
@@ -159,9 +163,11 @@ public class AddRemoveCustom extends KeyHandler
 	
 	private String replaceULN(String unlocolizedName)
 	{
+		System.out.println(unlocolizedName);
 		
-		unlocolizedName = unlocolizedName.replaceAll("\\.", "_");
-
+		unlocolizedName = unlocolizedName.replaceAll("\\.+", "\\_");
+		
+		System.out.println(unlocolizedName);
 
 		return unlocolizedName;
 		

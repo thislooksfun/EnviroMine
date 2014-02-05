@@ -40,10 +40,8 @@ public class ReloadCustomObjects extends KeyHandler{
 	public void keyUp(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd) 
 	{
 		
-		System.out.println("TEst");
 		if(tickEnd)
 		{
-			System.out.println("TEs t");
 			Minecraft mc = Minecraft.getMinecraft();
 			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null)
 			{
