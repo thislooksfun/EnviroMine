@@ -135,9 +135,16 @@ public class EnviroMine
 	@SideOnly(Side.CLIENT)
 	public static void registerKeyBindings(FMLInitializationEvent event)
 	{
+		// Add remove Keybind
 		KeyBinding[] key = {new KeyBinding("EnviroMine Add/Remove Custom Object", Keyboard.KEY_J)};
 		boolean[] repeat = {false};
-		KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.KeyBind(key, repeat));
+		KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.keybinds.AddRemoveCustom(key, repeat));
+		
+		// Reload Custom Objects Files
+		KeyBinding[] key1 = {new KeyBinding("EnviroMine Reload All Custom Object", Keyboard.KEY_K)};
+		boolean[] repeat1 = {false};
+		KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.keybinds.ReloadCustomObjects(key1, repeat1));
+	
 	}
 	
 	public static int getColorFromRGBA_F(float par1, float par2, float par3, float par4)
