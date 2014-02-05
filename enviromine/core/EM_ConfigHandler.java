@@ -9,15 +9,15 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor;
+import net.minecraftforge.common.Configuration;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
 import enviromine.trackers.StabilityType;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
-import net.minecraftforge.common.Configuration;
 
 public class EM_ConfigHandler
 {
@@ -73,6 +73,31 @@ public class EM_ConfigHandler
 		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
 		
 		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size()+ EM_Settings.itemProperties.size();
+		
+		
+	    /*		
+		   Iterator it = EM_Settings.blockProperties.entrySet().iterator();
+   
+		    while (it.hasNext()) 
+		    {
+		        Map.Entry pairs = (Map.Entry)it.next();
+		        
+		        BlockProperties blockProps = (BlockProperties) pairs.getValue();
+		        System.out.println(blockProps.id + " - " + blockProps.meta + 
+		        		blockProps.dropID +" - " + blockProps.dropMeta +" - " + blockProps.dropNum +" - " + 
+		        		blockProps.temp +" - " + blockProps.sanity +" - " + blockProps.supportDist + " - " +
+		        		blockProps.minFall +" - " + blockProps.maxFall);
+		       // blockProps.id blockProps.metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang
+		        System.out.println(pairs.getKey() + " = " + pairs.getValue());
+		        it.remove(); // avoids a ConcurrentModificationException
+		    }
+
+		for (int j = 0; j < EM_Settings.blockProperties.size(); j++)
+		{
+			BlockProperties blockProps = EM_Settings.blockProperties.get(EM_Settings.blockProperties.get(j));
+			
+			System.out.println(blockProps.id);
+		}*/
 		
 		return Total;
 	}
@@ -276,6 +301,9 @@ public class EM_ConfigHandler
 			try
 			{
 				config = new Configuration(customFiles);
+				
+				EnviroMine.logger.log(Level.INFO, "Loading Config File: " + customFiles.getAbsolutePath());
+
 			} catch(NullPointerException e)
 			{
 				e.printStackTrace();
