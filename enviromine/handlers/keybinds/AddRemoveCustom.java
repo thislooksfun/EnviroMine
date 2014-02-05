@@ -88,11 +88,11 @@ public class AddRemoveCustom extends KeyHandler
 							if(item instanceof ItemArmor)
 							{
 								returnValue = EM_ConfigHandler.SaveMyCustom("ARMOR", name, dataToCustom);
-								mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file. ");
+								mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.cfg file. ");
 							} else if(item instanceof Item)
 							{
 								returnValue = EM_ConfigHandler.SaveMyCustom("ITEM", name, dataToCustom);
-								mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file. ");
+								mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.cfg file. ");
 							}
 							
 							return;
@@ -108,7 +108,7 @@ public class AddRemoveCustom extends KeyHandler
 							name = replaceULN(name);
 							
 							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
-							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.dat file.");
+							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.cfg file.");
 						} else if(type.name() == "TILE")
 						{
 							
@@ -130,7 +130,7 @@ public class AddRemoveCustom extends KeyHandler
 							dataToCustom[2] = blockULName;
 							
 							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
-							mc.thePlayer.addChatMessage(blockName + "(" + blockID + ":" + blockMeta + ") " + returnValue + "  in MyCustom.dat file.");
+							mc.thePlayer.addChatMessage(blockName + "(" + blockID + ":" + blockMeta + ") " + returnValue + "  in MyCustom.cfg file.");
 						}
 					}
 					catch(NullPointerException e)

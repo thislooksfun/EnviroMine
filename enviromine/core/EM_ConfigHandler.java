@@ -242,14 +242,14 @@ public class EM_ConfigHandler
 		return list;
 	}
 	
-	private static boolean isDatFile(String fileName)
+	private static boolean isCFGFile(String fileName)
 	{
 		//Matcher
-		String patternString = "(.*\\.dat$)";
+		String patternString = "(.*\\.cfg$)";
 		
 		Pattern pattern;
 		Matcher matcher;
-		// Make Sure its a .Dat File
+		// Make Sure its a .cfg File
 		pattern = Pattern.compile(patternString);
 		matcher = pattern.matcher(fileName);
 		
@@ -292,7 +292,7 @@ public class EM_ConfigHandler
 	//####################################
 	public static void LoadCustomObjects(File customFiles)
 	{
-		boolean datFile = isDatFile(customFiles.getName());
+		boolean datFile = isCFGFile(customFiles.getName());
 		
 		// Check to make sure this is a Data File Before Editing
 		if(datFile == true)
@@ -488,7 +488,7 @@ public class EM_ConfigHandler
 	// IF SOME CUSTOMIZED ARMOR>> THAN IT OVERIDES THIS FUNCTION
 	public static void loadDefaultArmorProperties()
 	{
-		File customFile = new File(customPath + "Defaults.dat");
+		File customFile = new File(customPath + "Defaults.cfg");
 		
 		Configuration custom;
 		try	
@@ -588,7 +588,7 @@ public class EM_ConfigHandler
 	{
 		
 		// Check to make sure this is a Data File Before Editing
-		File configFile = new File(customPath + "MyCustom.dat");
+		File configFile = new File(customPath + "MyCustom.cfg");
 		
 		Configuration config;
 		try
@@ -597,13 +597,13 @@ public class EM_ConfigHandler
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.WARNING, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
-			return "Failed to Open MyCustom.dat";
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.CFG");
+			return "Failed to Open MyCustom.cfg";
 		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
-			EnviroMine.logger.log(Level.WARNING, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.DAT");
-			return "Failed to Open MyCustom.dat";
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO SAVE NEW OBJECT TO MYCUSTOM.CFG");
+			return "Failed to Open MyCustom.cfg";
 		}
 		
 		config.load();
