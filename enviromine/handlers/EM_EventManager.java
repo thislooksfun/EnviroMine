@@ -295,8 +295,6 @@ public class EM_EventManager
 					k = z;
 				}
 				
-				System.out.println("Found block " + Block.blocksList[entityPlayer.worldObj.getBlockId(i, j, k)].getLocalizedName());
-				
 				boolean isValidCauldron = (entityPlayer.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && entityPlayer.worldObj.getBlockMetadata(i, j, k) > 0);
 				
 				if(entityPlayer.worldObj.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)

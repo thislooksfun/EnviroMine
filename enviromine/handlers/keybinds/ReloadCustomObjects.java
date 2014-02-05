@@ -39,11 +39,8 @@ public class ReloadCustomObjects extends KeyHandler{
 	@Override
 	public void keyUp(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd) 
 	{
-		
-		System.out.println("TEst");
 		if(tickEnd)
 		{
-			System.out.println("TEs t");
 			Minecraft mc = Minecraft.getMinecraft();
 			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null)
 			{
@@ -68,7 +65,7 @@ public class ReloadCustomObjects extends KeyHandler{
 						EM_Settings.livingProperties.clear();
 						EM_Settings.stabilityTypes.clear();
 						int Total = EM_ConfigHandler.initConfig();
-						mc.thePlayer.addChatMessage("Loaded " + Total +" custom Objects");
+						mc.thePlayer.addChatMessage("Loaded " + Total +" objects and " + EM_Settings.stabilityTypes.size() + " stability types");
 						
 					} //try
 					catch(NullPointerException e)

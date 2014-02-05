@@ -310,53 +310,50 @@ public class EM_PhysManager
 					blockProps = EM_Settings.blockProperties.get("" + block.blockID);
 				}
 				
-				if(blockProps.meta == world.getBlockMetadata(x, y, z) || blockProps.meta == -1)
+				isCustom = true;
+				defaultDrop = false;
+				
+				if(blockProps.dropID < 0)
 				{
-					isCustom = true;
-					defaultDrop = false;
-					
-					if(blockProps.dropID < 0)
+					dropType = 1;
+					defaultDrop = true;
+					dropNum = blockProps.dropNum;
+				} else if(blockProps.dropID == 0)
+				{
+					dropType = 0;
+					dropBlock = 0;
+					dropMeta = 0;
+					dropNum = 0;
+				} else if(Block.blocksList[blockProps.dropID] != null && blockProps.dropNum <= 0)
+				{
+					dropType = 1;
+					dropBlock = blockProps.dropID;
+					if(blockProps.dropMeta <= -1)
 					{
-						dropType = 1;
-						defaultDrop = true;
-						dropNum = blockProps.dropNum;
-					} else if(blockProps.dropID == 0)
-					{
-						dropType = 0;
-						dropBlock = 0;
-						dropMeta = 0;
-						dropNum = 0;
-					} else if(Block.blocksList[blockProps.dropID] != null && blockProps.dropNum <= 0)
-					{
-						dropType = 1;
-						dropBlock = blockProps.dropID;
-						if(blockProps.dropMeta <= -1)
-						{
-							dropMeta = -1;
-						} else
-						{
-							dropMeta = blockProps.dropMeta;
-						}
-						dropNum = 0;
-					} else if(Item.itemsList[blockProps.dropID] != null && blockProps.dropNum > 0)
-					{
-						dropType = 2;
-						dropBlock = blockProps.dropID;
-						if(blockProps.dropMeta <= -1)
-						{
-							dropMeta = -1;
-						} else
-						{
-							dropMeta = blockProps.dropMeta;
-						}
-						dropNum = blockProps.dropNum;
+						dropMeta = -1;
 					} else
 					{
-						dropType = 0;
-						dropBlock = 0;
-						dropMeta = -1;
-						dropNum = -1;
+						dropMeta = blockProps.dropMeta;
 					}
+					dropNum = 0;
+				} else if(Item.itemsList[blockProps.dropID] != null && blockProps.dropNum > 0)
+				{
+					dropType = 2;
+					dropBlock = blockProps.dropID;
+					if(blockProps.dropMeta <= -1)
+					{
+						dropMeta = -1;
+					} else
+					{
+						dropMeta = blockProps.dropMeta;
+					}
+					dropNum = blockProps.dropNum;
+				} else
+				{
+					dropType = 0;
+					dropBlock = 0;
+					dropMeta = -1;
+					dropNum = -1;
 				}
 			}
 			

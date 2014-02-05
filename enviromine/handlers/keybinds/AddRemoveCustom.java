@@ -125,13 +125,10 @@ public class AddRemoveCustom extends KeyHandler
 							dataToCustom[1] = blockMeta;
 							dataToCustom[2] = blockULName;
 							
-							
-							//System.out.println(blockULName + "*" + blockName + "*" + blockID + ":" + blockMeta + "*");
-							
 							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), blockName, dataToCustom);
 							mc.thePlayer.addChatMessage(blockName + "(" + blockID + ":" + blockMeta + ") " + returnValue + "  in MyCustom.dat file.");
-						} //else if
-					} //try
+						}
+					}
 					catch(NullPointerException e)
 					{
 						

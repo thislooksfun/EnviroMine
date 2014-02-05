@@ -789,7 +789,6 @@ public class EM_StatusManager
 	
 	public static void removeTracker(EnviroDataTracker tracker)
 	{
-		System.out.println("Removing entity " + tracker.trackedEntity.getEntityName());
 		if(trackerList.containsValue(tracker))
 		{
 			tracker.isDisabled = true;
