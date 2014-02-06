@@ -172,6 +172,7 @@ public class EM_ConfigHandler
 		
 		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", -1 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(-1);
 		EM_Settings.stoneCracks = config.get(Configuration.CATEGORY_GENERAL, "Stone Cracks Before Falling", true).getBoolean(true);
+		EM_Settings.defaultStability = config.get(Configuration.CATEGORY_GENERAL, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";

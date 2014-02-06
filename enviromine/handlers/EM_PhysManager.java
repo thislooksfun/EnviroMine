@@ -253,7 +253,14 @@ public class EM_PhysManager
 								}
 							} else if(stabNum == 1)
 							{
-								StabilityType looseType = EM_Settings.stabilityTypes.get("loose");
+								StabilityType looseType;
+								if(block.blockID > 175 && EM_Settings.stabilityTypes.containsKey(EM_Settings.defaultStability))
+								{
+									looseType = EM_Settings.stabilityTypes.get(EM_Settings.defaultStability);
+								} else
+								{
+									looseType = EM_Settings.stabilityTypes.get("loose");
+								}
 								if(looseType != null && looseType.holdOther)
 								{
 									return;
@@ -441,7 +448,14 @@ public class EM_PhysManager
 				}
 			} else if(stabNum == 1)
 			{
-				StabilityType looseType = EM_Settings.stabilityTypes.get("loose");
+				StabilityType looseType;
+				if(block.blockID > 175 && EM_Settings.stabilityTypes.containsKey(EM_Settings.defaultStability))
+				{
+					looseType = EM_Settings.stabilityTypes.get(EM_Settings.defaultStability);
+				} else
+				{
+					looseType = EM_Settings.stabilityTypes.get("loose");
+				}
 				minThreshold = looseType.minFall;
 				maxThreshold = looseType.maxFall;
 				supportDist = looseType.supportDist;

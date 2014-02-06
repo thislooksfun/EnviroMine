@@ -82,6 +82,7 @@ public class EM_Settings
 	public static HashMap<String,StabilityType> stabilityTypes = new HashMap<String,StabilityType>();
 	public static int updateCap = -1;
 	public static boolean stoneCracks;
+	public static String defaultStability;
 	
 	public static float convertToFarenheit(float num)
 	{
