@@ -158,15 +158,15 @@ public class AddRemoveCustom extends KeyHandler
 		
 	}
 	
-	private String replaceULN(String unlocolizedName)
+	private String replaceULN(String unlocalizedName)
 	{
-		System.out.println(unlocolizedName);
+		System.out.println(unlocalizedName);
 		
-		unlocolizedName = unlocolizedName.replaceAll("\\.+", "\\_");
+		String newName = unlocalizedName.replaceAll("\\.+", "\\_");
 		
-		System.out.println(unlocolizedName);
+		System.out.println(newName);
 
-		return unlocolizedName;
+		return newName;
 		
 	}
 	

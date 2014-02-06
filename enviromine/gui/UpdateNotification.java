@@ -26,21 +26,29 @@ public class UpdateNotification implements IPlayerTracker
 			String version = data[0].trim();
 			String http = data[1].trim();
 			
-			if(!(EM_Settings.Version.equals(version)))
+			int verStat = compareVersions(EM_Settings.Version, version);
+			
+			if(verStat == -1)
 			{
 				player.addChatMessage(EnumChatFormatting.RED + "Update " + version + " of EnviroMine is available");
-				EnviroMine.logger.log(Level.INFO, "Update " + version + " of EnviroMine is available");
-				player.addChatMessage(EnumChatFormatting.RESET + "Download: " + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + http);
-				EnviroMine.logger.log(Level.INFO, "Download: " + http);
+				player.addChatMessage(EnumChatFormatting.RESET + "Download:\n" + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + http);
 				for(int i = 2; i < data.length; i++)
 				{
-					player.addChatMessage(EnumChatFormatting.RESET + "" + data[i].trim());
-					EnviroMine.logger.log(Level.INFO, data[i].trim());
+					if(i > 5)
+					{
+						player.addChatMessage("" + (data.length - 6) + " more...");
+						break;
+					} else
+					{
+						player.addChatMessage(EnumChatFormatting.RESET + "" + data[i].trim());
+					}
 				}
-			} else
+			} else if(verStat == 0)
 			{
 				player.addChatMessage(EnumChatFormatting.YELLOW + "EnviroMine " + EM_Settings.Version + " is up to date");
-				EnviroMine.logger.log(Level.INFO, "EnviroMine " + EM_Settings.Version + " is up to date");
+			} else if(verStat == 1)
+			{
+				player.addChatMessage(EnumChatFormatting.YELLOW + "EnviroMine " + EM_Settings.Version + " is a debug version");
 			}
 			
 		} catch(IOException e)
@@ -103,5 +111,43 @@ public class UpdateNotification implements IPlayerTracker
 		String[] pageSplit = page.split("\\n");
 		
 		return pageSplit;
+	}
+	
+	public int compareVersions(String oldVer, String newVer)
+	{
+		int result = 0;
+		int[] oldNum;
+		int[] newNum;
+		String[] oldNumStr;
+		String[] newNumStr;
+		
+		try
+		{
+			oldNumStr = oldVer.split("\\.");
+			newNumStr = newVer.split("\\.");
+			
+			oldNum = new int[]{Integer.valueOf(oldNumStr[0]),Integer.valueOf(oldNumStr[1]),Integer.valueOf(oldNumStr[2])};
+			newNum = new int[]{Integer.valueOf(newNumStr[0]),Integer.valueOf(newNumStr[1]),Integer.valueOf(newNumStr[2])};
+		} catch(IndexOutOfBoundsException e)
+		{
+			EnviroMine.logger.log(Level.WARNING, "An IndexOutOfBoundsException occured while checking version!\n" + e.getMessage());
+			return -2;
+		} catch(NumberFormatException e)
+		{
+			EnviroMine.logger.log(Level.WARNING, "A NumberFormatException occured while checking version!\n" + e.getMessage());
+			return -2;
+		}
+		
+		for(int i = 0; i < 3; i++)
+		{
+			if(oldNum[i] < newNum[i])
+			{
+				return -1;
+			} else if(oldNum[i] > newNum[i])
+			{
+				return 1;
+			}
+		}
+		return result;
 	}
 }

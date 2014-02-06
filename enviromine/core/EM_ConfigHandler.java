@@ -21,7 +21,6 @@ import enviromine.trackers.StabilityType;
 
 public class EM_ConfigHandler
 {
-	
 	// Dirs for Custom Files
 	public static String configPath = "config/enviromine/";
 	static String customPath = configPath + "CustomProperties/";
@@ -32,6 +31,7 @@ public class EM_ConfigHandler
 	static String entityCat = "entity";
 	static String itemsCat = "items";
 	
+	// Arrays for property names
 	static String[] APName;
 	static String[] BPName;
 	static String[] EPName;
@@ -40,11 +40,11 @@ public class EM_ConfigHandler
 	
 	public static int initConfig()
 	{
+		// Load in property names into arrays
 		setPropertyNames();
+		
 		// Check for Data Directory 
 		CheckDir(new File(customPath));
-		
-		//CheckFile(new File(configPath + "Help_File_Custom.txt"));
 		
 		EnviroMine.logger.log(Level.INFO, "Loading configs");
 		
@@ -73,31 +73,6 @@ public class EM_ConfigHandler
 		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
 		
 		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size()+ EM_Settings.itemProperties.size();
-		
-		
-	    /*		
-		   Iterator it = EM_Settings.blockProperties.entrySet().iterator();
-   
-		    while (it.hasNext()) 
-		    {
-		        Map.Entry pairs = (Map.Entry)it.next();
-		        
-		        BlockProperties blockProps = (BlockProperties) pairs.getValue();
-		        System.out.println(blockProps.id + " - " + blockProps.meta + 
-		        		blockProps.dropID +" - " + blockProps.dropMeta +" - " + blockProps.dropNum +" - " + 
-		        		blockProps.temp +" - " + blockProps.sanity +" - " + blockProps.supportDist + " - " +
-		        		blockProps.minFall +" - " + blockProps.maxFall);
-		       // blockProps.id blockProps.metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang
-		        System.out.println(pairs.getKey() + " = " + pairs.getValue());
-		        it.remove(); // avoids a ConcurrentModificationException
-		    }
-
-		for (int j = 0; j < EM_Settings.blockProperties.size(); j++)
-		{
-			BlockProperties blockProps = EM_Settings.blockProperties.get(EM_Settings.blockProperties.get(j));
-			
-			System.out.println(blockProps.id);
-		}*/
 		
 		return Total;
 	}
