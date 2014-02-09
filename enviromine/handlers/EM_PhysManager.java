@@ -2,10 +2,7 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-
 import com.google.common.base.Stopwatch;
-
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
@@ -18,20 +15,16 @@ import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockEndPortal;
 import net.minecraft.block.BlockEndPortalFrame;
-import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockGlowStone;
 import net.minecraft.block.BlockGravel;
 import net.minecraft.block.BlockLadder;
+import net.minecraft.block.BlockLeavesBase;
 import net.minecraft.block.BlockMobSpawner;
-import net.minecraft.block.BlockOre;
 import net.minecraft.block.BlockPortal;
-import net.minecraft.block.BlockRedstoneOre;
 import net.minecraft.block.BlockSand;
-import net.minecraft.block.BlockSapling;
 import net.minecraft.block.BlockSign;
 import net.minecraft.block.BlockWeb;
 import net.minecraft.block.BlockObsidian;
-import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
@@ -391,7 +384,7 @@ public class EM_PhysManager
 					dropType = 2;
 				} else if(Block.blocksList[dropBlock] != null)
 				{
-					if(Block.blocksList[block.blockID] instanceof BlockLeaves)
+					if(Block.blocksList[block.blockID] instanceof BlockLeavesBase)
 					{
 						dropType = 2;
 					} else
@@ -960,7 +953,7 @@ public class EM_PhysManager
 		if(block.blockMaterial == Material.iron || block.blockMaterial == Material.wood || block instanceof BlockObsidian || block.blockID == Block.stoneBrick.blockID || block.blockID == Block.brick.blockID || block.blockID == Block.blockNetherQuartz.blockID)
 		{
 			type = 3;
-		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice || block instanceof BlockLeaves)
+		} else if(block.blockMaterial == Material.rock || block.blockMaterial == Material.glass || block.blockMaterial == Material.ice || block instanceof BlockLeavesBase)
 		{
 			type = 2;
 		} else
