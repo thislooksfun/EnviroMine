@@ -266,8 +266,10 @@ public class EM_StatusManager
 					
 					if(isCustom && blockProps != null)
 					{
-						
-						if(quality <= blockProps.air)
+						if(quality <= 0F && blockProps.air > 0F)
+						{
+							leaves += (blockProps.air/0.1F);
+						} else if(quality >= blockProps.air && blockProps.air < 0 && quality <= 0)
 						{
 							quality = blockProps.air;
 						}
@@ -383,9 +385,9 @@ public class EM_StatusManager
 						itemProps = EM_Settings.itemProperties.get("" + stack.itemID);
 					}
 					
-					if(quality <= itemProps.ambAir && itemProps.ambAir > 0F)
+					if(quality <= 0F && itemProps.ambAir > 0F)
 					{
-						leaves = (itemProps.ambAir/0.1);
+						leaves += (itemProps.ambAir/0.1F);
 					} else if(quality >= itemProps.ambAir && itemProps.ambAir < 0 && quality <= 0)
 					{
 						quality = itemProps.ambAir;
