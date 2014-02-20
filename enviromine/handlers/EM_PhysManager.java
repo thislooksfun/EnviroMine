@@ -899,19 +899,19 @@ public class EM_PhysManager
 		
 		ArrayList<String> canSlideDir = new ArrayList<String>();
 		
-		if(world.getBlockId(x + 1, y, z) == 0 && world.getBlockId(x + 1, y - 1, z) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0)
+		if(blockNotSolid(world, x + 1, y, z) && blockNotSolid(world, x + 1, y - 1, z) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0)
 		{
 			canSlideDir.add("X+");
 		}
-		if(world.getBlockId(x - 1, y, z) == 0 && world.getBlockId(x - 1, y - 1, z) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0)
+		if(blockNotSolid(world, x - 1, y, z) && blockNotSolid(world, x - 1, y - 1, z) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0)
 		{
 			canSlideDir.add("X-");
 		}
-		if(world.getBlockId(x, y, z + 1) == 0 && world.getBlockId(x, y - 1, z + 1) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0)
+		if(blockNotSolid(world, x, y, z + 1) && blockNotSolid(world, x, y - 1, z + 1) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0)
 		{
 			canSlideDir.add("Z+");
 		}
-		if(world.getBlockId(x, y, z - 1) == 0 && world.getBlockId(x, y - 1, z - 1) == 0 && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z - 1, x + 1, y, z)).size() <= 0)
+		if(blockNotSolid(world, x, y, z - 1) && blockNotSolid(world, x, y - 1, z - 1) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z - 1, x + 1, y, z)).size() <= 0)
 		{
 			canSlideDir.add("Z-");
 		}
