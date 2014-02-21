@@ -421,7 +421,7 @@ public class EM_StatusManager
 		{
 			if(sanityRate == 0)
 			{
-				sanityRate = -0.01F;
+				sanityRate = -0.1F;
 			}
 		}
 		

@@ -461,6 +461,11 @@ public class EM_PhysManager
 				}
 			}
 			
+			if(world.provider.isHellWorld && block.blockMaterial == Material.rock && !isCustom)
+			{
+				yMax = 2;
+			}
+			
 			int missingBlocks = 0;
 			
 			for(int i = -1; i < 2; i++)

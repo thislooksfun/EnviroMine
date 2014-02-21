@@ -16,7 +16,7 @@ public class EM_Settings
 	public static final UUID HEAT1_UUID = UUID.fromString("CA6E2CFA-4C53-4CD2-AAD3-3D6177A4F126");
 	
 	//Mod Data
-	public static final String Version = "1.1.2";
+	public static final String Version = "1.1.3";
 	public static final String ID = "EnviroMine";
 	public static final String Channel = "EM_CH";
 	public static final String Name = "EnviroMine";
