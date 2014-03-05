@@ -195,8 +195,8 @@ public class EM_ConfigHandler
 		EM_Settings.camelPackID = config.get(Configuration.CATEGORY_ITEM, "Camel Pack", 5004).getInt(5004);
 		
 		// Potion ID's
-		EM_Settings.frostBitePotionID = config.get("Potions", "Hypothermia", 27).getInt(27);
-		EM_Settings.frostBitePotionID = config.get("Potions", "Heat Stroke", 28).getInt(28);
+		EM_Settings.hypothermiaPotionID = config.get("Potions", "Hypothermia", 27).getInt(27);
+		EM_Settings.heatstrokePotionID = config.get("Potions", "Heat Stroke", 28).getInt(28);
 		EM_Settings.frostBitePotionID = config.get("Potions", "Frostbite", 29).getInt(29);
 		EM_Settings.dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(30);
 		EM_Settings.insanityPotionID = config.get("Potions", "Insanity", 31).getInt(31);
