@@ -53,7 +53,6 @@ public class UpdateNotification implements IPlayerTracker
 			
 		} catch(IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

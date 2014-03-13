@@ -836,7 +836,10 @@ public class EM_PhysManager
 		{
 			if(debugTime == 0)
 			{
-				timer.start();
+				if(!timer.isRunning())
+				{
+					timer.start();
+				}
 				debugUpdatesCaptured = 0;
 			}
 			debugUpdatesCaptured += physSchedule.size();
@@ -880,14 +883,14 @@ public class EM_PhysManager
 		
 		usedSlidePositions.clear();
 		
-		if(EnviroMine.proxy.isClient() && debugTime >= debugInterval)
+		if(EnviroMine.proxy.isClient() && debugTime >= debugInterval && timer.isRunning())
 		{
 			timer.stop();
 			EM_GuiEnviroMeters.DB_physTimer = timer.toString();
 			EM_GuiEnviroMeters.DB_physUpdates = debugUpdatesCaptured;
 			timer.reset();
 			debugTime = 0;
-		} else if(EnviroMine.proxy.isClient())
+		} else if(EnviroMine.proxy.isClient() && timer.isRunning())
 		{
 			debugTime += 1;
 		}

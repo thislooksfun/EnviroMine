@@ -52,7 +52,6 @@ public class EnviroDataTracker
 	
 	public String sleepState = "Awake";
 	public int lastSleepTime = 0;
-	public int lastSleepResult = 0;
 	
 	public int timeBelow10 = 0;
 	

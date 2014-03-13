@@ -611,10 +611,6 @@ public class EM_EventManager
 				if(tracker.sleepState.equals("Asleep") && (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() - tracker.lastSleepTime > 100)
 				{
 					tracker.sanity = 100F;
-					tracker.lastSleepResult = (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() - tracker.lastSleepTime;
-				} else if(tracker.sleepState.equals("Asleep"))
-				{
-					tracker.lastSleepResult = -1;
 				}
 				tracker.sleepState = "Awake";
 			}

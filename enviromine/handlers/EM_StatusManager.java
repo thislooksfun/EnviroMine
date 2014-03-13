@@ -40,8 +40,6 @@ import net.minecraft.world.chunk.Chunk;
 public class EM_StatusManager
 {
 	public static HashMap<String,EnviroDataTracker> trackerList = new HashMap<String,EnviroDataTracker>();
-	public static int ticksSinceUpdate = 0;
-	public static int updateInterval = 15;
 	
 	public static void addToManager(EnviroDataTracker tracker)
 	{
@@ -143,7 +141,7 @@ public class EM_StatusManager
 	
 	public static float[] getSurroundingData(EntityLivingBase entityLiving, int range)
 	{
-		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()))
+		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()) && !timer.isRunning())
 		{
 			timer.start();
 		}
@@ -767,7 +765,7 @@ public class EM_StatusManager
 		data[6] = animalHostility;
 		data[7] = sanityRate;
 		
-		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()))
+		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()) && timer.isRunning())
 		{
 			timer.stop();
 			EM_GuiEnviroMeters.DB_timer = timer.toString();
@@ -903,7 +901,7 @@ public class EM_StatusManager
 	
 	public static EntityPlayer findPlayer(String username)
 	{
-		World[] worlds = new World[3];
+		World[] worlds = new World[1];
 		
 		if(EnviroMine.proxy.isClient())
 		{
