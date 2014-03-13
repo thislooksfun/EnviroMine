@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import enviromine.handlers.EM_PhysManager;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.Entity;
@@ -29,14 +30,25 @@ public class EntityPhysicsBlock extends EntityFallingSand
 	
 	public EntityPhysicsBlock(World world, double x, double y, double z, int id, int meta, boolean update)
 	{
-		super(world, x, y, z, id, meta);
+		super(world, x, y, z, flowerID(id), meta);
 		this.setIsAnvil(true);
 		this.fallHurtMax2 = 40;
 		this.fallHurtAmount2 = 2.0F;
 		
 		if(update)
 		{
-			EM_PhysManager.schedulePhysUpdate(world, (int)x, (int)y, (int)z, false, true);
+			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, true, "Collapse");
+		}
+	}
+	
+	public static int flowerID(int id)
+	{
+		if(Block.blocksList[id] instanceof BlockFlower)
+		{
+			return 0;
+		} else
+		{
+			return id;
 		}
 	}
 	
@@ -117,7 +129,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 						
 						if(!this.isBreakingAnvil2 && this.worldObj.canPlaceEntityOnSide(Block.anvil.blockID, i, j, k, true, 1, (Entity)null, (ItemStack)null) && !BlockSand.canFallBelow(this.worldObj, i, j - 1, k) && this.worldObj.setBlock(i, j, k, this.blockID, this.metadata, 3))
 						{
-							EM_PhysManager.schedulePhysUpdate(this.worldObj, i, j, k, true, false);
+							EM_PhysManager.schedulePhysUpdate(this.worldObj, i, j, k, true, false, "Collapse");
 							
 							if(Block.blocksList[this.blockID] instanceof BlockSand)
 							{

@@ -50,6 +50,10 @@ public class EnviroDataTracker
 	public boolean brokenArm = false;
 	public boolean bleedingOut = false;
 	
+	public String sleepState = "Awake";
+	public int lastSleepTime = 0;
+	public int lastSleepResult = 0;
+	
 	public int timeBelow10 = 0;
 	
 	public int updateTimer = 0;
@@ -390,7 +394,7 @@ public class EnviroDataTracker
 		bodyTemp = new BigDecimal(String.valueOf(bodyTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
 		airTemp = new BigDecimal(String.valueOf(airTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
 		hydration = new BigDecimal(String.valueOf(hydration)).setScale(2, RoundingMode.HALF_UP).floatValue();
-		sanity = new BigDecimal(String.valueOf(sanity)).setScale(2, RoundingMode.HALF_UP).floatValue();
+		sanity = new BigDecimal(String.valueOf(sanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
 	}
 	
 	public static boolean isLegalType(EntityLivingBase entity)

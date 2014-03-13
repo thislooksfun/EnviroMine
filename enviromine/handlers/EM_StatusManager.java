@@ -150,7 +150,7 @@ public class EM_StatusManager
 		
 		float[] data = new float[8];
 		
-		float sanityRate = 0;
+		float sanityRate = -0.001F;
 		
 		float quality = 0;
 		double leaves = 0;
@@ -412,11 +412,6 @@ public class EM_StatusManager
 		if(lightLev > 1 && !entityLiving.worldObj.provider.isHellWorld)
 		{
 			quality = 2F;
-			
-			if(isDay)
-			{
-				sanityRate = 0.2F;
-			}
 		} else
 		{
 			if(sanityRate == 0)

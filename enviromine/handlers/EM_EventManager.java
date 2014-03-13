@@ -140,6 +140,12 @@ public class EM_EventManager
 				} else if(attacker instanceof EntityEnderman)
 				{
 					tracker.sanity -= 5F;
+				} else if(attacker instanceof EntityLivingBase)
+				{
+					if(((EntityLivingBase)attacker).isEntityUndead())
+					{
+						tracker.sanity -= 0.5F;
+					}
 				}
 			}
 		}
@@ -154,7 +160,7 @@ public class EM_EventManager
 			if(item.getItem() instanceof ItemBlock && !event.entityPlayer.worldObj.isRemote)
 			{
 				int adjCoords[] = getAdjacentBlockCoordsFromSide(event.x, event.y, event.z, event.face);
-				EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, adjCoords[0], adjCoords[1], adjCoords[2], true, false);
+				EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, adjCoords[0], adjCoords[1], adjCoords[2], true, false, "Normal");
 			} else if(item.getItem() instanceof ItemGlassBottle && !event.entityPlayer.worldObj.isRemote)
 			{
 				if(event.entityPlayer.worldObj.getBlockId(event.x, event.y, event.z) == Block.cauldron.blockID && event.entityPlayer.worldObj.getBlockMetadata(event.x, event.y, event.z) > 0)
@@ -170,7 +176,7 @@ public class EM_EventManager
 			}
 		} else if(event.getResult() != Result.DENY && event.action == Action.LEFT_CLICK_BLOCK)
 		{
-			EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, event.x, event.y, event.z, true, false);
+			EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, event.x, event.y, event.z, true, false, "Normal");
 		} else if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_AIR && item != null)
 		{
 			if(item.getItem() instanceof ItemGlassBottle && !event.entityPlayer.worldObj.isRemote)
@@ -210,7 +216,17 @@ public class EM_EventManager
 					return;
 				}
 				
-				if(world.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)
+				boolean isWater;
+				
+				if(world.getBlockId(i, j, k) == Block.waterStill.blockID || world.getBlockId(i, j, k) == Block.waterMoving.blockID)
+				{
+					isWater = true;
+				} else
+				{
+					isWater = false;
+				}
+				
+				if(isWater || isValidCauldron)
 				{
 					Item newItem = Item.potion;
 					
@@ -295,9 +311,19 @@ public class EM_EventManager
 					k = z;
 				}
 				
+				boolean isWater;
+				
+				if(entityPlayer.worldObj.getBlockId(i, j, k) == Block.waterMoving.blockID || entityPlayer.worldObj.getBlockId(i, j, k) == Block.waterStill.blockID)
+				{
+					isWater = true;
+				} else
+				{
+					isWater = false;
+				}
+				
 				boolean isValidCauldron = (entityPlayer.worldObj.getBlockId(i, j, k) == Block.cauldron.blockID && entityPlayer.worldObj.getBlockMetadata(i, j, k) > 0);
 				
-				if(entityPlayer.worldObj.getBlockMaterial(i, j, k) == Material.water || isValidCauldron)
+				if(isWater || isValidCauldron)
 				{
 					if(tracker != null)
 					{
@@ -371,7 +397,7 @@ public class EM_EventManager
 		} else if(biome.biomeName == BiomeGenBase.frozenOcean.biomeName || biome.biomeName == BiomeGenBase.ocean.biomeName || biome.biomeName == BiomeGenBase.beach.biomeName)
 		{
 			return 2;
-		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName)
+		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName || biome.temperature < 0F)
 		{
 			return 3;
 		} else
@@ -441,13 +467,13 @@ public class EM_EventManager
 		{
 			if(event.getResult() != Result.DENY && !event.harvester.capabilities.isCreativeMode)
 			{
-				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false);
+				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false, "Normal");
 			}
 		} else
 		{
 			if(event.getResult() != Result.DENY)
 			{
-				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false);
+				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false, "Normal");
 			}
 		}
 	}
@@ -578,13 +604,19 @@ public class EM_EventManager
 			
 			if(((EntityPlayer)event.entityLiving).isPlayerSleeping() && tracker != null)
 			{
-				if(((EntityPlayer)event.entityLiving).isPlayerFullyAsleep())
+				tracker.sleepState = "Asleep";
+				tracker.lastSleepTime = (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime();
+			} else if(tracker != null)
+			{
+				if(tracker.sleepState.equals("Asleep") && (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() - tracker.lastSleepTime > 100)
 				{
-					tracker.sanity = 100.0F;
-				} else if(tracker.sanity <= 99F)
+					tracker.sanity = 100F;
+					tracker.lastSleepResult = (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() - tracker.lastSleepTime;
+				} else if(tracker.sleepState.equals("Asleep"))
 				{
-					tracker.sanity += 0.01F;
+					tracker.lastSleepResult = -1;
 				}
+				tracker.sleepState = "Awake";
 			}
 			
 			if(((EntityPlayer)event.entityLiving).isUsingItem())
@@ -755,7 +787,7 @@ public class EM_EventManager
 	{
 		if(event.entityLiving.getRNG().nextInt(5) == 0)
 		{
-			EM_PhysManager.schedulePhysUpdate(event.entityLiving.worldObj, MathHelper.floor_double(event.entityLiving.posX), MathHelper.floor_double(event.entityLiving.posY - 1), MathHelper.floor_double(event.entityLiving.posZ), true, false);
+			EM_PhysManager.schedulePhysUpdate(event.entityLiving.worldObj, MathHelper.floor_double(event.entityLiving.posX), MathHelper.floor_double(event.entityLiving.posY - 1), MathHelper.floor_double(event.entityLiving.posZ), true, false, "Jump");
 		}
 	}
 	

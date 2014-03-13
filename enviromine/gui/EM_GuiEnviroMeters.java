@@ -83,6 +83,7 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			float dispHeat = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(2, RoundingMode.DOWN).floatValue();
 			float FdispHeat = new BigDecimal(String.valueOf((tracker.bodyTemp * 1.8)+32)).setScale(2, RoundingMode.DOWN).floatValue();
+			float dispSanity = new BigDecimal(String.valueOf(tracker.sanity)).setScale(2, RoundingMode.DOWN).floatValue();
 			
 			if(waterBar > barWidth)
 			{
@@ -360,7 +361,7 @@ public class EM_GuiEnviroMeters extends Gui
 					Minecraft.getMinecraft().fontRenderer.drawString(dispHeat + "C", HTcurX, HTcurY, 16777215);
 				}
 				Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString(tracker.sanity + "%", SAcurX, SAcurY, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
 			}
 			
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));

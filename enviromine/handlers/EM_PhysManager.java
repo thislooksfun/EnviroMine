@@ -49,25 +49,26 @@ public class EM_PhysManager
 	
 	private static Stopwatch timer = new Stopwatch();
 	
-	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, boolean exclusions)
+	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, boolean exclusions, String type)
 	{
 		if(world.isRemote)
 		{
 			return;
 		}
 		
-		Object[] entry = new Object[6];
+		Object[] entry = new Object[7];
 		entry[0] = world;
 		entry[1] = x;
 		entry[2] = y;
 		entry[3] = z;
 		entry[4] = updateSelf;
 		entry[5] = exclusions;
+		entry[6] = type;
 		
 		physSchedule.add(entry);
 	}
 	
-	public static void updateSurroundingPhys(World world, int x, int y, int z, boolean updateSelf)
+	public static void updateSurroundingPhys(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
 		if(world.isRemote)
 		{
@@ -84,21 +85,21 @@ public class EM_PhysManager
 					{
 						if(updateSelf)
 						{
-							callPhysUpdate(world, x + i, y + j, k + z);
+							callPhysUpdate(world, x + i, y + j, k + z, type);
 						} else
 						{
 							continue;
 						}
 					} else
 					{
-						callPhysUpdate(world, x + i, y + j, k + z);
+						callPhysUpdate(world, x + i, y + j, k + z, type);
 					}
 				}
 			}
 		}
 	}
 	
-	public static void updateSurroundingWithExclusions(World world, int x, int y, int z, boolean updateSelf)
+	public static void updateSurroundingWithExclusions(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
 		if(world.isRemote)
 		{
@@ -119,7 +120,7 @@ public class EM_PhysManager
 							if(!excluded.contains(position))
 							{
 								excluded.add(position);
-								callPhysUpdate(world, x + i, y + j, k + z);
+								callPhysUpdate(world, x + i, y + j, k + z, type);
 							} else
 							{
 								continue;
@@ -134,7 +135,7 @@ public class EM_PhysManager
 						if(!excluded.contains(position))
 						{
 							excluded.add(position);
-							callPhysUpdate(world, x + i, y + j, k + z);
+							callPhysUpdate(world, x + i, y + j, k + z, type);
 						} else
 						{
 							continue;
@@ -145,17 +146,17 @@ public class EM_PhysManager
 		}
 	}
 	
-	public static void callPhysUpdate(World world, int x, int y, int z)
+	public static void callPhysUpdate(World world, int x, int y, int z, String type)
 	{
 		if(world.isRemote)
 		{
 			return;
 		}
 		
-		callPhysUpdate(world, x, y, z, Block.blocksList[world.getBlockId(x, y, z)], world.getBlockMetadata(x, y, z));
+		callPhysUpdate(world, x, y, z, Block.blocksList[world.getBlockId(x, y, z)], world.getBlockMetadata(x, y, z), type);
 	}
 	
-	public static void callPhysUpdate(World world, int x, int y, int z, Block block, int meta)
+	public static void callPhysUpdate(World world, int x, int y, int z, Block block, int meta, String type)
 	{
 		if(world.isRemote || block == null)
 		{
@@ -175,7 +176,7 @@ public class EM_PhysManager
 		if(world.getBlockId(x, y - 1, z) == 0)
 		{
 			validSlideType = false;
-		} else if(block instanceof BlockSand || (block.blockID == Block.dirt.blockID && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
+		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
 		{
 			validSlideType = true;
 		} else if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
@@ -284,7 +285,7 @@ public class EM_PhysManager
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
-				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false);
+				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Slide");
 				return;
 			}
 		}
@@ -470,7 +471,7 @@ public class EM_PhysManager
 			
 			for(int i = -1; i < 2; i++)
 			{
-				for(int j = -1; j < yMax; j++)
+				for(int j = -1; j < 2; j++)
 				{
 					for(int k = -1; k < 2; k++)
 					{
@@ -492,10 +493,16 @@ public class EM_PhysManager
 						}
 						if(world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(i + x, j + y, k + z, i + x + 1, j + y + 1, k + z + 1)).size() > 0)
 						{
-							missingBlocks++;
+							if(j < yMax)
+							{
+								missingBlocks++;
+							}
 						} else if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
 						{
-							missingBlocks++;
+							if(j < yMax)
+							{
+								missingBlocks++;
+							}
 						} else if(world.getBlockId(i + x, j + y, k + z) == Block.glowStone.blockID)
 						{
 							return;
@@ -521,7 +528,7 @@ public class EM_PhysManager
 			
 			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z) && !supported)
 			{
-				if(!world.isRemote && ((missingBlocks > minThreshold && world.rand.nextInt(dropChance) == 0) || missingBlocks >= maxThreshold))
+				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0) || type.equals("Collapse")) || missingBlocks >= maxThreshold))
 				{
 					if(dropType == 2)
 					{
@@ -540,7 +547,7 @@ public class EM_PhysManager
 							block.dropBlockAsItem(world, x, y, z, meta, 0);
 						}
 						world.setBlock(x, y, z, 0);
-						schedulePhysUpdate(world, x, y, z, true, true);
+						schedulePhysUpdate(world, x, y, z, true, true, "Normal");
 						return;
 					} else if(dropType == 0)
 					{
@@ -556,7 +563,7 @@ public class EM_PhysManager
 						
 						if(block.blockMaterial != Material.ice || EM_Settings.spreadIce)
 						{
-							schedulePhysUpdate(world, x, y, z, true, true);
+							schedulePhysUpdate(world, x, y, z, true, true, "Break");
 						}
 						return;
 					}
@@ -568,6 +575,7 @@ public class EM_PhysManager
 					if(block.blockID == Block.stone.blockID && EM_Settings.stoneCracks)
 					{
 						world.setBlock(x, y, z, Block.cobblestone.blockID);
+						dropBlock = Block.cobblestone.blockID;
 					} else
 					{
 						world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
@@ -853,10 +861,10 @@ public class EM_PhysManager
 				if((Boolean)entry[5])
 				{
 					canClear = false;
-					updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4]);
+					updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 				} else
 				{
-					updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4]);
+					updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 				}
 				physSchedule.remove(i);
 			}
