@@ -148,7 +148,7 @@ public class EM_StatusManager
 		
 		float[] data = new float[8];
 		
-		float sanityRate = -0.001F;
+		float sanityRate = -0.005F;
 		
 		float quality = 0;
 		double leaves = 0;
