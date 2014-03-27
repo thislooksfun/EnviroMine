@@ -756,14 +756,14 @@ public class EM_StatusManager
 			quality *= solidBlocks/Math.pow(range*2, 3);
 		}
 		
-		data[0] = quality;
+		data[0] = quality * (float)EM_Settings.airMult;
 		data[1] = tempFin;
 		data[2] = unused;
 		data[3] = dehydrateBonus;
-		data[4] = dropSpeed;
-		data[5] = riseSpeed;
+		data[4] = dropSpeed * (float)EM_Settings.tempMult;
+		data[5] = riseSpeed * (float)EM_Settings.tempMult;
 		data[6] = animalHostility;
-		data[7] = sanityRate;
+		data[7] = sanityRate * (float)EM_Settings.sanityMult;
 		
 		if(EnviroMine.proxy.isClient() && entityLiving.getEntityName().equals(Minecraft.getMinecraft().thePlayer.getEntityName()) && timer.isRunning())
 		{

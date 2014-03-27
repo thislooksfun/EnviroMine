@@ -1,5 +1,7 @@
 package enviromine.core;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.EnumHelper;
 
@@ -97,6 +100,8 @@ public class EnviroMine
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
 		LanguageRegistry.addName(camelPack, "Camel Pack");
+		
+		extendPotionList();
 		
 		EnviroPotion.frostbite = (EnviroPotion)new EnviroPotion(EM_Settings.frostBitePotionID, true, 8171462).setPotionName("potion.frostbite").setIconIndex(0, 0);
 		EnviroPotion.dehydration = (EnviroPotion)new EnviroPotion(EM_Settings.dehydratePotionID, true, 3035801).setPotionName("potion.dehydration").setIconIndex(1, 0);
@@ -205,6 +210,69 @@ public class EnviroMine
 		} else
 		{
 			return B << 24 | G << 16 | R << 8 | A;
+		}
+	}
+	
+	public static void extendPotionList()
+	{
+		int maxID = 32;
+		
+		if(EM_Settings.heatstrokePotionID >= maxID)
+		{
+			maxID = EM_Settings.heatstrokePotionID + 1;
+		}
+		
+		if(EM_Settings.hypothermiaPotionID >= maxID)
+		{
+			maxID = EM_Settings.hypothermiaPotionID + 1;
+		}
+		
+		if(EM_Settings.frostBitePotionID >= maxID)
+		{
+			maxID = EM_Settings.frostBitePotionID + 1;
+		}
+		
+		if(EM_Settings.dehydratePotionID >= maxID)
+		{
+			maxID = EM_Settings.dehydratePotionID + 1;
+		}
+		
+		if(EM_Settings.insanityPotionID >= maxID)
+		{
+			maxID = EM_Settings.insanityPotionID + 1;
+		}
+		
+		if(Potion.potionTypes.length >= maxID)
+		{
+			return;
+		}
+		
+		
+		Potion[] potionTypes = null;
+
+		for (Field f : Potion.class.getDeclaredFields())
+		{
+			f.setAccessible(true);
+			
+			try
+			{
+				if (f.getName().equals("potionTypes") || f.getName().equals("field_76425_a"))
+				{
+					Field modfield = Field.class.getDeclaredField("modifiers");
+					modfield.setAccessible(true);
+					modfield.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+
+					potionTypes = (Potion[])f.get(null);
+					final Potion[] newPotionTypes = new Potion[maxID];
+					System.arraycopy(potionTypes, 0, newPotionTypes, 0, potionTypes.length);
+					f.set(null, newPotionTypes);
+				}
+			}
+			catch (Exception e)
+			{
+				System.err.println("[ERROR] Failed to extend potion list for EnviroMine");
+				System.err.println(e);
+			}
 		}
 	}
 }

@@ -84,6 +84,11 @@ public class EM_Settings
 	public static boolean stoneCracks;
 	public static String defaultStability;
 	
+	public static double sanityMult = 1.0D;
+	public static double hydrationMult = 1.0D;
+	public static double tempMult = 1.0D;
+	public static double airMult = 1.0D;
+	
 	public static float convertToFarenheit(float num)
 	{
 		return((num * (9 / 5)) + 32F);

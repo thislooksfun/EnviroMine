@@ -555,7 +555,15 @@ public class EM_PhysManager
 						
 						if(block.blockID == Block.ice.blockID)
 						{
-							world.setBlock(x, y, z, Block.waterMoving.blockID);
+							Material mat = world.getBlockMaterial(x, y - 1, z);
+							
+							if((mat.blocksMovement() || mat.isLiquid()) && !world.provider.isHellWorld)
+							{
+								world.setBlock(x, y, z, Block.waterMoving.blockID);
+							} else
+							{
+								world.setBlock(x, y, z, 0);
+							}
 						} else
 						{
 							world.setBlock(x, y, z, 0);

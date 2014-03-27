@@ -201,6 +201,12 @@ public class EM_ConfigHandler
 		EM_Settings.dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(30);
 		EM_Settings.insanityPotionID = config.get("Potions", "Insanity", 31).getInt(31);
 		
+		// Multipliers ID's
+		EM_Settings.tempMult = config.get("Speed Multipliers", "BodyTemp", 1.0D).getDouble(1.0D);
+		EM_Settings.hydrationMult = config.get("Speed Multipliers", "Hydration", 1.0D).getDouble(1.0D);
+		EM_Settings.airMult = config.get("Speed Multipliers", "AirQuality", 1.0D).getDouble(1.0D);
+		EM_Settings.sanityMult = config.get("Speed Multipliers", "Sanity", 1.0D).getDouble(1.0D);
+		
 		config.save();
 	}
 	
