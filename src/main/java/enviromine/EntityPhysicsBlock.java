@@ -2,6 +2,7 @@ package enviromine;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import enviromine.handlers.EM_PhysManager;
 import net.minecraft.block.Block;
@@ -102,7 +103,11 @@ public class EntityPhysicsBlock extends EntityFallingSand
 			        AxisAlignedBB axisalignedbb = Block.blocksList[blockID].getCollisionBoundingBoxFromPool(this.worldObj, i, j - 1, k);
 			        if(axisalignedbb != null)
 			        {
-				        if(this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, axisalignedbb).size() > 1 && isLandSlide)
+			        	List fallingBlocks = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, axisalignedbb);
+			        	
+			        	fallingBlocks.remove(this);
+			        	
+				        if(fallingBlocks.size() >= 1 && isLandSlide)
 				        {
 				        	this.motionY = 0;
 				        	this.setPosition(i + 0.5D, j + 0.5D, k + 0.5D);

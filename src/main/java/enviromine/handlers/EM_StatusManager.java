@@ -149,6 +149,7 @@ public class EM_StatusManager
 		float[] data = new float[8];
 		
 		float sanityRate = -0.005F;
+		float sanityStartRate = sanityRate;
 		
 		float quality = 0;
 		double leaves = 0;
@@ -192,17 +193,25 @@ public class EM_StatusManager
 		int biomeTempChecks = 0;
 		
 		boolean isDay = entityLiving.worldObj.isDaytime();
+		if(!isDay)
+		{
+			sanityStartRate = -0.01F;
+			sanityRate = -0.01F;
+		}
 		
 		int lightLev = 0;
+		int blockLightLev = 0;
 		
 		if(j > 0)
 		{
 			if(j >= 256)
 			{
 				lightLev = 15;
+				blockLightLev = 15;
 			} else
 			{
 				lightLev = chunk.getSavedLightValue(EnumSkyBlock.Sky, i & 0xf, j, k & 0xf);
+				blockLightLev = chunk.getSavedLightValue(EnumSkyBlock.Block, i & 0xf, j, k & 0xf);
 			}
 		}
 		
@@ -353,6 +362,12 @@ public class EM_StatusManager
 						{
 							leaves += 1;
 						}
+					} else if(id == Block.skull.blockID)
+					{
+						if(sanityRate <= sanityStartRate && sanityRate > -0.1F)
+						{
+							sanityRate = -0.1F;
+						}
 					}
 				}
 			}
@@ -412,17 +427,9 @@ public class EM_StatusManager
 			quality = 2F;
 		} else
 		{
-			if(sanityRate == 0)
+			if(sanityRate <= sanityStartRate && sanityRate > -0.1F && (blockLightLev <= 1 || entityLiving.worldObj.provider.isHellWorld))
 			{
 				sanityRate = -0.1F;
-			}
-		}
-		
-		if(j > 0 && j < 256)
-		{
-			if(chunk.getSavedLightValue(EnumSkyBlock.Block, i & 0xf, j, k & 0xf) > 1 && sanityRate <= 0 && !entityLiving.worldObj.provider.isHellWorld)
-			{
-				sanityRate = 0F;
 			}
 		}
 		

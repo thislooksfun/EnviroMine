@@ -50,6 +50,12 @@ public class AddRemoveCustom extends KeyHandler
 		{
 			
 			Minecraft mc = Minecraft.getMinecraft();
+			
+			if(mc.currentScreen != null)
+			{
+				return;
+			}
+			
 			if((!(Minecraft.getMinecraft().isSingleplayer()) || !EnviroMine.proxy.isClient()) && Minecraft.getMinecraft().thePlayer != null)
 			{
 				if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))

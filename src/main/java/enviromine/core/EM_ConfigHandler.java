@@ -526,14 +526,15 @@ public class EM_ConfigHandler
 		ItemDefaultSave(custom, itemsCat + ".redApple", 	Item.appleRed.itemID, 		-1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
 		
 		ItemDefaultSave(custom, itemsCat + ".bucketLava", 	Item.bucketLava.itemID, 	-1, true, 100.0, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".redFlower", 	Block.plantRed.blockID, 	-1, true, 0.0, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".yellowFlower", Block.plantYellow.blockID, 	-1, true, 0.0, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".leaves", 		Block.leaves.blockID, 		-1, true, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".redFlower", 	Block.plantRed.blockID, 	-1, false, 0.0, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".yellowFlower", Block.plantYellow.blockID, 	-1, false, 0.0, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".leaves", 		Block.leaves.blockID, 		-1, false, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".snowBlock", 	Block.blockSnow.blockID, 	-1, true, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".ice", 			Block.ice.blockID, 			-1, true, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".snowLayer",	Block.snow.blockID, 		-1, true, -0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".netherrack", 	Block.netherrack.blockID, 	-1, true, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".soulSand", 	Block.slowSand.blockID, 	-1, true, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".soulSand", 	Block.slowSand.blockID, 	-1, false, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".skull", 		Item.skull.itemID, 			-1, false, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
 		
 		custom.save();	
 	}

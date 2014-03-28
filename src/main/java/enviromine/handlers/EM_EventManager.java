@@ -325,7 +325,7 @@ public class EM_EventManager
 				
 				if(isWater || isValidCauldron)
 				{
-					if(tracker != null)
+					if(tracker != null && tracker.hydration < 100F)
 					{
 						int type = getWaterType(entityPlayer.worldObj, i, j, k);
 						if(type == 0)
@@ -374,6 +374,8 @@ public class EM_EventManager
 						{
 							entityPlayer.worldObj.setBlockMetadataWithNotify(i, j, k, entityPlayer.worldObj.getBlockMetadata(i, j, k) - 1, 2);
 						}
+						
+						entityPlayer.worldObj.playSoundAtEntity(entityPlayer, "random.drink", 1.0F, 1.0F);
 						
 						event.setCanceled(true);
 					}

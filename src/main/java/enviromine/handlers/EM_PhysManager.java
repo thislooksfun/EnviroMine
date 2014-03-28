@@ -2,7 +2,10 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
 import com.google.common.base.Stopwatch;
+
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
@@ -30,6 +33,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -173,7 +177,7 @@ public class EM_PhysManager
 		
 		boolean validSlideType = false;
 		
-		if(world.getBlockId(x, y - 1, z) == 0)
+		if(BlockSand.canFallBelow(world, x, y - 1, z))
 		{
 			validSlideType = false;
 		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
@@ -273,21 +277,30 @@ public class EM_PhysManager
 			int slideMeta = meta;
 			
 			int[] pos = new int[]{x, y, z};
-			int[] npos = slideDirection(world, pos);
+			int[] npos = slideDirection(world, pos, false);
+			//int[] ppos = slideDirection(world, pos, false);
 			
-			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[1] + "," + npos[2]))
+			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
 				world.setBlock(x, y, z, 0);
-				usedSlidePositions.add("" + npos[0] + "," + npos[1] + "," + npos[2]);
-				usedSlidePositions.add("" + npos[0] + "," + (npos[1] - 1) + "," + npos[2]);
+				usedSlidePositions.add("" + npos[0] + "," + npos[2]);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
 				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Slide");
 				return;
-			}
+			}/* else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
+			{
+				if(type.equalsIgnoreCase("Slide"))
+				{
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Normal");
+				} else
+				{
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, true, "Normal");
+				}
+			}*/
 		}
 		
 		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z))
@@ -840,6 +853,13 @@ public class EM_PhysManager
 	
 	public static void updateSchedule()
 	{
+		if(physSchedule.size() >= 2048)
+		{
+			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 2048! Dumping update schedule, things may break.");
+			physSchedule.clear();
+			return;
+		}
+		
 		if(EnviroMine.proxy.isClient())
 		{
 			if(debugTime == 0)
@@ -904,7 +924,7 @@ public class EM_PhysManager
 		}
 	}
 	
-	public static int[] slideDirection(World world, int[] pos)
+	public static int[] slideDirection(World world, int[] pos, boolean checkEntities)
 	{
 		if(pos.length != 3)
 		{
@@ -923,19 +943,19 @@ public class EM_PhysManager
 		
 		ArrayList<String> canSlideDir = new ArrayList<String>();
 		
-		if(blockNotSolid(world, x + 1, y, z) && blockNotSolid(world, x + 1, y - 1, z) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0)
+		if(blockNotSolid(world, x + 1, y, z) && blockNotSolid(world, x + 1, y - 1, z) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0))
 		{
 			canSlideDir.add("X+");
 		}
-		if(blockNotSolid(world, x - 1, y, z) && blockNotSolid(world, x - 1, y - 1, z) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0)
+		if(blockNotSolid(world, x - 1, y, z) && blockNotSolid(world, x - 1, y - 1, z) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0))
 		{
 			canSlideDir.add("X-");
 		}
-		if(blockNotSolid(world, x, y, z + 1) && blockNotSolid(world, x, y - 1, z + 1) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0)
+		if(blockNotSolid(world, x, y, z + 1) && blockNotSolid(world, x, y - 1, z + 1) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0))
 		{
 			canSlideDir.add("Z+");
 		}
-		if(blockNotSolid(world, x, y, z - 1) && blockNotSolid(world, x, y - 1, z - 1) && world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z - 1, x + 1, y, z)).size() <= 0)
+		if(blockNotSolid(world, x, y, z - 1) && blockNotSolid(world, x, y - 1, z - 1) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z - 1, x + 1, y, z)).size() <= 0))
 		{
 			canSlideDir.add("Z-");
 		}
@@ -944,13 +964,7 @@ public class EM_PhysManager
 		{
 			String slideDir = "";
 			
-			if(canSlideDir.size() == 1)
-			{
-				slideDir = canSlideDir.get(0);
-			} else
-			{
-				slideDir = canSlideDir.get(world.rand.nextInt(canSlideDir.size() - 1));
-			}
+			slideDir = canSlideDir.get(world.rand.nextInt(canSlideDir.size()));
 			
 			if(slideDir == "X+")
 			{

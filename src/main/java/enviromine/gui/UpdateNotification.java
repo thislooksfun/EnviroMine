@@ -18,6 +18,11 @@ public class UpdateNotification implements IPlayerTracker
 	@Override
 	public void onPlayerLogin(EntityPlayer player)
 	{
+		if(EM_Settings.Version == "FWG_EM_VER")
+		{
+			return;
+		}
+		
 		String[] data;
 		try
 		{
