@@ -24,11 +24,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.potion.Potion;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
@@ -221,6 +220,7 @@ public class EM_StatusManager
 			{
 				for(int z = -range; z <= range; z++)
 				{
+					
 					if(y == 0)
 					{
 						Chunk testChunk = entityLiving.worldObj.getChunkFromBlockCoords((i + x), (k + z));
@@ -238,11 +238,11 @@ public class EM_StatusManager
 						solidBlocks += 1;
 					}
 					
-					
-					dist = (float)Math.abs(Math.sqrt(Math.pow(0 - x, 2) + Math.pow(0 - y, 2) + Math.pow(0 - z, 2)));
+					dist = (float)entityLiving.getDistance(i + x, j + y, k + z);
 						
 					int id = 0;
 					int meta = 0;
+					
 					// These need to be here to reset
 					boolean isCustom = false;
 					BlockProperties blockProps = null;
@@ -721,6 +721,11 @@ public class EM_StatusManager
 			tempFin = bTemp;
 		}
 		
+		if(entityLiving.getActivePotionEffect(Potion.hunger) != null)
+		{
+			dehydrateBonus += 0.1F;
+		}
+		
 		if(biome.biomeName == BiomeGenBase.hell.biomeName || nearLava || biome.rainfall == 0.0F)
 		{
 			riseSpeed = 0.005F;
@@ -766,7 +771,7 @@ public class EM_StatusManager
 		data[0] = quality * (float)EM_Settings.airMult;
 		data[1] = tempFin;
 		data[2] = unused;
-		data[3] = dehydrateBonus;
+		data[3] = dehydrateBonus * (float)EM_Settings.hydrationMult;
 		data[4] = dropSpeed * (float)EM_Settings.tempMult;
 		data[5] = riseSpeed * (float)EM_Settings.tempMult;
 		data[6] = animalHostility;
@@ -972,6 +977,14 @@ public class EM_StatusManager
 	
 	public static float getTempFalloff(float temp, float dist, int range)
 	{
-		return (float)(temp - ((temp/Math.pow(range, 2)) * Math.pow(dist, 2)));
+		float maximum = (float)Math.sqrt(3*(Math.pow(range, 2)));
+		
+		if(dist > maximum)
+		{
+			return 0;
+		} else
+		{
+			return (float)((temp/Math.pow(maximum, 2)) * -Math.pow(dist, 2) + temp);
+		}
 	}
 }

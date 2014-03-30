@@ -117,6 +117,11 @@ public class EnviroDataTracker
 		
 		float[] enviroData = EM_StatusManager.getSurroundingData(trackedEntity, 5);
 		
+		if((trackedEntity.getHealth() <= 2F || bodyTemp >= 41F) && enviroData[7] > (float)(-1F * EM_Settings.sanityMult))
+		{
+			enviroData[7] = (float)(-1F * EM_Settings.sanityMult);
+		}
+		
 		// Air checks
 		airQuality += enviroData[0];
 		
@@ -204,14 +209,6 @@ public class EnviroDataTracker
 			}
 		}
 		
-		if((trackedEntity.getHealth() <= 2F || bodyTemp <= 32F || bodyTemp >= 41F) && sanity >= 1F)
-		{
-			sanity -= 0.1F;
-		} else if((trackedEntity.getHealth() <= 2F || bodyTemp <= 32F || bodyTemp >= 41F) && sanity <= 1F)
-		{
-			sanity = 0F;
-		}
-		
 		if(bodyTemp <= 10F)
 		{
 			timeBelow10 += 1;
@@ -273,7 +270,7 @@ public class EnviroDataTracker
 				if(plate.getItemDamage() < plate.getMaxDamage() && hydration <= 99F)
 				{
 					plate.setItemDamage(plate.getItemDamage() + 1);
-					hydration += 1F;
+					hydrate(1F);
 					
 					if(bodyTemp >= 37.1F)
 					{
@@ -466,12 +463,14 @@ public class EnviroDataTracker
 	
 	public void hydrate(float amount)
 	{
-		if(hydration >= 100F - amount)
+		float MAmount = (float)(amount * EM_Settings.hydrationMult);
+		
+		if(hydration >= 100F - MAmount)
 		{
 			hydration = 100.0F;
 		} else
 		{
-			hydration += amount;
+			hydration += MAmount;
 		}
 		
 		this.fixFloatinfPointErrors();
@@ -484,9 +483,11 @@ public class EnviroDataTracker
 	
 	public void dehydrate(float amount)
 	{
-		if(hydration >= amount)
+		float MAmount = (float)(amount * EM_Settings.hydrationMult);
+		
+		if(hydration >= MAmount)
 		{
-			hydration -= amount;
+			hydration -= MAmount;
 		} else
 		{
 			hydration = 0F;

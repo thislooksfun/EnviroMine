@@ -1,6 +1,8 @@
 package enviromine.handlers;
 
+import java.awt.Color;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
@@ -393,7 +395,21 @@ public class EM_EventManager
 			return 0;
 		}
 		
-		if(biome.biomeName == BiomeGenBase.swampland.biomeName || biome.biomeName == BiomeGenBase.jungle.biomeName || biome.biomeName == BiomeGenBase.jungleHills.biomeName || y < 48)
+		int waterColour = biome.getWaterColorMultiplier();
+		boolean looksBad = false;
+		
+		if(waterColour != 16777215)
+		{
+			Color bColor = new Color(waterColour);
+			Color cColor = new Color(16777215);
+			
+			if(bColor.getRed() < 200 || bColor.getGreen() < 200 || bColor.getBlue() < 200)
+			{
+				looksBad = true;
+			}
+		}
+		
+		if(biome.biomeName == BiomeGenBase.swampland.biomeName || biome.biomeName == BiomeGenBase.jungle.biomeName || biome.biomeName == BiomeGenBase.jungleHills.biomeName || y < 48 || looksBad)
 		{
 			return 1;
 		} else if(biome.biomeName == BiomeGenBase.frozenOcean.biomeName || biome.biomeName == BiomeGenBase.ocean.biomeName || biome.biomeName == BiomeGenBase.beach.biomeName)
@@ -497,14 +513,11 @@ public class EM_EventManager
 			
 			if(event.entityLiving instanceof EntityPlayer && EnviroMine.proxy.isClient())
 			{
-				if(event.entityLiving.isPotionActive(EnviroPotion.insanity))
+				if(Minecraft.getMinecraft().thePlayer.isPotionActive(EnviroPotion.insanity))
 				{
 					if(event.entityLiving.getRNG().nextInt(75) == 0)
 					{
-						if(EnviroMine.proxy.isClient())
-						{
-							new Hallucination(event.entityLiving);
-						}
+						new Hallucination(event.entityLiving);
 					}
 				}
 				
@@ -612,7 +625,14 @@ public class EM_EventManager
 			{
 				if(tracker.sleepState.equals("Asleep") && (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() - tracker.lastSleepTime > 100)
 				{
-					tracker.sanity = 100F;
+					int timeSlept = MathHelper.floor_float(100*(12000 - (tracker.lastSleepTime - 12000))/12000);
+					if(tracker.sanity + timeSlept > 100F)
+					{
+						tracker.sanity = 100;
+					} else
+					{
+						tracker.sanity += timeSlept;
+					}
 				}
 				tracker.sleepState = "Awake";
 			}

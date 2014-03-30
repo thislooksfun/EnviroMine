@@ -853,9 +853,9 @@ public class EM_PhysManager
 	
 	public static void updateSchedule()
 	{
-		if(physSchedule.size() >= 2048)
+		if(physSchedule.size() >= 10000 && EM_Settings.updateCap <= -1)
 		{
-			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 2048! Dumping update schedule, things may break.");
+			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 10 000/tick! Dumping update schedule, things may break.");
 			physSchedule.clear();
 			return;
 		}
