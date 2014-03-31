@@ -296,7 +296,7 @@ public class EM_StatusManager
 							sanityRate = blockProps.sanity;
 						}
 						
-					} else if((id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID) && quality > -1F)
+					} else if((id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID))
 					{
 						if(quality > -1)
 						{
@@ -319,7 +319,7 @@ public class EM_StatusManager
 
 
 						}
-					} else if((id == Block.torchWood.blockID || id == Block.furnaceBurning.blockID) && quality > -0.25F)
+					} else if((id == Block.torchWood.blockID || id == Block.furnaceBurning.blockID))
 					{
 						if(quality > -0.25F)
 						{
@@ -337,7 +337,7 @@ public class EM_StatusManager
 							sanityRate = 0.1F;
 						}
 						leaves += 1;
-					} else if(id == Block.netherrack.blockID && quality >= 0)
+					} else if(id == Block.netherrack.blockID)
 					{
 						if(temp < getTempFalloff(50, dist, range))
 						{
@@ -399,6 +399,13 @@ public class EM_StatusManager
 					continue;
 				}
 				
+				float stackMult = 1F;
+				
+				if(stack.stackSize > 1)
+				{
+					stackMult = (stack.stackSize-1F)/63F + 1F;
+				}
+				
 				if(EM_Settings.itemProperties.containsKey("" + stack.itemID + "," + stack.getItemDamage()) || EM_Settings.itemProperties.containsKey("" + stack.itemID))
 				{
 					ItemProperties itemProps;
@@ -413,27 +420,25 @@ public class EM_StatusManager
 					
 					if(itemProps.ambAir > 0F)
 					{
-						leaves += (itemProps.ambAir/0.1F);
+						leaves += (itemProps.ambAir/0.1F) * stackMult;
 					} else if(quality >= itemProps.ambAir && itemProps.ambAir < 0 && quality <= 0)
 					{
-						quality = itemProps.ambAir;
+						quality = itemProps.ambAir * stackMult;
 					}
 					if(temp <= itemProps.ambTemp && itemProps.enableTemp && itemProps.ambTemp > 0F)
 					{
-						temp = itemProps.ambTemp;
+						temp = itemProps.ambTemp * stackMult;
 					} else if(itemProps.enableTemp && itemProps.ambTemp < 0F)
 					{
-						cooling += -itemProps.ambTemp;
+						cooling += -itemProps.ambTemp * stackMult;
 					}
 					if((sanityRate <= itemProps.ambSanity && itemProps.ambSanity > 0F) || (sanityRate >= itemProps.ambSanity && itemProps.ambSanity < 0 && sanityRate <= 0))
 					{
-						sanityRate = itemProps.ambSanity;
+						sanityRate = itemProps.ambSanity * stackMult;
 					}
 				}
 			}
 		}
-		
-		quality += (leaves * 0.1F);
 		
 		if(lightLev > 1 && !entityLiving.worldObj.provider.isHellWorld)
 		{
@@ -615,7 +620,10 @@ public class EM_StatusManager
 						addTemp += props.nightTemp;
 					}
 					
-					if((quality <= props.air && props.air > 0F) || (quality >= props.air && props.air < 0 && quality <= 0))
+					if(props.air > 0F)
+					{
+						leaves += (props.air/0.1F);
+					} else if(quality >= props.air && props.air < 0 && quality <= 0)
 					{
 						quality = props.air;
 					}
@@ -761,9 +769,9 @@ public class EM_StatusManager
 				animalHostility = 1;
 			}
 			
-			if(biome.biomeName == BiomeGenBase.hell.biomeName && quality <= -0.25F)
+			if(biome.biomeName == BiomeGenBase.hell.biomeName && quality <= -0.1F)
 			{
-				quality = -0.25F;
+				quality = -0.1F;
 			}
 		}
 		
@@ -788,6 +796,8 @@ public class EM_StatusManager
 			}
 			riseSpeed = 0.1F;
 		}
+		
+		quality += (leaves * 0.1F);
 		
 		if(quality < 0)
 		{

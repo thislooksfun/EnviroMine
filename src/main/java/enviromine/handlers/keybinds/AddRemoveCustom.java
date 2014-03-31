@@ -166,12 +166,7 @@ public class AddRemoveCustom extends KeyHandler
 	
 	private String replaceULN(String unlocalizedName)
 	{
-		System.out.println(unlocalizedName);
-		
 		String newName = unlocalizedName.replaceAll("\\.+", "\\_");
-		
-		System.out.println(newName);
-
 		return newName;
 		
 	}

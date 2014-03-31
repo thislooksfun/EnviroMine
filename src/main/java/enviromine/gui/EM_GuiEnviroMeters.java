@@ -349,12 +349,14 @@ public class EM_GuiEnviroMeters extends Gui
 			{
 				if(EM_Settings.enableAirQ)
 				{
+					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(AQcurX, AQcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
 				}
 				
 				if(EM_Settings.enableBodyTemp)
 				{
+					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(HTcurX, HTcurY, 64, meterHeight * 4, 32, meterHeight);
 					if(EM_Settings.useFarenheit == true)
 					{
@@ -367,12 +369,14 @@ public class EM_GuiEnviroMeters extends Gui
 				
 				if(EM_Settings.enableHydrate)
 				{
+					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
 				}
 				
 				if(EM_Settings.enableSanity)
 				{
+					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(SAcurX, SAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
 				}
