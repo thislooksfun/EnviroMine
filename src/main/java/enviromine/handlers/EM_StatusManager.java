@@ -192,11 +192,6 @@ public class EM_StatusManager
 		int biomeTempChecks = 0;
 		
 		boolean isDay = entityLiving.worldObj.isDaytime();
-		if(!isDay)
-		{
-			sanityStartRate = -0.01F;
-			sanityRate = -0.01F;
-		}
 		
 		int lightLev = 0;
 		int blockLightLev = 0;
@@ -212,6 +207,12 @@ public class EM_StatusManager
 				lightLev = chunk.getSavedLightValue(EnumSkyBlock.Sky, i & 0xf, j, k & 0xf);
 				blockLightLev = chunk.getSavedLightValue(EnumSkyBlock.Block, i & 0xf, j, k & 0xf);
 			}
+		}
+		
+		if(!isDay && blockLightLev <= 1)
+		{
+			sanityStartRate = -0.01F;
+			sanityRate = -0.01F;
 		}
 		
 		for(int x = -range; x <= range; x++)
@@ -368,6 +369,18 @@ public class EM_StatusManager
 						{
 							sanityRate = -0.1F;
 						}
+					} else if(id == Block.slowSand.blockID)
+					{
+						if(sanityRate <= sanityStartRate && sanityRate > -0.05F)
+						{
+							sanityRate = -0.05F;
+						}
+					} else if(id == Block.web.blockID)
+					{
+						if(sanityRate <= sanityStartRate && sanityRate > -0.01F)
+						{
+							sanityRate = -0.01F;
+						}
 					}
 				}
 			}
@@ -461,6 +474,24 @@ public class EM_StatusManager
 			{
 				bTemp += (20 * (1 - (entityLiving.posY / 48)));
 			}
+		} else if(entityLiving.posY > 96 && entityLiving.posY < 256)
+		{
+			if(bTemp < 20F)
+			{
+				bTemp -= (float)(20F * ((entityLiving.posY - 96)/159));
+			} else
+			{
+				bTemp -= (float)(40F * ((entityLiving.posY - 96)/159));
+			}
+		} else if(entityLiving.posY >= 256)
+		{
+			if(bTemp < 20F)
+			{
+				bTemp -= 20F;
+			} else
+			{
+				bTemp -= 40F;
+			}
 		}
 		
 		bTemp -= cooling;
@@ -483,11 +514,6 @@ public class EM_StatusManager
 		if(!entityLiving.worldObj.canBlockSeeTheSky(i, j, k) && isDay && !entityLiving.worldObj.isRaining())
 		{
 			bTemp -= 2.5F;
-		}
-		
-		if(entityLiving.posY > 127)
-		{
-			bTemp -= 5F;
 		}
 		
 		if(!isDay && bTemp > 0F)

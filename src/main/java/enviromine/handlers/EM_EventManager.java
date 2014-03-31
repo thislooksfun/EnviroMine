@@ -329,7 +329,16 @@ public class EM_EventManager
 				{
 					if(tracker != null && tracker.hydration < 100F)
 					{
-						int type = getWaterType(entityPlayer.worldObj, i, j, k);
+						int type = 0;
+						
+						if(isValidCauldron && (entityPlayer.worldObj.getBlockId(i, j - 1, k) == Block.fire.blockID || entityPlayer.worldObj.getBlockId(i, j - 1, k) == Block.lavaMoving.blockID || entityPlayer.worldObj.getBlockId(i, j - 1, k) == Block.lavaStill.blockID))
+						{
+							type = 0;
+						} else
+						{
+							type = getWaterType(entityPlayer.worldObj, i, j, k);
+						}
+						
 						if(type == 0)
 						{
 							if(tracker.bodyTemp >= 37.05F)

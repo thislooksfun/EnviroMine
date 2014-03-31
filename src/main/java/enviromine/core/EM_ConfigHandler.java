@@ -535,6 +535,7 @@ public class EM_ConfigHandler
 		ItemDefaultSave(custom, itemsCat + ".netherrack", 	Block.netherrack.blockID, 	-1, true, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".soulSand", 	Block.slowSand.blockID, 	-1, false, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".skull", 		Item.skull.itemID, 			-1, false, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".web", 			Block.web.blockID, 			-1, false, 0.0, 0.0, -0.01, 0.0, 0.0, 0.0, 0.0, 37.0);
 		
 		custom.save();	
 	}
