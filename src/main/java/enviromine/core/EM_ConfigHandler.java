@@ -92,17 +92,16 @@ public class EM_ConfigHandler
 		
 		BPName = new String[12];
 		BPName[0] = "01.ID";
-		BPName[1] = "02.Enable Physics";
-		BPName[2] = "03.MetaID";
-		BPName[3] = "04.DropID";
-		BPName[4] = "05.DropMetaID";
-		BPName[5] = "06.DropNumber";
-		BPName[6] = "07.Enable Temperature";
-		BPName[7] = "08.Temperature";
-		BPName[8] = "09.Air Quality";
-		BPName[9] = "10.Sanity";
-		BPName[10] = "11.Stability";
-		BPName[11] = "12.Slides";
+		BPName[1] = "02.MetaID";
+		BPName[2] = "03.DropID";
+		BPName[3] = "04.DropMetaID";
+		BPName[4] = "05.DropNumber";
+		BPName[5] = "06.Enable Temperature";
+		BPName[6] = "07.Temperature";
+		BPName[7] = "08.Air Quality";
+		BPName[8] = "09.Sanity";
+		BPName[9] = "10.Stability";
+		BPName[10] = "11.Slides";
 		
 		EPName = new String[7];
 		EPName[0] = "01.Entity Name";
@@ -173,6 +172,7 @@ public class EM_ConfigHandler
 		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", -1 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(-1);
 		EM_Settings.stoneCracks = config.get(Configuration.CATEGORY_GENERAL, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(Configuration.CATEGORY_GENERAL, "Default Stability Type (BlockIDs > 175)", "loose").getString();
+		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
@@ -383,17 +383,16 @@ public class EM_ConfigHandler
 		config.addCustomCategoryComment(category, "");
 		
 		int id = 					config.get(category, BPName[0], 0).getInt(0);
-		boolean hasPhys = 			config.get(category, BPName[1], false).getBoolean(false);
-		int metaData = 				config.get(category, BPName[2], 0).getInt(0);
-		int dropID = 				config.get(category, BPName[3], 0).getInt(0);
-		int dropMeta = 				config.get(category, BPName[4], 0).getInt(0);
-		int dropNum = 				config.get(category, BPName[5], 0).getInt(0);
-		boolean enableTemp = 		config.get(category, BPName[6], false).getBoolean(false);
-		float temperature = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
-		float airQuality = (float)	config.get(category, BPName[8], 0.00).getDouble(0.00);
-		float sanity = (float)		config.get(category, BPName[9], 0.00).getDouble(0.00);
-		String stability = 			config.get(category, BPName[10], "loose").getString();
-		boolean slides = 			config.get(category, BPName[11], false).getBoolean(false);
+		int metaData = 				config.get(category, BPName[1], 0).getInt(0);
+		int dropID = 				config.get(category, BPName[2], 0).getInt(0);
+		int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
+		int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
+		boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
+		float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
+		float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
+		float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
+		String stability = 			config.get(category, BPName[9], "loose").getString();
+		boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
 		
 		// Get Stability Options
 		int minFall = 99;
@@ -401,6 +400,7 @@ public class EM_ConfigHandler
 		int supportDist = 5;
 		boolean holdOther = false;
 		boolean canHang = true;
+		boolean hasPhys = false;
 		
 		if(EM_Settings.stabilityTypes.containsKey(stability))
 		{
@@ -610,17 +610,16 @@ public class EM_ConfigHandler
 			{
 				config.addCustomCategoryComment(nameULCat, name);
 				config.get(nameULCat, BPName[0], (Integer)data[0]).getInt(0);
-				config.get(nameULCat, BPName[1], true).getBoolean(true);
-				config.get(nameULCat, BPName[2], (Integer)data[1]).getInt(0);
-				config.get(nameULCat, BPName[3], (Integer)data[0]).getInt(0);
-				config.get(nameULCat, BPName[4], (Integer)data[1]).getInt(0);
-				config.get(nameULCat, BPName[5], 0).getInt(0);
-				config.get(nameULCat, BPName[6], false).getBoolean(false);
+				config.get(nameULCat, BPName[1], (Integer)data[1]).getInt(0);
+				config.get(nameULCat, BPName[2], (Integer)data[0]).getInt(0);
+				config.get(nameULCat, BPName[3], (Integer)data[1]).getInt(0);
+				config.get(nameULCat, BPName[4], 0).getInt(0);
+				config.get(nameULCat, BPName[5], false).getBoolean(false);
+				config.get(nameULCat, BPName[6], 0.00).getDouble(0.00);
 				config.get(nameULCat, BPName[7], 0.00).getDouble(0.00);
 				config.get(nameULCat, BPName[8], 0.00).getDouble(0.00);
-				config.get(nameULCat, BPName[9], 0.00).getDouble(0.00);
-				config.get(nameULCat, BPName[10], "loose").getString();
-				config.get(nameULCat, BPName[11], false).getBoolean(false);
+				config.get(nameULCat, BPName[9], "loose").getString();
+				config.get(nameULCat, BPName[10], false).getBoolean(false);
 				returnValue = "Saved";
 			}
 		} else if(type == "ENTITY")

@@ -88,6 +88,7 @@ public class EM_Settings
 	public static double hydrationMult = 1.0D;
 	public static double tempMult = 1.0D;
 	public static double airMult = 1.0D;
+	public static boolean updateCheck = true;
 	
 	public static float convertToFarenheit(float num)
 	{

@@ -347,21 +347,35 @@ public class EM_GuiEnviroMeters extends Gui
 			// Display Debugging Text
 			if(EM_Settings.ShowText_actual == true)
 			{
-				this.drawTexturedModalRect(AQcurX, AQcurY, 64, meterHeight * 4, 32, meterHeight);
-				this.drawTexturedModalRect(HTcurX, HTcurY, 64, meterHeight * 4, 32, meterHeight);
-				this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
-				this.drawTexturedModalRect(SAcurX, SAcurY, 64, meterHeight * 4, 32, meterHeight);
-				
-				Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
-				if(EM_Settings.useFarenheit == true)
+				if(EM_Settings.enableAirQ)
 				{
-					Minecraft.getMinecraft().fontRenderer.drawString( FdispHeat + "F", HTcurX, HTcurY, 16777215);
-				} else
-				{
-					Minecraft.getMinecraft().fontRenderer.drawString(dispHeat + "C", HTcurX, HTcurY, 16777215);
+					this.drawTexturedModalRect(AQcurX, AQcurY, 64, meterHeight * 4, 32, meterHeight);
+					Minecraft.getMinecraft().fontRenderer.drawString(tracker.airQuality + "%", AQcurX, AQcurY, 16777215);
 				}
-				Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
+				
+				if(EM_Settings.enableBodyTemp)
+				{
+					this.drawTexturedModalRect(HTcurX, HTcurY, 64, meterHeight * 4, 32, meterHeight);
+					if(EM_Settings.useFarenheit == true)
+					{
+						Minecraft.getMinecraft().fontRenderer.drawString( FdispHeat + "F", HTcurX, HTcurY, 16777215);
+					} else
+					{
+						Minecraft.getMinecraft().fontRenderer.drawString(dispHeat + "C", HTcurX, HTcurY, 16777215);
+					}
+				}
+				
+				if(EM_Settings.enableHydrate)
+				{
+					this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
+					Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
+				}
+				
+				if(EM_Settings.enableSanity)
+				{
+					this.drawTexturedModalRect(SAcurX, SAcurY, 64, meterHeight * 4, 32, meterHeight);
+					Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
+				}
 			}
 			
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
@@ -442,15 +456,15 @@ public class EM_GuiEnviroMeters extends Gui
 		{
 			if(EM_Settings.useFarenheit == true)
 			{
-				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "%", 10, 10, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + ((DB_abientTemp * 1.8) + 32F) + "% | Cur Biome: " + DB_biomeName, 10, 10 * 2, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Rate: " + ((DB_tempchange * 1.8) + 32F) + "%", 10, 10 * 3, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "F", 10, 10, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + ((DB_abientTemp * 1.8) + 32F) + "F | Cur Biome: " + DB_biomeName, 10, 10 * 2, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Temp Rate: " + ((DB_tempchange * 1.8) + 32F) + "F", 10, 10 * 3, 16777215);
 				
 			} else
 			{
-				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + tracker.bodyTemp + "%", 10, 10, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + DB_abientTemp + "% | Cur Biome: " + DB_biomeName, 10, 10 * 2, 16777215);
-				Minecraft.getMinecraft().fontRenderer.drawString("Temp Rate: " + DB_tempchange + "%", 10, 10 * 3, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + tracker.bodyTemp + "C", 10, 10, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Ambient Temp: " + DB_abientTemp + "C | Cur Biome: " + DB_biomeName, 10, 10 * 2, 16777215);
+				Minecraft.getMinecraft().fontRenderer.drawString("Temp Rate: " + DB_tempchange + "C", 10, 10 * 3, 16777215);
 			}
 			
 			Minecraft.getMinecraft().fontRenderer.drawString("Sanity Rate: " + DB_sanityrate + "%", 10, 10 * 4, 16777215);
