@@ -209,7 +209,7 @@ public class EnviroDataTracker
 			}
 		}
 		
-		if(bodyTemp <= 10F)
+		if(airTemp <= 10F && bodyTemp <= 35F)
 		{
 			timeBelow10 += 1;
 		} else
@@ -319,7 +319,7 @@ public class EnviroDataTracker
 				}
 			}
 			
-			if(((airTemp <= 10F && timeBelow10 >= 60 && enableFrostbite) || frostbiteLevel >= 1))
+			if(((timeBelow10 >= 60 && enableFrostbite) || frostbiteLevel >= 1))
 			{
 				if(timeBelow10 >= 120 || frostbiteLevel >= 2)
 				{
