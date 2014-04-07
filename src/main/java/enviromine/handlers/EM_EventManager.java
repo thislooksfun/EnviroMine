@@ -32,6 +32,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ChatMessageComponent;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumMovingObjectType;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -638,9 +639,18 @@ public class EM_EventManager
 					if(tracker.sanity + timeSlept > 100F)
 					{
 						tracker.sanity = 100;
-					} else
+					} else if(timeSlept >= 0)
 					{
 						tracker.sanity += timeSlept;
+					} else
+					{
+						EnviroMine.logger.log(Level.SEVERE, "Something went wrong while calculating sleep sanity gain! Result: " + timeSlept);
+						tracker.sanity = 100;
+						if(tracker.trackedEntity instanceof EntityPlayer)
+						{
+							((EntityPlayer)tracker.trackedEntity).sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.RED + "[ENVIROMINE] Sleep state failed to detect sleep time properly!"));
+							((EntityPlayer)tracker.trackedEntity).sendChatToPlayer(ChatMessageComponent.createFromText(EnumChatFormatting.RED + "[ENVIROMINE] Defaulting to 100%"));
+						}
 					}
 				}
 				tracker.sleepState = "Awake";
