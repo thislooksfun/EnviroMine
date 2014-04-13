@@ -209,7 +209,7 @@ public class EnviroDataTracker
 			}
 		}
 		
-		if(airTemp <= 10F && bodyTemp <= 35F)
+		if(airTemp <= 10F && bodyTemp <= 32F)
 		{
 			timeBelow10 += 1;
 		} else
@@ -319,9 +319,9 @@ public class EnviroDataTracker
 				}
 			}
 			
-			if(((timeBelow10 >= 60 && enableFrostbite) || frostbiteLevel >= 1))
+			if(((timeBelow10 >= 60 && enableFrostbite) || (frostbiteLevel >= 1 && enableFrostbite)))
 			{
-				if(timeBelow10 >= 120 || frostbiteLevel >= 2)
+				if(timeBelow10 >= 180 || frostbiteLevel >= 2)
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.frostbite.id, 200, 1));
 					

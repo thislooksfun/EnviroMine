@@ -7,6 +7,7 @@ import enviromine.handlers.EM_StatusManager;
 import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.packet.Packet62LevelSound;
@@ -103,7 +104,8 @@ public class EnviroPotion extends Potion
 				{
 					if(entityLiving.getRNG().nextInt(20) == 0)
 					{
-						entityLiving.dropItem(entityLiving.getHeldItem().itemID, entityLiving.getHeldItem().stackSize);
+						EntityItem item = entityLiving.entityDropItem(entityLiving.getHeldItem(), 0.0F);
+						item.delayBeforeCanPickup = 40;
 						entityLiving.setCurrentItemOrArmor(0, null);
 					}
 				}

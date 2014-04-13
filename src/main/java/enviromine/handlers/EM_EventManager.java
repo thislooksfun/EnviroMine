@@ -630,12 +630,15 @@ public class EM_EventManager
 			if(((EntityPlayer)event.entityLiving).isPlayerSleeping() && tracker != null)
 			{
 				tracker.sleepState = "Asleep";
-				tracker.lastSleepTime = (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime();
+				tracker.lastSleepTime = (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() % 24000;
 			} else if(tracker != null)
 			{
-				if(tracker.sleepState.equals("Asleep") && (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() - tracker.lastSleepTime > 100)
+				int relitiveTime = (int)event.entityLiving.worldObj.getWorldInfo().getWorldTime() % 24000;
+				
+				if(tracker.sleepState.equals("Asleep") && tracker.lastSleepTime - relitiveTime > 100)
 				{
 					int timeSlept = MathHelper.floor_float(100*(12000 - (tracker.lastSleepTime - 12000))/12000);
+					
 					if(tracker.sanity + timeSlept > 100F)
 					{
 						tracker.sanity = 100;
