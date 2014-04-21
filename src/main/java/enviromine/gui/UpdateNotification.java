@@ -86,7 +86,7 @@ public class UpdateNotification implements IPlayerTracker
 	
 	private String[] getNotification() throws IOException
 	{
-		URL url = new URL("https://dl.dropboxusercontent.com/s/whvguhlicfgt9qb/version.txt");
+		URL url = new URL("https://drone.io/github.com/Funwayguy/EnviroMine/files/build/libs/version.txt");
 		HttpURLConnection.setFollowRedirects(true);
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setDoOutput(false);

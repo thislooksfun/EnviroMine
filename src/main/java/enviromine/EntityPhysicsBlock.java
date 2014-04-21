@@ -127,7 +127,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 					{
 						this.setDead();
 						
-						if(!this.worldObj.canPlaceEntityOnSide(Block.anvil.blockID, i, j, k, true, 1, (Entity)null, (ItemStack)null) && !EM_PhysManager.blockNotSolid(this.worldObj, i, j, k))
+						if(!this.worldObj.canPlaceEntityOnSide(Block.anvil.blockID, i, j, k, true, 1, (Entity)null, (ItemStack)null) && !EM_PhysManager.blockNotSolid(this.worldObj, i, j, k, false))
 						{
 							j += 1;
 						}

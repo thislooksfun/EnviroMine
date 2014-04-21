@@ -1,6 +1,7 @@
 package enviromine.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraftforge.common.Configuration;
+import enviromine.handlers.keybinds.AddRemoveCustom;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
@@ -53,6 +55,11 @@ public class EM_ConfigHandler
 		
 		// load defaults
 		loadDefaultArmorProperties();
+		
+		if(EM_Settings.genArmorConfigs)
+		{
+			SearchForModdedArmors();
+		}
 		
 		// Now load Files from "Custom Objects"
 		File[] customFiles = GetFileList(customPath);
@@ -156,7 +163,7 @@ public class EM_ConfigHandler
 		
 		//World Generation
 		
-		EM_Settings.shaftGen_actual = config.get("Wold Generations", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
+		EM_Settings.shaftGen = config.get("Wold Generations", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
 		
 		//General Settings
 		EM_Settings.enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
@@ -165,28 +172,28 @@ public class EM_ConfigHandler
 		EM_Settings.enableHydrate = config.get(Configuration.CATEGORY_GENERAL, "Allow Hydration", true).getBoolean(true);
 		EM_Settings.enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
 		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
-		EM_Settings.trackNonPlayer_actual = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", EM_Settings.trackNonPlayer_default, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(EM_Settings.trackNonPlayer_default);
+		EM_Settings.trackNonPlayer = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", false, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(false);
 		
 		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
 		
-		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", -1 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(-1);
+		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(-1);
 		EM_Settings.stoneCracks = config.get(Configuration.CATEGORY_GENERAL, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(Configuration.CATEGORY_GENERAL, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
-		EM_Settings.sweatParticals_actual = config.get(GuiSetCat, "Show Sweat Particales", EM_Settings.sweatParticals_default).getBoolean(true);
-		EM_Settings.insaneParticals_actual = config.get(GuiSetCat, "Show Insanity Particles", EM_Settings.insaneParticals_default, "Show/Hide Particales").getBoolean(true);
+		EM_Settings.sweatParticals = config.get(GuiSetCat, "Show Sweat Particales", true).getBoolean(true);
+		EM_Settings.insaneParticals = config.get(GuiSetCat, "Show Insanity Particles", true, "Show/Hide Particales").getBoolean(true);
 		EM_Settings.useFarenheit = config.get(GuiSetCat, "Use Farenheit instead of Celsius", false, "Will display either Farenhit or Celcius on GUI").getBoolean(false);
-		EM_Settings.heatBarPos_actual = config.get(GuiSetCat, "Position Heat Bat", "Bottom_Left").getString();
-		EM_Settings.waterBarPos_actual = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
-		EM_Settings.sanityBarPos_actual = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
-		EM_Settings.oxygenBarPos_actual = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
+		EM_Settings.heatBarPos = config.get(GuiSetCat, "Position Heat Bat", "Bottom_Left").getString();
+		EM_Settings.waterBarPos = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
+		EM_Settings.sanityBarPos = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
+		EM_Settings.oxygenBarPos = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
 		
-		EM_Settings.ShowDebug_actual = config.get(GuiSetCat, "Show Gui Debugging Info", EM_Settings.ShowDebug_default, "Show Hide Gui Text Display and Icons").getBoolean(EM_Settings.ShowDebug_default);
-		EM_Settings.ShowText_actual = config.get(GuiSetCat, "Show Gui Status Text", EM_Settings.ShowText_default).getBoolean(EM_Settings.ShowText_default);
-		EM_Settings.ShowGuiIcons_actual = config.get(GuiSetCat, "Show Gui Icons", EM_Settings.ShowGuiIcons_default).getBoolean(EM_Settings.ShowGuiIcons_default);
+		EM_Settings.ShowDebug = config.get(GuiSetCat, "Show Gui Debugging Info", false, "Show Hide Gui Text Display and Icons").getBoolean(false);
+		EM_Settings.ShowText = config.get(GuiSetCat, "Show Gui Status Text", true).getBoolean(true);
+		EM_Settings.ShowGuiIcons = config.get(GuiSetCat, "Show Gui Icons", true).getBoolean(true);
 		
 		// Config Item ID's
 		EM_Settings.dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);
@@ -206,6 +213,8 @@ public class EM_ConfigHandler
 		EM_Settings.hydrationMult = config.get("Speed Multipliers", "Hydration", 1.0D).getDouble(1.0D);
 		EM_Settings.airMult = config.get("Speed Multipliers", "AirQuality", 1.0D).getDouble(1.0D);
 		EM_Settings.sanityMult = config.get("Speed Multipliers", "Sanity", 1.0D).getDouble(1.0D);
+		
+		EM_Settings.genArmorConfigs = config.get("Config", "Generate Armor Configs", true, "Will attempt to find and generate blank configs for any custom armors loaded before EnviroMine.").getBoolean(true);
 		
 		config.save();
 	}
@@ -553,6 +562,57 @@ public class EM_ConfigHandler
 		config.get(catName, APName[8], air).getDouble(air);
 	}
 	
+	private static void SearchForModdedArmors()
+	{
+		EnviroMine.logger.log(Level.INFO, "Searcing for mod armors...");
+		int armorCount = 0;
+		for(int i = 420; i < Item.itemsList.length; i++)
+		{
+			if(Item.itemsList[i] instanceof ItemArmor)
+			{
+				DetectedArmorGen((ItemArmor)Item.itemsList[i]);
+				armorCount += 1;
+			}
+		}
+		EnviroMine.logger.log(Level.INFO, "Found " + armorCount + " mod armors");
+	}
+	
+	private static void DetectedArmorGen(ItemArmor armor)
+	{
+		File armorFile = new File(customPath + armor.getClass().getSimpleName() + ".cfg");
+		
+		if(!armorFile.exists())
+		{
+			try
+			{
+				armorFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		EnviroMine.logger.log(Level.INFO, "Generating armor config for " + armor.getUnlocalizedName() + " in " + armorFile.getName());
+		
+		Configuration config = new Configuration(armorFile);
+		config.load();
+		String catName = armorCat + "." + AddRemoveCustom.replaceULN(armor.getUnlocalizedName());
+		
+		config.addCustomCategoryComment(catName, "");
+		config.get(catName, APName[0], armor.itemID).getInt(armor.itemID);
+		config.get(catName, APName[1], 0.0D).getDouble(0.0D);
+		config.get(catName, APName[2], 0.0D).getDouble(0.0D);
+		config.get(catName, APName[3], 0.0D).getDouble(0.0D);
+		config.get(catName, APName[4], 1.0D).getDouble(1.0D);
+		config.get(catName, APName[5], 1.0D).getDouble(1.0D);
+		config.get(catName, APName[6], 1.0D).getDouble(1.0D);
+		config.get(catName, APName[7], 0.0D).getDouble(0.0D);
+		config.get(catName, APName[8], 0.0D).getDouble(0.0D);
+		
+		config.save();
+	}
+	
 	private static void ItemDefaultSave(Configuration config, String catName, int id, int meta, boolean enableAmbTemp, double ambTemp, double ambAir, double ambSanity, double effTemp, double effAir, double effSanity, double effHydration, double tempCap)
 	{
 		config.get(catName, IPName[0], id).getInt(id);
@@ -573,6 +633,11 @@ public class EM_ConfigHandler
 		
 		// Check to make sure this is a Data File Before Editing
 		File configFile = new File(customPath + "MyCustom.cfg");
+		
+		if(EM_Settings.genArmorConfigs && type.equalsIgnoreCase("ARMOR"))
+		{
+			configFile = new File(customPath + data.getClass().getSimpleName());
+		}
 		
 		Configuration config;
 		try
@@ -598,7 +663,7 @@ public class EM_ConfigHandler
 		config.addCustomCategoryComment(blockCat, "Add Custom Blocks");
 		config.addCustomCategoryComment(entityCat, "Custom Entities");
 		
-		if(type == "TILE")
+		if(type.equalsIgnoreCase("TILE"))
 		{
 			String nameULCat = blockCat + "." + name.toLowerCase() + " " + (Integer)data[1];
 			
@@ -622,7 +687,7 @@ public class EM_ConfigHandler
 				config.get(nameULCat, BPName[10], false).getBoolean(false);
 				returnValue = "Saved";
 			}
-		} else if(type == "ENTITY")
+		} else if(type.equalsIgnoreCase("ENTITY"))
 		{
 			
 			String nameEntityCat = entityCat + "." + name.toLowerCase();
@@ -644,7 +709,7 @@ public class EM_ConfigHandler
 				returnValue = "Saved";
 			}
 			
-		} else if(type == "ITEM")
+		} else if(type.equalsIgnoreCase("ITEM"))
 		{
 			
 			String nameItemCat = itemsCat + "." + name.toLowerCase();
@@ -670,7 +735,7 @@ public class EM_ConfigHandler
 				returnValue = "Saved";
 			}
 			
-		} else if(type == "ARMOR")
+		} else if(type.equalsIgnoreCase("ARMOR"))
 		{
 			String nameArmorCat = armorCat + "." + name.toLowerCase();
 			

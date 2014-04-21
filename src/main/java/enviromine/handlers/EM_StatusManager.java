@@ -18,19 +18,25 @@ import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFlower;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.MathHelper;
+import net.minecraft.village.Village;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -152,6 +158,7 @@ public class EM_StatusManager
 		
 		float quality = 0;
 		double leaves = 0;
+		float sBoost = 0;
 		
 		float dropSpeed = 0.001F;
 		float riseSpeed = 0.001F;
@@ -234,7 +241,7 @@ public class EM_StatusManager
 						}
 					}
 					
-					if(!EM_PhysManager.blockNotSolid(entityLiving.worldObj, x + i, y + j, z + k))
+					if(!EM_PhysManager.blockNotSolid(entityLiving.worldObj, x + i, y + j, z + k, false))
 					{
 						solidBlocks += 1;
 					}
@@ -291,9 +298,27 @@ public class EM_StatusManager
 								cooling += getTempFalloff(-blockProps.temp, dist, range);
 							}
 						}
-						if((sanityRate <= blockProps.sanity && blockProps.sanity > 0F) || (sanityRate >= blockProps.sanity && blockProps.sanity < 0 && sanityRate <= 0))
+						if(sanityRate >= blockProps.sanity && blockProps.sanity < 0 && sanityRate <= 0)
 						{
 							sanityRate = blockProps.sanity;
+						} else if(sanityRate <= blockProps.sanity && blockProps.sanity > 0F)
+						{
+							if(Block.blocksList[blockProps.id] instanceof BlockFlower)
+							{
+								if(isDay)
+								{
+									if(sBoost < blockProps.sanity)
+									{
+										sBoost = blockProps.sanity;
+									}
+								}
+							} else
+							{
+								if(sBoost < blockProps.sanity)
+								{
+									sBoost = blockProps.sanity;
+								}
+							}
 						}
 						
 					} else if((id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID))
@@ -334,7 +359,13 @@ public class EM_StatusManager
 					{
 						if(id == Block.plantRed.blockID || id == Block.plantYellow.blockID)
 						{
-							sanityRate = 0.1F;
+							if(isDay)
+							{
+								if(sBoost < 0.1F)
+								{
+									sBoost = 0.1F;
+								}
+							}
 						}
 						leaves += 1;
 					} else if(id == Block.netherrack.blockID)
@@ -357,7 +388,13 @@ public class EM_StatusManager
 					{
 						if(meta == 1 || meta == 2)
 						{
-							sanityRate = 0.1F;
+							if(isDay)
+							{
+								if(sBoost < 0.1F)
+								{
+									sBoost = 0.1F;
+								}
+							}
 							leaves += 1;
 						} else if(meta != 0 && !(meta >= 7 && meta <= 10))
 						{
@@ -421,20 +458,38 @@ public class EM_StatusManager
 					if(itemProps.ambAir > 0F)
 					{
 						leaves += (itemProps.ambAir/0.1F) * stackMult;
-					} else if(quality >= itemProps.ambAir && itemProps.ambAir < 0 && quality <= 0)
+					} else if(quality >= itemProps.ambAir * stackMult && itemProps.ambAir < 0 && quality <= 0)
 					{
 						quality = itemProps.ambAir * stackMult;
 					}
-					if(temp <= itemProps.ambTemp && itemProps.enableTemp && itemProps.ambTemp > 0F)
+					if(temp <= itemProps.ambTemp * stackMult && itemProps.enableTemp && itemProps.ambTemp > 0F)
 					{
 						temp = itemProps.ambTemp * stackMult;
 					} else if(itemProps.enableTemp && itemProps.ambTemp < 0F)
 					{
 						cooling += -itemProps.ambTemp * stackMult;
 					}
-					if((sanityRate <= itemProps.ambSanity && itemProps.ambSanity > 0F) || (sanityRate >= itemProps.ambSanity && itemProps.ambSanity < 0 && sanityRate <= 0))
+					if(sanityRate >= itemProps.ambSanity * stackMult && itemProps.ambSanity < 0 && sanityRate <= 0)
 					{
 						sanityRate = itemProps.ambSanity * stackMult;
+					} else if(sBoost <= itemProps.ambSanity * stackMult && itemProps.ambSanity > 0F)
+					{
+						if(stack.getItem() instanceof ItemBlock)
+						{
+							if(Block.blocksList[((ItemBlock)stack.getItem()).getBlockID()] instanceof BlockFlower)
+							{
+								if(isDay)
+								{
+									sBoost = itemProps.ambSanity * stackMult;
+								}
+							} else
+							{
+								sBoost = itemProps.ambSanity * stackMult;
+							}
+						} else
+						{
+							sBoost = itemProps.ambSanity * stackMult;
+						}
 					}
 				}
 			}
@@ -554,6 +609,8 @@ public class EM_StatusManager
 		float avgEntityTemp = 0.0F;
 		int validEntities = 0;
 		
+		EnviroDataTracker tracker = lookupTracker(entityLiving);
+		
 		while(iterator.hasNext())
 		{
 			Entity mob = (Entity)iterator.next();
@@ -562,7 +619,52 @@ public class EM_StatusManager
 			{
 				continue;
 			}
+			
 			EnviroDataTracker mobTrack = lookupTracker((EntityLivingBase)mob);
+			
+			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer)
+			{
+				EntityVillager villager = (EntityVillager)mob;
+				Village village = entityLiving.worldObj.villageCollectionObj.findNearestVillage(MathHelper.floor_double(villager.posX), MathHelper.floor_double(villager.posY), MathHelper.floor_double(villager.posZ), 32);
+				
+				long assistTime = villager.getEntityData().getLong("Enviro_Assist_Time");
+				long worldTime = entityLiving.worldObj.provider.getWorldTime();
+				
+				if(/*village != null && village.getReputationForPlayer(((EntityPlayer)entityLiving).username) >= 5 &&*/ !villager.isChild() && Math.abs(worldTime - assistTime) > 24000)
+				{
+					if(villager.getProfession() == 2) // Priest
+					{
+						if(sBoost < 1F)
+						{
+							sBoost = 1F;
+						}
+					} else if(villager.getProfession() == 0 && isDay) // Farmer
+					{
+						if(tracker.hydration < 50F)
+						{
+							tracker.hydration = 100F;
+							
+							if(tracker.bodyTemp >= 38F)
+							{
+								tracker.bodyTemp -= 1F;
+							}
+							entityLiving.worldObj.playSoundAtEntity(entityLiving, "random.drink", 1.0F, 1.0F);
+							villager.playSound("mob.villager.yes", 1.0F, 1.0F);
+							villager.getEntityData().setLong("Enviro_Assist_Time", worldTime);
+						}
+					} else if(villager.getProfession() == 4 && isDay) // Butcher
+					{
+						FoodStats food = ((EntityPlayer)entityLiving).getFoodStats();
+						if(food.getFoodLevel() <= 10)
+						{
+							food.setFoodLevel(20);
+							entityLiving.worldObj.playSoundAtEntity(entityLiving, "random.burp", 0.5F, entityLiving.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+							villager.playSound("mob.villager.yes", 1.0F, 1.0F);
+							villager.getEntityData().setLong("Enviro_Assist_Time", worldTime);
+						}
+					}
+				}
+			}
 			
 			if(mobTrack != null)
 			{
@@ -628,9 +730,12 @@ public class EM_StatusManager
 						quality = props.air;
 					}
 					
-					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					if(sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0)
 					{
 						sanityRate = props.sanity;
+					} else if(sBoost <= props.sanity && props.sanity > 0F)
+					{
+						sBoost = props.sanity;
 					}
 				}
 			}
@@ -662,9 +767,12 @@ public class EM_StatusManager
 						quality = props.air;
 					}
 					
-					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					if(sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0)
 					{
 						sanityRate = props.sanity;
+					} else if(sBoost <= props.sanity && props.sanity > 0F)
+					{
+						sBoost = props.sanity;
 					}
 				}
 			}
@@ -696,9 +804,12 @@ public class EM_StatusManager
 						quality = props.air;
 					}
 					
-					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					if(sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0)
 					{
 						sanityRate = props.sanity;
+					} else if(sBoost <= props.sanity && props.sanity > 0F)
+					{
+						sBoost = props.sanity;
 					}
 				}
 			}
@@ -730,9 +841,12 @@ public class EM_StatusManager
 						quality = props.air;
 					}
 					
-					if((sanityRate <= props.sanity && props.sanity > 0F) || (sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0))
+					if(sanityRate >= props.sanity && props.sanity < 0 && sanityRate <= 0)
 					{
 						sanityRate = props.sanity;
+					} else if(sBoost <= props.sanity && props.sanity > 0F)
+					{
+						sBoost = props.sanity;
 					}
 				}
 			}
@@ -798,6 +912,7 @@ public class EM_StatusManager
 		}
 		
 		quality += (leaves * 0.1F);
+		sanityRate += sBoost;
 		
 		if(quality < 0)
 		{
@@ -999,12 +1114,12 @@ public class EM_StatusManager
 		
 		if(tracker != null)
 		{
-			if(tracker.bodyTemp >= 38F && EM_Settings.sweatParticals_actual == true)
+			if(tracker.bodyTemp >= 38F && EM_Settings.sweatParticals == true)
 			{
 				entityLiving.worldObj.spawnParticle("dripWater", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
 			
-			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity) && EM_Settings.insaneParticals_actual == true)
+			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity) && EM_Settings.insaneParticals == true)
 			{
 				entityLiving.worldObj.spawnParticle("portal", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}

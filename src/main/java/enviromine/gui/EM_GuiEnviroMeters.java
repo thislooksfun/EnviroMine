@@ -152,10 +152,10 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			// Add Bars to String Array for looping
 			String[] barPos = new String[4];
-			barPos[0] = EM_Settings.sanityBarPos_actual;
-			barPos[1] = EM_Settings.oxygenBarPos_actual;
-			barPos[2] = EM_Settings.waterBarPos_actual;
-			barPos[3] = EM_Settings.heatBarPos_actual;
+			barPos[0] = EM_Settings.sanityBarPos;
+			barPos[1] = EM_Settings.oxygenBarPos;
+			barPos[2] = EM_Settings.waterBarPos;
+			barPos[3] = EM_Settings.heatBarPos;
 			
 			boolean[] barTrue = new boolean[4];
 			barTrue[0] = EM_Settings.enableSanity;
@@ -190,7 +190,7 @@ public class EM_GuiEnviroMeters extends Gui
 				int curPosY = 0;
 				int frameborder = 4;
 				
-				if(EM_Settings.ShowText_actual == true)
+				if(EM_Settings.ShowText == true)
 				{
 					addTW = 1;
 				}
@@ -277,7 +277,7 @@ public class EM_GuiEnviroMeters extends Gui
 						frameborder = 5;
 					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
 					
-					if(EM_Settings.ShowGuiIcons_actual == true)
+					if(EM_Settings.ShowGuiIcons == true)
 						this.drawTexturedModalRect(iconPos, SAcurY - 4, 32, 80, 16, 16);
 				}
 				
@@ -295,7 +295,7 @@ public class EM_GuiEnviroMeters extends Gui
 						frameborder = 5;
 					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
 					
-					if(EM_Settings.ShowGuiIcons_actual == true)
+					if(EM_Settings.ShowGuiIcons == true)
 						this.drawTexturedModalRect(iconPos, AQcurY - 4, 48, 80, 16, 16);
 					
 				}
@@ -316,7 +316,7 @@ public class EM_GuiEnviroMeters extends Gui
 						frameborder = 5;
 					
 					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
-					if(EM_Settings.ShowGuiIcons_actual == true)
+					if(EM_Settings.ShowGuiIcons == true)
 					{
 						this.drawTexturedModalRect(iconPos, WAcurY - 4, 16, 80, 16, 16);
 					}
@@ -338,14 +338,14 @@ public class EM_GuiEnviroMeters extends Gui
 						frameborder = 5;
 					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
 					
-					if(EM_Settings.ShowGuiIcons_actual == true)
+					if(EM_Settings.ShowGuiIcons == true)
 						this.drawTexturedModalRect(iconPos, HTcurY - 4, 0, 80, 16, 16);
 				}
 				
 			}
 			
 			// Display Debugging Text
-			if(EM_Settings.ShowText_actual == true)
+			if(EM_Settings.ShowText == true)
 			{
 				if(EM_Settings.enableAirQ)
 				{
@@ -444,7 +444,7 @@ public class EM_GuiEnviroMeters extends Gui
 			return;
 		}
 		
-		if(!EM_Settings.ShowDebug_actual || this.mc.gameSettings.showDebugInfo || tracker == null)
+		if(!EM_Settings.ShowDebug || this.mc.gameSettings.showDebugInfo || tracker == null)
 		{
 			return;
 		}

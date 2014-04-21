@@ -72,7 +72,7 @@ public class EM_EventManager
 			if(EnviroDataTracker.isLegalType((EntityLivingBase)event.entity))
 			{
 				// If Not tracking mob/animals and not a player than stop
-				if(!(event.entity instanceof EntityPlayer) && !EM_Settings.trackNonPlayer_actual)
+				if(!(event.entity instanceof EntityPlayer) && !EM_Settings.trackNonPlayer)
 				{
 					return;
 				}
@@ -88,6 +88,12 @@ public class EM_EventManager
 		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote)
 		{
 			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
+			
+			if(oldSand.blockID == 0)
+			{
+				return;
+			}
+			
 			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata, true);
 			event.setCanceled(true);
 			event.world.spawnEntityInWorld(newSand);

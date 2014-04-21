@@ -28,35 +28,24 @@ public class EM_Settings
 	public static boolean enableHydrate = true;
 	public static boolean enableSanity = true;
 	public static boolean enableBodyTemp = true;
-	public static boolean trackNonPlayer_default = true;
-	public static boolean trackNonPlayer_actual;
+	public static boolean trackNonPlayer;
 	
-	public static boolean ShowGuiIcons_default = true;
-	public static boolean ShowGuiIcons_actual;
-	public static boolean saddleRecipe = true;
+	public static boolean ShowGuiIcons;
 	
 	public static boolean spreadIce = false;
 	
 	//Gui settings
-	public static boolean sweatParticals_default = true;
-	public static boolean sweatParticals_actual;
-	public static boolean insaneParticals_default = true;
-	public static boolean insaneParticals_actual;
+	public static boolean sweatParticals;
+	public static boolean insaneParticals;
 	
 	public static boolean useFarenheit = false;
-	public static String heatBarPos_default = "Bottom_Left";
-	public static String heatBarPos_actual;
-	public static String waterBarPos_default = "Bottom_Left";
-	public static String waterBarPos_actual;
-	public static String sanityBarPos_default = "Bottom_Right";
-	public static String sanityBarPos_actual;
-	public static String oxygenBarPos_default = "Bottom_Right";
-	public static String oxygenBarPos_actual;
+	public static String heatBarPos;
+	public static String waterBarPos;
+	public static String sanityBarPos;
+	public static String oxygenBarPos;
 	
-	public static boolean ShowText_default = false;
-	public static boolean ShowText_actual;
-	public static boolean ShowDebug_default = false;
-	public static boolean ShowDebug_actual;
+	public static boolean ShowText;
+	public static boolean ShowDebug;
 	
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
@@ -70,8 +59,7 @@ public class EM_Settings
 	public static int insanityPotionID = 31;
 	
 	//World Gen
-	public static boolean shaftGen_default = true;
-	public static boolean shaftGen_actual;
+	public static boolean shaftGen;
 	
 	//Properties
 	public static HashMap<Integer,ArmorProperties> armorProperties = new HashMap<Integer,ArmorProperties>();
@@ -89,6 +77,8 @@ public class EM_Settings
 	public static double tempMult = 1.0D;
 	public static double airMult = 1.0D;
 	public static boolean updateCheck = true;
+	
+	public static boolean genArmorConfigs = false;
 	
 	public static float convertToFarenheit(float num)
 	{

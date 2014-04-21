@@ -102,7 +102,7 @@ public class EnviroDataTracker
 			}
 		}
 		
-		if(!(trackedEntity instanceof EntityPlayer) && !EM_Settings.trackNonPlayer_actual)
+		if(!(trackedEntity instanceof EntityPlayer) && !EM_Settings.trackNonPlayer)
 		{
 			EM_StatusManager.saveAndRemoveTracker(this);
 		}

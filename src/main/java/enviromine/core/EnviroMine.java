@@ -84,7 +84,7 @@ public class EnviroMine
 		
 		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
 		
-		if(EM_Settings.shaftGen_actual == true)
+		if(EM_Settings.shaftGen == true)
 		{
 			VillagerRegistry.instance().registerVillageCreationHandler(new EnviroShaftCreationHandler());
 			MapGenStructureIO.func_143031_a(EM_VillageMineshaft.class, "ViMS");

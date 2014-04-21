@@ -72,6 +72,25 @@ public class EM_PhysManager
 		physSchedule.add(entry);
 	}
 	
+	public static void scheduleSlideUpdate(World world, int x, int y, int z)
+	{
+		if(world.isRemote)
+		{
+			return;
+		}
+		
+		Object[] entry = new Object[7];
+		entry[0] = world;
+		entry[1] = x;
+		entry[2] = y;
+		entry[3] = z;
+		entry[4] = true;
+		entry[5] = false;
+		entry[6] = "Slide";
+		
+		physSchedule.add(entry);
+	}
+	
 	public static void updateSurroundingPhys(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
 		if(world.isRemote)
@@ -180,9 +199,6 @@ public class EM_PhysManager
 		if(BlockSand.canFallBelow(world, x, y - 1, z))
 		{
 			validSlideType = false;
-		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
-		{
-			validSlideType = true;
 		} else if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
 		{
 			BlockProperties slideProps;
@@ -196,6 +212,15 @@ public class EM_PhysManager
 			}
 			
 			validSlideType = slideProps.slides;
+		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
+		{
+			if(block instanceof BlockAnvil)
+			{
+				validSlideType = false;
+			} else
+			{
+				validSlideType = true;
+			}
 		}
 		
 		if(validSlideType && EM_Settings.enableLandslide)
@@ -277,8 +302,8 @@ public class EM_PhysManager
 			int slideMeta = meta;
 			
 			int[] pos = new int[]{x, y, z};
-			int[] npos = slideDirection(world, pos, false);
-			//int[] ppos = slideDirection(world, pos, false);
+			int[] npos = slideDirection(world, pos, true);
+			int[] ppos = slideDirection(world, pos, false);
 			
 			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
@@ -289,21 +314,15 @@ public class EM_PhysManager
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
-				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Slide");
+				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Normal");
 				return;
-			}/* else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
+			} else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
 			{
-				if(type.equalsIgnoreCase("Slide"))
-				{
-					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Normal");
-				} else
-				{
-					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, true, "Normal");
-				}
-			}*/
+				EM_PhysManager.scheduleSlideUpdate(world, x, y, z);
+			}
 		}
 		
-		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z))
+		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z, false))
 		{
 			int dropBlock = block.blockID;//block.idDropped(block.getDamageValue(world, x, y, z), world.rand, 0);
 			int dropMeta = -1;
@@ -510,7 +529,7 @@ public class EM_PhysManager
 							{
 								missingBlocks++;
 							}
-						} else if((blockNotSolid(world, i + x, j + y, k + z) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
+						} else if((blockNotSolid(world, i + x, j + y, k + z, false) || (block.blockMaterial != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
 						{
 							if(j < yMax)
 							{
@@ -539,7 +558,7 @@ public class EM_PhysManager
 			boolean supported = hasSupports(world, x, y, z, supportDist);
 			//missingBlocks total = 25 - 26
 			
-			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z) && !supported)
+			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z, false) && !supported)
 			{
 				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0) || type.equals("Collapse")) || missingBlocks >= maxThreshold))
 				{
@@ -628,7 +647,7 @@ public class EM_PhysManager
 			{
 				int j = y - 1;
 				
-				if(!(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves))
+				if(!(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves))
 				{
 					return true;
 				}
@@ -644,7 +663,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						cancel = true;
 						break;
@@ -654,7 +673,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						continue;
 					} else
@@ -680,7 +699,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						cancel = true;
 						break;
@@ -690,7 +709,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						continue;
 					} else
@@ -716,7 +735,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						cancel = true;
 						break;
@@ -726,7 +745,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						continue;
 					} else
@@ -752,7 +771,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						cancel = true;
 						break;
@@ -762,7 +781,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
 					{
 						continue;
 					} else
@@ -821,7 +840,7 @@ public class EM_PhysManager
 			//!(Block.blocksList[id] instanceof BlockEnderChest) && 
 			//!(Block.blocksList[id] instanceof BlockDispenser) && 
 			//!(Block.blocksList[id] instanceof BlockFurnace) && 
-					!(Block.blocksList[id] instanceof BlockAnvil) && !(Block.blocksList[id] instanceof BlockGravel) && !(Block.blocksList[id] instanceof BlockSand) && !(Block.blocksList[id] instanceof BlockPortal) && !(Block.blocksList[id] instanceof BlockEndPortal) && !(Block.blocksList[id] == Block.whiteStone) && !(Block.blocksList[id] instanceof BlockEndPortalFrame) && !(Block.blocksList[id].blockMaterial == Material.vine) && !blockNotSolid(world, x, y, z) && Block.blocksList[id].blockHardness != -1F)
+					!(Block.blocksList[id] instanceof BlockAnvil) && !(Block.blocksList[id] instanceof BlockGravel) && !(Block.blocksList[id] instanceof BlockSand) && !(Block.blocksList[id] instanceof BlockPortal) && !(Block.blocksList[id] instanceof BlockEndPortal) && !(Block.blocksList[id] == Block.whiteStone) && !(Block.blocksList[id] instanceof BlockEndPortalFrame) && !(Block.blocksList[id].blockMaterial == Material.vine) && !blockNotSolid(world, x, y, z, false) && Block.blocksList[id].blockHardness != -1F)
 			{
 				return true;
 			} else
@@ -831,23 +850,28 @@ public class EM_PhysManager
 		}
 	}
 	
-	public static boolean blockNotSolid(World world, int x, int y, int z)
+	public static boolean blockNotSolid(World world, int x, int y, int z, boolean isSliding)
 	{
-		int l = world.getBlockId(x, y, z);
-		
 		if(world.isAirBlock(x, y, z))
 		{
 			return true;
-		} else if(l == Block.fire.blockID)
+		}
+		
+		int l = world.getBlockId(x, y, z);
+		Material material = Block.blocksList[l].blockMaterial;
+		
+		if(l == Block.fire.blockID)
 		{
 			return true;
+		} else if(material == Material.water || material == Material.lava)
+		{
+			return !isSliding;
 		} else if(Block.blocksList[l].getCollisionBoundingBoxFromPool(world, x, y, z) == null)
 		{
 			return true;
 		} else
 		{
-			Material material = Block.blocksList[l].blockMaterial;
-			return material == Material.water ? true : material == Material.lava;
+			return false;
 		}
 	}
 	
@@ -892,10 +916,22 @@ public class EM_PhysManager
 				if((Boolean)entry[5])
 				{
 					canClear = false;
-					updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
+					if(((String)entry[6]).equalsIgnoreCase("Slide"))
+					{
+						
+					} else
+					{
+						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
+					}
 				} else
 				{
-					updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
+					if(((String)entry[6]).equalsIgnoreCase("Slide"))
+					{
+						callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[6]);
+					} else
+					{
+						updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
+					}
 				}
 				physSchedule.remove(i);
 			}
@@ -943,19 +979,19 @@ public class EM_PhysManager
 		
 		ArrayList<String> canSlideDir = new ArrayList<String>();
 		
-		if(blockNotSolid(world, x + 1, y, z) && blockNotSolid(world, x + 1, y - 1, z) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0))
+		if(blockNotSolid(world, x + 1, y, z, false) && blockNotSolid(world, x + 1, y - 1, z, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0))
 		{
 			canSlideDir.add("X+");
 		}
-		if(blockNotSolid(world, x - 1, y, z) && blockNotSolid(world, x - 1, y - 1, z) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0))
+		if(blockNotSolid(world, x - 1, y, z, false) && blockNotSolid(world, x - 1, y - 1, z, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0))
 		{
 			canSlideDir.add("X-");
 		}
-		if(blockNotSolid(world, x, y, z + 1) && blockNotSolid(world, x, y - 1, z + 1) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0))
+		if(blockNotSolid(world, x, y, z + 1, false) && blockNotSolid(world, x, y - 1, z + 1, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0))
 		{
 			canSlideDir.add("Z+");
 		}
-		if(blockNotSolid(world, x, y, z - 1) && blockNotSolid(world, x, y - 1, z - 1) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z - 1, x + 1, y, z)).size() <= 0))
+		if(blockNotSolid(world, x, y, z - 1, false) && blockNotSolid(world, x, y - 1, z - 1, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z - 1, x + 1, y, z)).size() <= 0))
 		{
 			canSlideDir.add("Z-");
 		}
