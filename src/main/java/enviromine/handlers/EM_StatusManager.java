@@ -630,7 +630,7 @@ public class EM_StatusManager
 				long assistTime = villager.getEntityData().getLong("Enviro_Assist_Time");
 				long worldTime = entityLiving.worldObj.provider.getWorldTime();
 				
-				if(/*village != null && village.getReputationForPlayer(((EntityPlayer)entityLiving).username) >= 5 &&*/ !villager.isChild() && Math.abs(worldTime - assistTime) > 24000)
+				if(village != null && village.getReputationForPlayer(((EntityPlayer)entityLiving).username) >= 5 && !villager.isChild() && Math.abs(worldTime - assistTime) > 24000)
 				{
 					if(villager.getProfession() == 2) // Priest
 					{
