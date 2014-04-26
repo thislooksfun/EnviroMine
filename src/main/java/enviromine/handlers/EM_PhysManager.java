@@ -566,7 +566,7 @@ public class EM_PhysManager
 			
 			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z, false) && !supported)
 			{
-				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0) || type.equals("Collapse")) || missingBlocks >= maxThreshold || (touchingWaterDirect && world.rand.nextBoolean())))
+				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0 || type.equals("Collapse"))) || missingBlocks >= maxThreshold || (touchingWaterDirect && world.rand.nextBoolean())))
 				{
 					if(dropType == 2)
 					{

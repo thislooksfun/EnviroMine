@@ -147,7 +147,7 @@ public class EM_ConfigHandler
 		Configuration config;
 		try
 		{
-			config = new Configuration(file);
+			config = new Configuration(file, true);
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
@@ -292,7 +292,7 @@ public class EM_ConfigHandler
 			Configuration config;
 			try
 			{
-				config = new Configuration(customFiles);
+				config = new Configuration(customFiles, true);
 				
 				EnviroMine.logger.log(Level.INFO, "Loading Config File: " + customFiles.getAbsolutePath());
 
@@ -486,7 +486,7 @@ public class EM_ConfigHandler
 		Configuration custom;
 		try	
 		{
-			custom = new Configuration(customFile);
+			custom = new Configuration(customFile, true);
 		} 
 		catch(NullPointerException e)
 		{
@@ -598,7 +598,7 @@ public class EM_ConfigHandler
 		
 		EnviroMine.logger.log(Level.INFO, "Generating armor config for " + armor.getUnlocalizedName() + " in " + armorFile.getName());
 		
-		Configuration config = new Configuration(armorFile);
+		Configuration config = new Configuration(armorFile, true);
 		config.load();
 		String catName = armorCat + "." + AddRemoveCustom.replaceULN(armor.getUnlocalizedName());
 		
@@ -645,7 +645,7 @@ public class EM_ConfigHandler
 		Configuration config;
 		try
 		{
-			config = new Configuration(configFile);
+			config = new Configuration(configFile, true);
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
@@ -668,7 +668,7 @@ public class EM_ConfigHandler
 		
 		if(type.equalsIgnoreCase("TILE"))
 		{
-			String nameULCat = blockCat + "." + name.toLowerCase() + " " + (Integer)data[1];
+			String nameULCat = blockCat + "." + name + " " + (Integer)data[1];
 			
 			if(config.hasCategory(nameULCat) == true)
 			{
@@ -694,7 +694,7 @@ public class EM_ConfigHandler
 		} else if(type.equalsIgnoreCase("ENTITY"))
 		{
 			
-			String nameEntityCat = entityCat + "." + name.toLowerCase();
+			String nameEntityCat = entityCat + "." + name;
 			
 			if(config.hasCategory(nameEntityCat) == true)
 			{
@@ -716,7 +716,7 @@ public class EM_ConfigHandler
 		} else if(type.equalsIgnoreCase("ITEM"))
 		{
 			
-			String nameItemCat = itemsCat + "." + name.toLowerCase();
+			String nameItemCat = itemsCat + "." + name;
 			
 			if(config.hasCategory(nameItemCat) == true)
 			{
@@ -741,7 +741,7 @@ public class EM_ConfigHandler
 			
 		} else if(type.equalsIgnoreCase("ARMOR"))
 		{
-			String nameArmorCat = armorCat + "." + name.toLowerCase();
+			String nameArmorCat = armorCat + "." + name;
 			
 			if(config.hasCategory(nameArmorCat) == true)
 			{
@@ -773,7 +773,7 @@ public class EM_ConfigHandler
 		Configuration config;
 		try
 		{
-			config = new Configuration(file);
+			config = new Configuration(file, true);
 		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
