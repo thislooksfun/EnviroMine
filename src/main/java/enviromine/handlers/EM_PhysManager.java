@@ -3,9 +3,7 @@ package enviromine.handlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-
 import com.google.common.base.Stopwatch;
-
 import enviromine.EntityPhysicsBlock;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
@@ -187,19 +185,19 @@ public class EM_PhysManager
 		}
 		
 		boolean waterLogged = false;
+		boolean touchingWaterDirect = isTouchingLiquid(world, x, y, z, true);
+		boolean touchingWater = isTouchingLiquid(world, x, y, z, false);
 		
 		Chunk chunk = world.getChunkFromBlockCoords(x, z);
 		if(chunk != null)
 		{
-			waterLogged = chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining();
+			waterLogged = (chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining()) || touchingWater;
 		}
 		
 		boolean validSlideType = false;
+		boolean emptyBelow = BlockSand.canFallBelow(world, x, y - 1, z);
 		
-		if(BlockSand.canFallBelow(world, x, y - 1, z))
-		{
-			validSlideType = false;
-		} else if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
+		if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
 		{
 			BlockProperties slideProps;
 			
@@ -211,8 +209,8 @@ public class EM_PhysManager
 				slideProps = EM_Settings.blockProperties.get("" + block.blockID);
 			}
 			
-			validSlideType = slideProps.slides;
-		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && waterLogged && y >= 48 && world.canBlockSeeTheSky(x, y + 1, z)))
+			validSlideType = slideProps.slides || (((waterLogged && world.canBlockSeeTheSky(x, y + 1, z)) || touchingWater) && slideProps.wetSlide);
+		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && ((waterLogged && world.canBlockSeeTheSky(x, y + 1, z)) || touchingWater)))
 		{
 			if(block instanceof BlockAnvil)
 			{
@@ -305,7 +303,15 @@ public class EM_PhysManager
 			int[] npos = slideDirection(world, pos, true);
 			int[] ppos = slideDirection(world, pos, false);
 			
-			if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
+			if(emptyBelow)
+			{
+				if(!(block instanceof BlockSand))
+				{
+					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
+					world.spawnEntityInWorld(physBlock);
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Normal");
+				}
+			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
 				world.setBlock(x, y, z, 0);
@@ -555,12 +561,12 @@ public class EM_PhysManager
 				dropChance = 1;
 			}
 			
-			boolean supported = hasSupports(world, x, y, z, supportDist);
+			boolean supported = hasSupports(world, x, y, z, touchingWaterDirect? supportDist/2 : supportDist);
 			//missingBlocks total = 25 - 26
 			
 			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z, false) && !supported)
 			{
-				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0) || type.equals("Collapse")) || missingBlocks >= maxThreshold))
+				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0) || type.equals("Collapse")) || missingBlocks >= maxThreshold || (touchingWaterDirect && world.rand.nextBoolean())))
 				{
 					if(dropType == 2)
 					{
@@ -639,6 +645,46 @@ public class EM_PhysManager
 		}
 	}
 	
+	public static boolean isTouchingLiquid(World world, int x, int y, int z, boolean direct)
+	{
+		for(int i = x - 1; i <= x + 1; i++)
+		{
+			for(int j = y; j <= y + 1; j++)
+			{
+				for(int k = z - 1; k <= z + 1; k++)
+				{
+					if(direct)
+					{
+						if(j > y && !(i == x && k == z))
+						{
+							continue;
+						} else if(j == y && i == x && k == z)
+						{
+							continue;
+						} else if(j == y && !(i == x || k == z))
+						{
+							continue;
+						}
+					}
+					
+					Material material = world.getBlockMaterial(i, j, k);
+					
+					if(material == null)
+					{
+						continue;
+					} else
+					{
+						if(material.isLiquid())
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	public static boolean hasSupports(World world, int x, int y, int z, int dist)
 	{
 		for(int i = x - 1; i <= x + 1; i++)
@@ -827,20 +873,15 @@ public class EM_PhysManager
 			if(EM_Settings.blockProperties.containsKey("" + id + "," + meta))
 			{
 				BlockProperties blockProps = EM_Settings.blockProperties.get("" + id + "," + meta);
-				return (blockProps.hasPhys && !blockProps.holdsOthers);
+				return(blockProps.hasPhys && !blockProps.holdsOthers);
 			} else
 			{
 				BlockProperties blockProps = EM_Settings.blockProperties.get("" + id);
-				return (blockProps.hasPhys && !blockProps.holdsOthers);
+				return(blockProps.hasPhys && !blockProps.holdsOthers);
 			}
 		} else
 		{
-			if(!(Block.blocksList[id] instanceof BlockMobSpawner) && !(Block.blocksList[id] instanceof BlockLadder) && !(Block.blocksList[id] instanceof BlockWeb) && !(Block.blocksList[id] instanceof BlockGlowStone) && !(Block.blocksList[id] instanceof BlockSign) && !(Block.blocksList[id] instanceof BlockBed) && !(Block.blocksList[id] instanceof BlockDoor) &&
-			//!(Block.blocksList[id] instanceof BlockChest) && 
-			//!(Block.blocksList[id] instanceof BlockEnderChest) && 
-			//!(Block.blocksList[id] instanceof BlockDispenser) && 
-			//!(Block.blocksList[id] instanceof BlockFurnace) && 
-					!(Block.blocksList[id] instanceof BlockAnvil) && !(Block.blocksList[id] instanceof BlockGravel) && !(Block.blocksList[id] instanceof BlockSand) && !(Block.blocksList[id] instanceof BlockPortal) && !(Block.blocksList[id] instanceof BlockEndPortal) && !(Block.blocksList[id] == Block.whiteStone) && !(Block.blocksList[id] instanceof BlockEndPortalFrame) && !(Block.blocksList[id].blockMaterial == Material.vine) && !blockNotSolid(world, x, y, z, false) && Block.blocksList[id].blockHardness != -1F)
+			if(!(Block.blocksList[id] instanceof BlockMobSpawner) && !(Block.blocksList[id] instanceof BlockLadder) && !(Block.blocksList[id] instanceof BlockWeb) && !(Block.blocksList[id] instanceof BlockGlowStone) && !(Block.blocksList[id] instanceof BlockSign) && !(Block.blocksList[id] instanceof BlockBed) && !(Block.blocksList[id] instanceof BlockDoor) && !(Block.blocksList[id] instanceof BlockAnvil) && !(Block.blocksList[id] instanceof BlockGravel) && !(Block.blocksList[id] instanceof BlockSand) && !(Block.blocksList[id] instanceof BlockPortal) && !(Block.blocksList[id] instanceof BlockEndPortal) && !(Block.blocksList[id] == Block.whiteStone) && !(Block.blocksList[id] instanceof BlockEndPortalFrame) && !(Block.blocksList[id].blockMaterial == Material.vine) && !blockNotSolid(world, x, y, z, false) && Block.blocksList[id].blockHardness != -1F)
 			{
 				return true;
 			} else

@@ -3,7 +3,6 @@ package enviromine.handlers;
 import java.awt.Color;
 import java.util.UUID;
 import java.util.logging.Level;
-
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -28,9 +27,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntityRecordPlayer;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumMovingObjectType;
@@ -170,12 +172,15 @@ public class EM_EventManager
 			{
 				int adjCoords[] = getAdjacentBlockCoordsFromSide(event.x, event.y, event.z, event.face);
 				EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, adjCoords[0], adjCoords[1], adjCoords[2], true, false, "Normal");
-			} else if(item.getItem() instanceof ItemGlassBottle && !event.entityPlayer.worldObj.isRemote)
+			} else if(item.itemID == Item.glassBottle.itemID && !event.entityPlayer.worldObj.isRemote)
 			{
 				if(event.entityPlayer.worldObj.getBlockId(event.x, event.y, event.z) == Block.cauldron.blockID && event.entityPlayer.worldObj.getBlockMetadata(event.x, event.y, event.z) > 0)
 				{
 					fillBottle(event.entityPlayer.worldObj, event.entityPlayer, event.x, event.y, event.z, item, event);
 				}
+			} else if(item.itemID == Item.record11.itemID)
+			{
+				RecordEasterEgg(event.entityPlayer, event.x, event.y, event.z);
 			}
 		} else if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_BLOCK && item == null)
 		{
@@ -198,6 +203,52 @@ public class EM_EventManager
 		}
 	}
 	
+	public void RecordEasterEgg(EntityPlayer player, int x, int y, int z)
+	{
+		if(player.worldObj.isRemote)
+		{
+			return;
+		}
+		
+		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(player.worldObj, player, true);
+		
+		if(movingobjectposition == null)
+		{
+			return;
+		} else
+		{
+			if(movingobjectposition.typeOfHit == EnumMovingObjectType.TILE)
+			{
+				int i = movingobjectposition.blockX;
+				int j = movingobjectposition.blockY;
+				int k = movingobjectposition.blockZ;
+				
+				if(player.worldObj.getBlockId(i, j, k) == Block.jukebox.blockID)
+				{
+					TileEntityRecordPlayer recordplayer = (TileEntityRecordPlayer)player.worldObj.getBlockTileEntity(i, j, k);
+
+		            if (recordplayer != null)
+		            {
+		            	if(recordplayer.func_96097_a() == null)
+		            	{
+		            		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(player);
+		            		
+		            		if(tracker != null)
+		            		{
+		            			if(tracker.sanity >= 75F)
+		            			{
+		            				tracker.sanity -= 50F;
+		            			}
+		            			
+		            			player.sendChatToPlayer(ChatMessageComponent.createFromText("An eerie shiver travels down your spine"));
+		            		}
+		            	}
+		            }
+				}
+			}
+		}
+	}
+
 	public static void fillBottle(World world, EntityPlayer player, int x, int y, int z, ItemStack item, PlayerInteractEvent event)
 	{
 		MovingObjectPosition movingobjectposition = getMovingObjectPositionFromPlayer(world, player, true);
@@ -551,84 +602,109 @@ public class EM_EventManager
 		
 		EM_StatusManager.updateTracker(tracker);
 		
+		UUID EM_DEHY1_ID = EM_Settings.DEHY1_UUID;
+		
+		if(tracker.hydration < 25F)
+		{
+			event.entityLiving.addPotionEffect(new PotionEffect(Potion.weakness.id, 200, 0));
+			event.entityLiving.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 200, 0));
+			
+			AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			AttributeModifier mod = new AttributeModifier(EM_DEHY1_ID, "EM_Dehydrated", -0.25D, 2);
+			
+			if(mod != null && attribute.getModifier(mod.getID()) == null)
+			{
+				attribute.applyModifier(mod);
+			}
+		} else
+		{
+			AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			
+			if(attribute.getModifier(EM_DEHY1_ID) != null)
+			{
+				attribute.removeModifier(attribute.getModifier(EM_DEHY1_ID));
+			}
+		}
+
+		UUID EM_FROST1_ID = EM_Settings.FROST1_UUID;
+		UUID EM_FROST2_ID = EM_Settings.FROST2_UUID;
+		UUID EM_FROST3_ID = EM_Settings.FROST3_UUID;
+		UUID EM_HEAT1_ID = EM_Settings.HEAT1_UUID;
+		
+		if(event.entityLiving.isPotionActive(EnviroPotion.heatstroke))
+		{
+			AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			AttributeModifier mod = new AttributeModifier(EM_HEAT1_ID, "EM_Heat", -0.25D, 2);
+			
+			if(mod != null && attribute.getModifier(mod.getID()) == null)
+			{
+				attribute.applyModifier(mod);
+			}
+		} else
+		{
+			AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			
+			if(attribute.getModifier(EM_HEAT1_ID) != null)
+			{
+				attribute.removeModifier(attribute.getModifier(EM_HEAT1_ID));
+			}
+		}
+		
+		if(event.entityLiving.isPotionActive(EnviroPotion.hypothermia) || event.entityLiving.isPotionActive(EnviroPotion.frostbite))
+		{
+			AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			AttributeModifier mod = new AttributeModifier(EM_FROST1_ID, "EM_Frost_Cold", -0.25D, 2);
+			String msg = "";
+			
+			if(event.entityLiving.isPotionActive(EnviroPotion.frostbite))
+			{
+				if(event.entityLiving.getActivePotionEffect(EnviroPotion.frostbite).getAmplifier() > 0)
+				{
+					mod = new AttributeModifier(EM_FROST3_ID, "EM_Frost_NOLEGS", -0.99D, 2);
+					
+					if(event.entityLiving instanceof EntityPlayer)
+					{
+						msg = "Your legs stiffen as they succumb to frostbite";
+					}
+				} else
+				{
+					mod = new AttributeModifier(EM_FROST2_ID, "EM_Frost_NOHANDS", -0.5D, 2);
+					
+					if(event.entityLiving instanceof EntityPlayer)
+					{
+						msg = "Your fingers start to feel numb and unresponsive";
+					}
+				}
+			}
+			if(mod != null && attribute.getModifier(mod.getID()) == null)
+			{
+				attribute.applyModifier(mod);
+				
+				if(event.entityLiving instanceof EntityPlayer && mod.getID() != EM_FROST1_ID)
+				{
+					((EntityPlayer)event.entityLiving).sendChatToPlayer(ChatMessageComponent.createFromText(msg));
+				}
+			}
+		} else
+		{
+			AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
+			
+			if(attribute.getModifier(EM_FROST1_ID) != null)
+			{
+				attribute.removeModifier(attribute.getModifier(EM_FROST1_ID));
+			}
+			if(attribute.getModifier(EM_FROST2_ID) != null && tracker.frostbiteLevel < 1)
+			{
+				attribute.removeModifier(attribute.getModifier(EM_FROST2_ID));
+			}
+			if(attribute.getModifier(EM_FROST3_ID) != null && tracker.frostbiteLevel < 2)
+			{
+				attribute.removeModifier(attribute.getModifier(EM_FROST3_ID));
+			}
+		}
+		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			UUID EM_FROST1_ID = EM_Settings.FROST1_UUID;
-			UUID EM_FROST2_ID = EM_Settings.FROST2_UUID;
-			UUID EM_FROST3_ID = EM_Settings.FROST3_UUID;
-			UUID EM_HEAT1_ID = EM_Settings.HEAT1_UUID;
-			
-			if(event.entityLiving.isPotionActive(EnviroPotion.heatstroke))
-			{
-				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
-				AttributeModifier mod = new AttributeModifier(EM_HEAT1_ID, "EM_Heat", -0.25D, 2);
-				
-				if(mod != null && attribute.getModifier(mod.getID()) == null)
-				{
-					attribute.applyModifier(mod);
-				}
-			} else
-			{
-				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
-				
-				if(attribute.getModifier(EM_HEAT1_ID) != null)
-				{
-					attribute.removeModifier(attribute.getModifier(EM_HEAT1_ID));
-				}
-			}
-			
-			if(event.entityLiving.isPotionActive(EnviroPotion.hypothermia) || event.entityLiving.isPotionActive(EnviroPotion.frostbite))
-			{
-				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
-				AttributeModifier mod = new AttributeModifier(EM_FROST1_ID, "EM_Frost_Cold", -0.25D, 2);
-				String msg = "";
-				
-				if(event.entityLiving.isPotionActive(EnviroPotion.frostbite))
-				{
-					if(event.entityLiving.getActivePotionEffect(EnviroPotion.frostbite).getAmplifier() > 0)
-					{
-						mod = new AttributeModifier(EM_FROST3_ID, "EM_Frost_NOLEGS", -0.99D, 2);
-						
-						if(event.entityLiving instanceof EntityPlayer)
-						{
-							msg = "Your legs stiffen as they succumb to frostbite";
-						}
-					} else
-					{
-						mod = new AttributeModifier(EM_FROST2_ID, "EM_Frost_NOHANDS", -0.5D, 2);
-						
-						if(event.entityLiving instanceof EntityPlayer)
-						{
-							msg = "Your fingers start to feel numb and unresponsive";
-						}
-					}
-				}
-				if(mod != null && attribute.getModifier(mod.getID()) == null)
-				{
-					attribute.applyModifier(mod);
-					
-					if(event.entityLiving instanceof EntityPlayer && mod.getID() != EM_FROST1_ID)
-					{
-						((EntityPlayer)event.entityLiving).sendChatToPlayer(ChatMessageComponent.createFromText(msg));
-					}
-				}
-			} else
-			{
-				AttributeInstance attribute = event.entityLiving.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
-				
-				if(attribute.getModifier(EM_FROST1_ID) != null)
-				{
-					attribute.removeModifier(attribute.getModifier(EM_FROST1_ID));
-				}
-				if(attribute.getModifier(EM_FROST2_ID) != null && tracker.frostbiteLevel < 1)
-				{
-					attribute.removeModifier(attribute.getModifier(EM_FROST2_ID));
-				}
-				if(attribute.getModifier(EM_FROST3_ID) != null && tracker.frostbiteLevel < 2)
-				{
-					attribute.removeModifier(attribute.getModifier(EM_FROST3_ID));
-				}
-			}
 			
 			ItemStack item = null;
 			int itemUse = 0;

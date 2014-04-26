@@ -5,8 +5,12 @@ import java.util.Random;
 import enviromine.core.EnviroMine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityBlaze;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.monster.EntityEnderman;
+import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
@@ -16,7 +20,7 @@ import net.minecraft.world.EnumSkyBlock;
 
 public class Hallucination
 {
-	public EntityCreature falseEntity;
+	public EntityLiving falseEntity;
 	public String falseSound;
 	public int x;
 	public int y;
@@ -38,31 +42,64 @@ public class Hallucination
 		y = (int)(entityLiving.posY + rand.nextInt(2) - 1);
 		z = (int)(entityLiving.posZ + rand.nextInt(20) - 10);
 		
-		switch(rand.nextInt(3))
+		if(entityLiving.dimension == -1)
 		{
-			case 0:
+			switch(rand.nextInt(3))
 			{
-				falseSound = "mob.zombie.say";
-				falseEntity = new EntityZombie(entityLiving.worldObj);
-				break;
+				case 0:
+				{
+					falseSound = "mob.skeleton.say";
+					falseEntity = new EntitySkeleton(entityLiving.worldObj);
+					((EntitySkeleton)falseEntity).setSkeletonType(1);
+					break;
+				}
+				case 1:
+				{
+					falseSound = "mob.blaze.breathe";
+					falseEntity = new EntityBlaze(entityLiving.worldObj);
+					break;
+				}
+				case 2:
+				{
+					falseSound = "mob.ghast.scream";
+					falseEntity = new EntityGhast(entityLiving.worldObj);
+					break;
+				}
 			}
-			case 1:
+		} else
+		{
+			switch(rand.nextInt(5))
 			{
-				falseSound = "random.fuse";
-				falseEntity = new EntityCreeper(entityLiving.worldObj);
-				break;
-			}
-			case 2:
-			{
-				falseSound = "mob.spider.say";
-				falseEntity = new EntitySpider(entityLiving.worldObj);
-				break;
-			}
-			case 3:
-			{
-				falseSound = "mob.skeleton.say";
-				falseEntity = new EntitySkeleton(entityLiving.worldObj);
-				break;
+				case 0:
+				{
+					falseSound = "mob.zombie.say";
+					falseEntity = new EntityZombie(entityLiving.worldObj);
+					break;
+				}
+				case 1:
+				{
+					falseSound = "random.fuse";
+					falseEntity = new EntityCreeper(entityLiving.worldObj);
+					break;
+				}
+				case 2:
+				{
+					falseSound = "mob.spider.say";
+					falseEntity = new EntitySpider(entityLiving.worldObj);
+					break;
+				}
+				case 3:
+				{
+					falseSound = "mob.skeleton.say";
+					falseEntity = new EntitySkeleton(entityLiving.worldObj);
+					break;
+				}
+				case 4:
+				{
+					falseSound = "mob.enderman.scream";
+					falseEntity = new EntityEnderman(entityLiving.worldObj);
+					break;
+				}
 			}
 		}
 		
@@ -102,7 +139,7 @@ public class Hallucination
 		}
 	}
 	
-	public static boolean isAtValidSpawn(EntityCreature creature)
+	public static boolean isAtValidSpawn(EntityLiving creature)
 	{
 		return creature.worldObj.checkNoEntityCollision(creature.boundingBox) && creature.worldObj.getCollidingBoundingBoxes(creature, creature.boundingBox).isEmpty() && !creature.worldObj.isAnyLiquid(creature.boundingBox) && isValidLightLevel(creature);
 	}
@@ -110,8 +147,13 @@ public class Hallucination
 	/**
 	 * Checks to make sure the light is not too bright where the mob is spawning
 	 */
-	protected static boolean isValidLightLevel(EntityCreature creature)
+	protected static boolean isValidLightLevel(EntityLiving creature)
 	{
+		if(creature instanceof EntityBlaze || creature instanceof EntityGhast)
+		{
+			return true;
+		}
+		
 		int i = MathHelper.floor_double(creature.posX);
 		int j = MathHelper.floor_double(creature.boundingBox.minY);
 		int k = MathHelper.floor_double(creature.posZ);

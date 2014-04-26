@@ -168,7 +168,7 @@ public class EnviroDataTracker
 			{
 				dehydrate(0.1F);
 				
-				if(hydration >= 50F)
+				if(hydration >= 75F)
 				{
 					bodyTemp -= 0.01F;
 				}

@@ -144,7 +144,7 @@ public class EnviroPotion extends Potion
 			String sound = "";
 			if(entityLiving.getRNG().nextInt(chance) == 0 && entityLiving instanceof EntityPlayer)
 			{
-				switch(entityLiving.getRNG().nextInt(10))
+				switch(entityLiving.getRNG().nextInt(16))
 				{
 					case 0:
 					{
@@ -204,6 +204,26 @@ public class EnviroPotion extends Potion
 					case 11:
 					{
 						sound = "mob.ghast.idle";
+						break;
+					}
+					case 12:
+					{
+						sound = "random.bowhit";
+						break;
+					}
+					case 13:
+					{
+						sound = "damage.hurtflesh";
+						break;
+					}
+					case 14:
+					{
+						sound = "mob.enderdragon.growl";
+						break;
+					}
+					case 15:
+					{
+						sound = "mob.bat.idle";
 						break;
 					}
 				}

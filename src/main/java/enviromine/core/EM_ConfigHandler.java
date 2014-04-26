@@ -109,6 +109,7 @@ public class EM_ConfigHandler
 		BPName[8] = "09.Sanity";
 		BPName[9] = "10.Stability";
 		BPName[10] = "11.Slides";
+		BPName[11] = "12.Slides When Wet";
 		
 		EPName = new String[7];
 		EPName[0] = "01.Entity Name";
@@ -402,6 +403,7 @@ public class EM_ConfigHandler
 		float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
 		String stability = 			config.get(category, BPName[9], "loose").getString();
 		boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
+		boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
 		
 		// Get Stability Options
 		int minFall = 99;
@@ -432,7 +434,7 @@ public class EM_ConfigHandler
 			canHang = true;
 		}
 		
-		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang);
+		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
 		
 		if(metaData < 0)
 		{
@@ -545,6 +547,7 @@ public class EM_ConfigHandler
 		ItemDefaultSave(custom, itemsCat + ".soulSand", 	Block.slowSand.blockID, 	-1, false, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".skull", 		Item.skull.itemID, 			-1, false, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".web", 			Block.web.blockID, 			-1, false, 0.0, 0.0, -0.01, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".11", 			Item.record11.itemID, 		-1, false, 0.0, 0.0, -1, 0.0, 0.0, 0.0, 0.0, 37.0);
 		
 		custom.save();	
 	}
@@ -685,6 +688,7 @@ public class EM_ConfigHandler
 				config.get(nameULCat, BPName[8], 0.00).getDouble(0.00);
 				config.get(nameULCat, BPName[9], "loose").getString();
 				config.get(nameULCat, BPName[10], false).getBoolean(false);
+				config.get(nameULCat, BPName[11], false).getBoolean(false);
 				returnValue = "Saved";
 			}
 		} else if(type.equalsIgnoreCase("ENTITY"))
