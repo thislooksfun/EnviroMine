@@ -41,7 +41,7 @@ public class EM_PhysManager
 	public static List<String> usedSlidePositions = new ArrayList<String>();
 	public static List<String> excluded = new ArrayList<String>();
 	public static List<Object[]> physSchedule = new ArrayList<Object[]>();
-	public static int updateInterval = 1;
+	public static int updateInterval = 15;
 	public static int currentTime = 0;
 	
 	public static int debugInterval = 15;
@@ -64,7 +64,7 @@ public class EM_PhysManager
 		entry[2] = y;
 		entry[3] = z;
 		entry[4] = updateSelf;
-		entry[5] = exclusions;
+		entry[5] = true;//exclusions;
 		entry[6] = type;
 		
 		physSchedule.add(entry);
@@ -83,7 +83,7 @@ public class EM_PhysManager
 		entry[2] = y;
 		entry[3] = z;
 		entry[4] = true;
-		entry[5] = false;
+		entry[5] = true;
 		entry[6] = "Slide";
 		
 		physSchedule.add(entry);
@@ -184,9 +184,11 @@ public class EM_PhysManager
 			return;
 		}
 		
+		int[] blockData = getSurroundingBlockData(world, x, y, z);
+		
 		boolean waterLogged = false;
-		boolean touchingWaterDirect = isTouchingLiquid(world, x, y, z, true);
-		boolean touchingWater = isTouchingLiquid(world, x, y, z, false);
+		boolean touchingWaterDirect = blockData[2] > 0;//isTouchingLiquid(world, x, y, z, true);
+		boolean touchingWater = blockData[3] > 0;//isTouchingLiquid(world, x, y, z, false);
 		
 		Chunk chunk = world.getChunkFromBlockCoords(x, z);
 		if(chunk != null)
@@ -225,7 +227,7 @@ public class EM_PhysManager
 		{
 			if(!(block instanceof BlockSand))
 			{
-				for(int i = -1; i < 2; i++)
+				/*for(int i = -1; i < 2; i++)
 				{
 					for(int j = -1; j < 2; j++)
 					{
@@ -294,6 +296,11 @@ public class EM_PhysManager
 							}
 						}
 					}
+				}*/
+				
+				if(blockData[4] >= 1)
+				{
+					return;
 				}
 			}
 			int slideID = block.blockID;
@@ -309,7 +316,7 @@ public class EM_PhysManager
 				{
 					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
 					world.spawnEntityInWorld(physBlock);
-					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Normal");
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, true, "Normal");
 				}
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
@@ -320,7 +327,7 @@ public class EM_PhysManager
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
-				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, false, "Normal");
+				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, true, "Normal");
 				return;
 			} else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
 			{
@@ -507,7 +514,15 @@ public class EM_PhysManager
 			
 			int missingBlocks = 0;
 			
-			for(int i = -1; i < 2; i++)
+			if(yMax >= 2)
+			{
+				missingBlocks = blockData[0];
+			} else
+			{
+				missingBlocks = blockData[1];
+			}
+			
+			/*for(int i = -1; i < 2; i++)
 			{
 				for(int j = -1; j < 2; j++)
 				{
@@ -547,7 +562,7 @@ public class EM_PhysManager
 						}
 					}
 				}
-			}
+			}*/
 			
 			if(yMax == 1)
 			{
@@ -645,7 +660,7 @@ public class EM_PhysManager
 		}
 	}
 	
-	public static boolean isTouchingLiquid(World world, int x, int y, int z, boolean direct)
+	/*public static boolean isTouchingLiquid(World world, int x, int y, int z, boolean direct)
 	{
 		for(int i = x - 1; i <= x + 1; i++)
 		{
@@ -683,6 +698,136 @@ public class EM_PhysManager
 			}
 		}
 		return false;
+	}*/
+	
+	public static int[] getSurroundingBlockData(World world, int x, int y, int z)
+	{
+		/*
+		 * 0 - missing solidBlocks
+		 * 1 - missing solidBlocks level or below
+		 * 2 - contactLiquids
+		 * 3 - allLiquids
+		 * 4 - heldUpByOther (0/1)
+		 */
+		
+		int[] data = new int[]{0,0,0,0,0};
+		
+		for(int i = x - 1; i <= x + 1; i++)
+		{
+			for(int j = y - 1; j <= y + 1; j++)
+			{
+				for(int k = z - 1; k <= z + 1; k++)
+				{
+					Material material = world.getBlockMaterial(i, j, k);
+					int blockID = world.getBlockId(i, j, k);
+					int metaID = world.getBlockMetadata(i, j, k);
+					Block block = Block.blocksList[blockID];
+					
+					if(blockID == 0)
+					{
+						if(y < 1)
+						{
+							data[1] += 1;
+						}
+						
+						data[0] += 1;
+						continue;
+					}
+					
+					int stabNum = getDefaultStabilityType(block);
+					
+					if(material != null && material.isLiquid())
+					{
+						if(j > y && !(i == x && k == z))
+						{
+							data[3] += 1;
+						} else if(j == y && i == x && k == z)
+						{
+							data[3] += 1;
+						} else if(j == y && !(i == x || k == z))
+						{
+							data[3] += 1;
+						} else
+						{
+							data[2] += 1;
+							data[3] += 1;
+						}
+					}
+					
+					BlockProperties blockProps = null;
+					
+					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+					{
+						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+						{
+							blockProps = EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z));
+						} else if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)))
+						{
+							blockProps = EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z));
+						}
+					}
+					
+					if(stabNum == 3)
+					{
+						StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
+						if(strongType != null && strongType.holdOther)
+						{
+							data[4] = 1;
+						}
+					} else if(stabNum == 2)
+					{
+						StabilityType avgType = EM_Settings.stabilityTypes.get("average");
+						if(avgType != null && avgType.holdOther)
+						{
+							data[4] = 1;
+						}
+					} else if(stabNum == 1)
+					{
+						StabilityType looseType;
+						if(block.blockID > 175 && EM_Settings.stabilityTypes.containsKey(EM_Settings.defaultStability))
+						{
+							looseType = EM_Settings.stabilityTypes.get(EM_Settings.defaultStability);
+						} else
+						{
+							looseType = EM_Settings.stabilityTypes.get("loose");
+						}
+						if(looseType != null && looseType.holdOther)
+						{
+							data[4] = 1;
+						}
+					}
+					
+					if((blockProps == null && blockID == Block.glowStone.blockID) || (blockProps != null && blockProps.holdsOthers))
+					{
+						data[4] = 1;
+					}
+					
+					if(world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(i + x, j + y, k + z, i + x + 1, j + y + 1, k + z + 1)).size() > 0)
+					{
+						if(j < 1)
+						{
+							data[1] += 1;
+						}
+						
+						data[0] += 1;
+					} else if((blockNotSolid(world, i + x, j + y, k + z, false) || (material != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
+					{
+						if(j < 1)
+						{
+							data[1] += 1;
+						}
+						data[0] += 1;
+					} else
+					{
+						
+					}
+				}
+			}
+		}
+		
+		data[1] += 9;
+		
+		return data;
 	}
 
 	public static boolean hasSupports(World world, int x, int y, int z, int dist)
@@ -918,7 +1063,7 @@ public class EM_PhysManager
 	
 	public static void updateSchedule()
 	{
-		if(physSchedule.size() >= 10000 && EM_Settings.updateCap <= -1)
+		if(physSchedule.size() >= 2048 && EM_Settings.updateCap <= -1)
 		{
 			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 10 000/tick! Dumping update schedule, things may break.");
 			physSchedule.clear();
@@ -935,7 +1080,6 @@ public class EM_PhysManager
 				}
 				debugUpdatesCaptured = 0;
 			}
-			debugUpdatesCaptured += physSchedule.size();
 		}
 		
 		boolean canClear = true;
@@ -951,6 +1095,11 @@ public class EM_PhysManager
 				updateNum = EM_Settings.updateCap;
 			}
 			
+			if(EnviroMine.proxy.isClient())
+			{
+				debugUpdatesCaptured += updateNum;
+			}
+			
 			for(int i = updateNum - 1; i >= 0; i -= 1)
 			{
 				Object[] entry = physSchedule.get(i);
@@ -959,12 +1108,17 @@ public class EM_PhysManager
 					canClear = false;
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
 					{
-						
+						String position = (new StringBuilder()).append((Integer)entry[1]).append(",").append((Integer)entry[2]).append(",").append((Integer)entry[3]).toString();
+						if(!excluded.contains(position))
+						{
+							excluded.add(position);
+							callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[6]);
+						}
 					} else
 					{
 						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				} else
+				}/* else
 				{
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
 					{
@@ -973,7 +1127,7 @@ public class EM_PhysManager
 					{
 						updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				}
+				}*/
 				physSchedule.remove(i);
 			}
 		} else

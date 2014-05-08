@@ -177,7 +177,7 @@ public class EM_ConfigHandler
 		
 		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
 		
-		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(-1);
+		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(128);
 		EM_Settings.stoneCracks = config.get(Configuration.CATEGORY_GENERAL, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(Configuration.CATEGORY_GENERAL, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);

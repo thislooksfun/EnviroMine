@@ -171,7 +171,7 @@ public class EM_EventManager
 			if(item.getItem() instanceof ItemBlock && !event.entityPlayer.worldObj.isRemote)
 			{
 				int adjCoords[] = getAdjacentBlockCoordsFromSide(event.x, event.y, event.z, event.face);
-				EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, adjCoords[0], adjCoords[1], adjCoords[2], true, false, "Normal");
+				EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, adjCoords[0], adjCoords[1], adjCoords[2], true, true, "Normal");
 			} else if(item.itemID == Item.glassBottle.itemID && !event.entityPlayer.worldObj.isRemote)
 			{
 				if(event.entityPlayer.worldObj.getBlockId(event.x, event.y, event.z) == Block.cauldron.blockID && event.entityPlayer.worldObj.getBlockMetadata(event.x, event.y, event.z) > 0)
@@ -190,7 +190,7 @@ public class EM_EventManager
 			}
 		} else if(event.getResult() != Result.DENY && event.action == Action.LEFT_CLICK_BLOCK)
 		{
-			EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, event.x, event.y, event.z, true, false, "Normal");
+			EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, event.x, event.y, event.z, true, true, "Normal");
 		} else if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_AIR && item != null)
 		{
 			if(item.getItem() instanceof ItemGlassBottle && !event.entityPlayer.worldObj.isRemote)
@@ -552,13 +552,13 @@ public class EM_EventManager
 		{
 			if(event.getResult() != Result.DENY && !event.harvester.capabilities.isCreativeMode)
 			{
-				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false, "Normal");
+				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, true, "Normal");
 			}
 		} else
 		{
 			if(event.getResult() != Result.DENY)
 			{
-				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, false, "Normal");
+				EM_PhysManager.schedulePhysUpdate(event.world, event.x, event.y, event.z, true, true, "Normal");
 			}
 		}
 	}
@@ -909,7 +909,7 @@ public class EM_EventManager
 	{
 		if(event.entityLiving.getRNG().nextInt(5) == 0)
 		{
-			EM_PhysManager.schedulePhysUpdate(event.entityLiving.worldObj, MathHelper.floor_double(event.entityLiving.posX), MathHelper.floor_double(event.entityLiving.posY - 1), MathHelper.floor_double(event.entityLiving.posZ), true, false, "Jump");
+			EM_PhysManager.schedulePhysUpdate(event.entityLiving.worldObj, MathHelper.floor_double(event.entityLiving.posX), MathHelper.floor_double(event.entityLiving.posY - 1), MathHelper.floor_double(event.entityLiving.posZ), true, true, "Jump");
 		}
 	}
 	
