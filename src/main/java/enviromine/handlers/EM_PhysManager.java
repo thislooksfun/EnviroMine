@@ -1120,7 +1120,6 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					System.out.print("Running non excluded update!");
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
 					{
 						callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[6]);
