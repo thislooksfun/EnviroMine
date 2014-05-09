@@ -53,7 +53,7 @@ public class EM_PhysManager
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, boolean exclusions, String type)
 	{
-		if(world.isRemote)
+		if(world.isRemote || world.getWorldTime() < 1000)
 		{
 			return;
 		}
@@ -64,7 +64,7 @@ public class EM_PhysManager
 		entry[2] = y;
 		entry[3] = z;
 		entry[4] = updateSelf;
-		entry[5] = true;//exclusions;
+		entry[5] = exclusions;
 		entry[6] = type;
 		
 		physSchedule.add(entry);
@@ -72,7 +72,7 @@ public class EM_PhysManager
 	
 	public static void scheduleSlideUpdate(World world, int x, int y, int z)
 	{
-		if(world.isRemote)
+		if(world.isRemote || world.getWorldTime() < 1000)
 		{
 			return;
 		}
@@ -1063,9 +1063,9 @@ public class EM_PhysManager
 	
 	public static void updateSchedule()
 	{
-		if(physSchedule.size() >= 2048 && EM_Settings.updateCap <= -1)
+		if(physSchedule.size() >= 4096 && EM_Settings.updateCap <= -1)
 		{
-			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 10 000/tick! Dumping update schedule, things may break.");
+			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 4096/tick! Dumping update schedule, things may break.");
 			physSchedule.clear();
 			return;
 		}
@@ -1118,8 +1118,9 @@ public class EM_PhysManager
 					{
 						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				}/* else
+				} else
 				{
+					System.out.print("Running non excluded update!");
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
 					{
 						callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[6]);
@@ -1127,9 +1128,10 @@ public class EM_PhysManager
 					{
 						updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				}*/
+				}
 				physSchedule.remove(i);
 			}
+			currentTime = 0;
 		} else
 		{
 			currentTime += 1;

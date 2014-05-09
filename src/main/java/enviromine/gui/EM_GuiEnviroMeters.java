@@ -68,8 +68,11 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		if(tracker == null)
 		{
-			Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
-			tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
+			if(!(EM_Settings.enableAirQ == false && EM_Settings.enableBodyTemp == false && EM_Settings.enableHydrate == false && EM_Settings.enableSanity == false))
+			{
+				Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
+				tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
+			}
 		} else if(tracker.isDisabled)
 		{
 			tracker = null;
@@ -444,20 +447,20 @@ public class EM_GuiEnviroMeters extends Gui
 			return;
 		}
 		
-		if(!EM_Settings.ShowDebug || this.mc.gameSettings.showDebugInfo || tracker == null)
+		if(!EM_Settings.ShowDebug || this.mc.gameSettings.showDebugInfo)
 		{
 			return;
 		}
 		
-		DB_abientTemp = tracker.airTemp;
-		DB_biomeName = tracker.trackedEntity.worldObj.getBiomeGenForCoords(MathHelper.floor_double(tracker.trackedEntity.posX), MathHelper.floor_double(tracker.trackedEntity.posZ)).biomeName;
-		DB_tempchange = new BigDecimal(String.valueOf(tracker.bodyTemp - tracker.prevBodyTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
-		DB_sanityrate = new BigDecimal(String.valueOf(tracker.sanity - tracker.prevSanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
-		DB_airquality = new BigDecimal(String.valueOf(tracker.airQuality - tracker.prevAirQuality)).setScale(3, RoundingMode.HALF_UP).floatValue();
-		DB_dehydrateRate = new BigDecimal(String.valueOf(tracker.hydration - tracker.prevHydration)).setScale(3, RoundingMode.HALF_UP).floatValue();
-		
 		try
 		{
+			DB_abientTemp = tracker.airTemp;
+			DB_biomeName = tracker.trackedEntity.worldObj.getBiomeGenForCoords(MathHelper.floor_double(tracker.trackedEntity.posX), MathHelper.floor_double(tracker.trackedEntity.posZ)).biomeName;
+			DB_tempchange = new BigDecimal(String.valueOf(tracker.bodyTemp - tracker.prevBodyTemp)).setScale(3, RoundingMode.HALF_UP).floatValue();
+			DB_sanityrate = new BigDecimal(String.valueOf(tracker.sanity - tracker.prevSanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
+			DB_airquality = new BigDecimal(String.valueOf(tracker.airQuality - tracker.prevAirQuality)).setScale(3, RoundingMode.HALF_UP).floatValue();
+			DB_dehydrateRate = new BigDecimal(String.valueOf(tracker.hydration - tracker.prevHydration)).setScale(3, RoundingMode.HALF_UP).floatValue();
+		
 			if(EM_Settings.useFarenheit == true)
 			{
 				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "F", 10, 10, 16777215);
@@ -475,11 +478,15 @@ public class EM_GuiEnviroMeters extends Gui
 			Minecraft.getMinecraft().fontRenderer.drawString("Air Quality Rate: " + DB_airquality + "%", 10, 10 * 5, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Dehydration Rate: " + DB_dehydrateRate + "%", 10, 10 * 6, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("Status Update Speed: " + DB_timer, 10, 10 * 8, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Speed: " + DB_physTimer, 10, 10 * 9, 16777215);
-			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 10, 16777215);
 		} catch(NullPointerException e)
 		{
 			
+		}
+		
+		if(EM_Settings.enablePhysics)
+		{
+			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Speed: " + DB_physTimer, 10, 10 * 9, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 10, 16777215);
 		}
 	}
 }

@@ -38,7 +38,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		
 		if(update)
 		{
-			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, true, "Collapse");
+			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, false, "Collapse");
 		}
 	}
 	

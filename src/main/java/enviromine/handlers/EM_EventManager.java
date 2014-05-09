@@ -917,6 +917,14 @@ public class EM_EventManager
 	public void onWorldUnload(Unload event)
 	{
 		EM_StatusManager.saveAndDeleteWorldTrackers(event.world);
+		
+		if(!event.world.isRemote)
+		{
+			if(!MinecraftServer.getServer().isServerRunning())
+			{
+				EM_PhysManager.physSchedule.clear();
+			}
+		}
 	}
 	
 	@ForgeSubscribe
