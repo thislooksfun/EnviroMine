@@ -164,7 +164,7 @@ public class EM_ConfigHandler
 		
 		//World Generation
 		
-		EM_Settings.shaftGen = config.get("Wold Generations", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
+		EM_Settings.shaftGen = config.get("World Generation", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
 		
 		//General Settings
 		EM_Settings.enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
@@ -174,13 +174,16 @@ public class EM_ConfigHandler
 		EM_Settings.enableBodyTemp = config.get(Configuration.CATEGORY_GENERAL, "Allow Body Temperature", true).getBoolean(true);
 		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
 		EM_Settings.trackNonPlayer = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", false, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(false);
-		
-		EM_Settings.spreadIce = config.get(Configuration.CATEGORY_GENERAL, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
-		
-		EM_Settings.updateCap = config.get(Configuration.CATEGORY_GENERAL, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(128);
-		EM_Settings.stoneCracks = config.get(Configuration.CATEGORY_GENERAL, "Stone Cracks Before Falling", true).getBoolean(true);
-		EM_Settings.defaultStability = config.get(Configuration.CATEGORY_GENERAL, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
+		
+		// Physics Settings
+		String PhySetCat = "Physics";
+		EM_Settings.spreadIce = config.get(PhySetCat, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
+		EM_Settings.updateCap = config.get(PhySetCat, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(128);
+		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 1 , "The number of ticks between physics update passes").getInt(1);
+		EM_Settings.stoneCracks = config.get(PhySetCat, "Stone Cracks Before Falling", true).getBoolean(true);
+		EM_Settings.defaultStability = config.get(PhySetCat, "Default Stability Type (BlockIDs > 175)", "loose").getString();
+		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000 , "At what Minecraft time the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";

@@ -41,7 +41,6 @@ public class EM_PhysManager
 	public static List<String> usedSlidePositions = new ArrayList<String>();
 	public static List<String> excluded = new ArrayList<String>();
 	public static List<Object[]> physSchedule = new ArrayList<Object[]>();
-	public static int updateInterval = 15;
 	public static int currentTime = 0;
 	
 	public static int debugInterval = 15;
@@ -72,7 +71,7 @@ public class EM_PhysManager
 	
 	public static void scheduleSlideUpdate(World world, int x, int y, int z)
 	{
-		if(world.isRemote || world.getWorldTime() < 1000)
+		if(world.isRemote || world.getWorldTime() < EM_Settings.worldDelay)
 		{
 			return;
 		}
@@ -1083,7 +1082,7 @@ public class EM_PhysManager
 		}
 		
 		boolean canClear = true;
-		if(currentTime >= updateInterval)
+		if(currentTime >= EM_Settings.physInterval)
 		{
 			int updateNum = 0;
 			

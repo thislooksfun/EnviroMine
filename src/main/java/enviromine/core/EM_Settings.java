@@ -80,7 +80,8 @@ public class EM_Settings
 	public static boolean updateCheck = true;
 	
 	public static boolean genArmorConfigs = false;
-	public static int physSeverity;
+	public static int physInterval;
+	public static int worldDelay;
 	
 	public static float convertToFarenheit(float num)
 	{
