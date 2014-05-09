@@ -1,6 +1,7 @@
 package enviromine.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import com.google.common.base.Stopwatch;
@@ -39,7 +40,7 @@ import net.minecraft.world.chunk.Chunk;
 public class EM_PhysManager
 {
 	public static List<String> usedSlidePositions = new ArrayList<String>();
-	public static List<String> excluded = new ArrayList<String>();
+	public static HashMap<String, String> excluded = new HashMap<String, String>();
 	public static List<Object[]> physSchedule = new ArrayList<Object[]>();
 	public static int currentTime = 0;
 	
@@ -52,7 +53,7 @@ public class EM_PhysManager
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, boolean exclusions, String type)
 	{
-		if(world.isRemote || world.getWorldTime() < 1000)
+		if(world.isRemote || world.getWorldTime() < EM_Settings.worldDelay)
 		{
 			return;
 		}
@@ -63,7 +64,7 @@ public class EM_PhysManager
 		entry[2] = y;
 		entry[3] = z;
 		entry[4] = updateSelf;
-		entry[5] = exclusions;
+		entry[5] = true;//exclusions;
 		entry[6] = type;
 		
 		physSchedule.add(entry);
@@ -137,9 +138,13 @@ public class EM_PhysManager
 					{
 						if(updateSelf)
 						{
-							if(!excluded.contains(position))
+							if(!excluded.containsKey(position))
 							{
-								excluded.add(position);
+								excluded.put(position, type);
+								callPhysUpdate(world, x + i, y + j, k + z, type);
+							} else if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
+							{
+								excluded.put(position, type);
 								callPhysUpdate(world, x + i, y + j, k + z, type);
 							} else
 							{
@@ -147,14 +152,18 @@ public class EM_PhysManager
 							}
 						} else
 						{
-							excluded.add(position);
+							excluded.put(position, type);
 							continue;
 						}
 					} else
 					{
-						if(!excluded.contains(position))
+						if(!excluded.containsKey(position))
 						{
-							excluded.add(position);
+							excluded.put(position, type);
+							callPhysUpdate(world, x + i, y + j, k + z, type);
+						} else if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
+						{
+							excluded.put(position, type);
 							callPhysUpdate(world, x + i, y + j, k + z, type);
 						} else
 						{
@@ -1108,16 +1117,16 @@ public class EM_PhysManager
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
 					{
 						String position = (new StringBuilder()).append((Integer)entry[1]).append(",").append((Integer)entry[2]).append(",").append((Integer)entry[3]).toString();
-						if(!excluded.contains(position))
+						if(!excluded.containsKey(position))
 						{
-							excluded.add(position);
+							excluded.put(position, (String)entry[6]);
 							callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[6]);
 						}
 					} else
 					{
 						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				} else
+				}/* else
 				{
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
 					{
@@ -1126,7 +1135,7 @@ public class EM_PhysManager
 					{
 						updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				}
+				}*/
 				physSchedule.remove(i);
 			}
 			currentTime = 0;
