@@ -733,7 +733,7 @@ public class EM_PhysManager
 					
 					if(blockID == 0)
 					{
-						if(y < 1)
+						if(j < y + 1)
 						{
 							data[1] += 1;
 						}
@@ -812,7 +812,7 @@ public class EM_PhysManager
 					
 					if(world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(i + x, j + y, k + z, i + x + 1, j + y + 1, k + z + 1)).size() > 0)
 					{
-						if(j < 1)
+						if(j < y + 1)
 						{
 							data[1] += 1;
 						}
@@ -820,7 +820,7 @@ public class EM_PhysManager
 						data[0] += 1;
 					} else if((blockNotSolid(world, i + x, j + y, k + z, false) || (material != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
 					{
-						if(j < 1)
+						if(j < y + 1)
 						{
 							data[1] += 1;
 						}
