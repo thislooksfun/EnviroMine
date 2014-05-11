@@ -5,9 +5,7 @@ import java.io.DataOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
 import com.google.common.base.Stopwatch;
-
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -20,6 +18,7 @@ import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.client.Minecraft;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -30,6 +29,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.MinecraftServer;
@@ -216,7 +216,7 @@ public class EM_StatusManager
 			}
 		}
 		
-		if(!isDay && blockLightLev <= 1)
+		if(!isDay && blockLightLev <= 1 && entityLiving.getActivePotionEffect(Potion.nightVision) == null)
 		{
 			sanityStartRate = -0.01F;
 			sanityRate = -0.01F;
@@ -701,6 +701,22 @@ public class EM_StatusManager
 			
 			if(helmet != null)
 			{
+				NBTTagList enchTags = helmet.getEnchantmentTagList();
+				
+				if(enchTags != null)
+				{
+					for(int index = 0; index < enchTags.tagCount(); index++)
+					{
+						int enID = ((NBTTagCompound)enchTags.tagAt(i)).getShort("id");
+						int enLV = ((NBTTagCompound)enchTags.tagAt(i)).getShort("lvl");
+						
+						if(enID == Enchantment.respiration.effectId)
+						{
+							leaves += 5F * enLV;
+						}
+					}
+				}
+				
 				if(EM_Settings.armorProperties.containsKey(helmet.itemID))
 				{
 					ArmorProperties props = EM_Settings.armorProperties.get(helmet.itemID);

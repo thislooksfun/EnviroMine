@@ -143,6 +143,16 @@ public class EM_EventManager
 		{
 			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
 			
+			if(event.entityLiving instanceof EntityPlayer)
+			{
+				EntityPlayer player = (EntityPlayer)event.entityLiving;
+				
+				if(player.capabilities.disableDamage || player.capabilities.isCreativeMode)
+				{
+					return;
+				}
+			}
+			
 			if(tracker != null)
 			{
 				if(attacker instanceof EntityZombie)
