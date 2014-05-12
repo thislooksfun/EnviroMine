@@ -21,7 +21,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -663,6 +665,22 @@ public class EM_StatusManager
 							villager.getEntityData().setLong("Enviro_Assist_Time", worldTime);
 						}
 					}
+				}
+			}
+			
+			if(mob instanceof EntityBat)
+			{
+				if(sanityRate <= sanityStartRate && sanityRate > -0.1F)
+				{
+					sanityRate = -0.1F;
+				}
+			}
+			
+			if(mob instanceof EntityEnderman)
+			{
+				if(sanityRate <= sanityStartRate && sanityRate > -1F)
+				{
+					sanityRate = -0.1F;
 				}
 			}
 			

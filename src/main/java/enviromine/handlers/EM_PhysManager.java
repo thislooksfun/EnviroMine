@@ -32,7 +32,9 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -318,21 +320,37 @@ public class EM_PhysManager
 			int[] npos = slideDirection(world, pos, true);
 			int[] ppos = slideDirection(world, pos, false);
 			
+			TileEntity tile = world.getBlockTileEntity(x, y, z);
+			NBTTagCompound nbtTC = new NBTTagCompound();
+			
+			if(tile != null)
+			{
+				tile.writeToNBT(nbtTC);
+			}
+			
 			if(emptyBelow)
 			{
 				if(!(block instanceof BlockSand))
 				{
 					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
+					if(tile != null)
+					{
+						physBlock.fallingBlockTileEntityData = nbtTC;
+					}
 					world.spawnEntityInWorld(physBlock);
 					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, true, "Normal");
 				}
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
-				world.setBlock(x, y, z, 0);
 				usedSlidePositions.add("" + npos[0] + "," + npos[2]);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
+				if(tile != null)
+				{
+					physBlock.fallingBlockTileEntityData = nbtTC;
+				}
+				world.setBlock(x, y, z, 0);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
 				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, true, "Normal");
@@ -647,7 +665,18 @@ public class EM_PhysManager
 						dropBlock = Block.cobblestone.blockID;
 					} else
 					{
-						world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
+						if(world.getBlockId(x, y, z) != dropBlock)
+						{
+							world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
+						}
+					}
+					
+					TileEntity tile = world.getBlockTileEntity(x, y, z);
+					NBTTagCompound nbtTC = new NBTTagCompound();
+					
+					if(tile != null)
+					{
+						tile.writeToNBT(nbtTC);
 					}
 					
 					EntityPhysicsBlock entityphysblock;
@@ -657,6 +686,12 @@ public class EM_PhysManager
 					} else
 					{
 						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z), true);
+					}
+					
+					if(tile != null)
+					{
+						entityphysblock.fallingBlockTileEntityData = nbtTC;
+						world.removeBlockTileEntity(x, y, z);
 					}
 					world.spawnEntityInWorld(entityphysblock);
 					
