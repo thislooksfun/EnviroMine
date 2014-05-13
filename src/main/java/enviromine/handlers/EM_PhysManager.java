@@ -2,7 +2,6 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import com.google.common.base.Stopwatch;
@@ -559,6 +558,10 @@ public class EM_PhysManager
 				missingBlocks = blockData[1];
 			}
 			
+			System.out.println("Missing blocks for block " + block.getLocalizedName() + ": " + missingBlocks);
+			System.out.println("Can Hang " + blockData[0] + ", Can't Hang" + blockData[1]);
+			System.out.println("Thresholds: Min = " + minThreshold + ", Max = " + maxThreshold);
+			
 			/*for(int i = -1; i < 2; i++)
 			{
 				for(int j = -1; j < 2; j++)
@@ -599,12 +602,12 @@ public class EM_PhysManager
 						}
 					}
 				}
-			}*/
+			}
 			
 			if(yMax == 1)
 			{
 				missingBlocks += 9;
-			}
+			}*/
 			
 			int dropChance = maxThreshold - missingBlocks;
 			
@@ -810,14 +813,14 @@ public class EM_PhysManager
 					
 					BlockProperties blockProps = null;
 					
-					if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)) || EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+					if(EM_Settings.blockProperties.containsKey("" + blockID) || EM_Settings.blockProperties.containsKey("" + blockID + "," + metaID))
 					{
-						if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z)))
+						if(EM_Settings.blockProperties.containsKey("" + blockID + "," + metaID))
 						{
-							blockProps = EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z) + "," + world.getBlockMetadata(i + x, j + y, k + z));
-						} else if(EM_Settings.blockProperties.containsKey("" + world.getBlockId(i + x, j + y, k + z)))
+							blockProps = EM_Settings.blockProperties.get("" + blockID + "," + metaID);
+						} else if(EM_Settings.blockProperties.containsKey("" + blockID))
 						{
-							blockProps = EM_Settings.blockProperties.get("" + world.getBlockId(i + x, j + y, k + z));
+							blockProps = EM_Settings.blockProperties.get("" + blockID);
 						}
 					}
 					
@@ -856,7 +859,7 @@ public class EM_PhysManager
 						data[4] = 1;
 					}
 					
-					if(world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(i + x, j + y, k + z, i + x + 1, j + y + 1, k + z + 1)).size() > 0)
+					if(world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(i, j, k, i + 1, j + 1, k + 1)).size() > 0)
 					{
 						if(j < y + 1)
 						{
@@ -864,16 +867,13 @@ public class EM_PhysManager
 						}
 						
 						data[0] += 1;
-					} else if((blockNotSolid(world, i + x, j + y, k + z, false) || (material != Material.leaves && world.getBlockMaterial(i + x, j + y, k + z) == Material.leaves)) && !(i == 0 && j < 1 && k == 0))
+					} else if((blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(x, y, z) != Material.leaves && material == Material.leaves)) && !(i == x && j < y + 1 && k == z))
 					{
 						if(j < y + 1)
 						{
 							data[1] += 1;
 						}
 						data[0] += 1;
-					} else
-					{
-						
 					}
 				}
 			}
@@ -1094,6 +1094,7 @@ public class EM_PhysManager
 	{
 		if(world.isAirBlock(x, y, z))
 		{
+			System.out.println("No block found. Returning non-solid");
 			return true;
 		}
 		
