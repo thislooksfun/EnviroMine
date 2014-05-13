@@ -3,6 +3,7 @@ package enviromine.handlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import com.google.common.base.Stopwatch;
 import enviromine.EntityPhysicsBlock;
@@ -41,9 +42,9 @@ import net.minecraft.world.chunk.Chunk;
 
 public class EM_PhysManager
 {
-	public static List<String> usedSlidePositions = new ArrayList<String>();
+	public static ArrayList<String> usedSlidePositions = new ArrayList<String>();
 	public static HashMap<String, String> excluded = new HashMap<String, String>();
-	public static List<Object[]> physSchedule = new ArrayList<Object[]>();
+	public static ArrayList<Object[]> physSchedule = new ArrayList<Object[]>();
 	public static int currentTime = 0;
 	
 	public static int debugInterval = 15;
@@ -135,6 +136,11 @@ public class EM_PhysManager
 			{
 				for(int k = -1; k <= 1; k++)
 				{
+					if(timer.elapsed(TimeUnit.SECONDS) > 2)
+					{
+						return;
+					}
+					
 					String position = (new StringBuilder()).append(x + i).append(",").append(y + j).append(",").append(z + k).toString();
 					if(i == 0 && j == 0 && k == 0)
 					{
@@ -184,7 +190,6 @@ public class EM_PhysManager
 			return;
 		}
 		
-		System.out.println("Calling " + type + " update at (" + x + "," + y + "," + z + ") in dimension " + world.provider.dimensionId);
 		callPhysUpdate(world, x, y, z, Block.blocksList[world.getBlockId(x, y, z)], world.getBlockMetadata(x, y, z), type);
 	}
 	
@@ -193,6 +198,11 @@ public class EM_PhysManager
 		if(world.isRemote || block == null)
 		{
 			return;
+		}
+		
+		if(EnviroMine.proxy.isClient())
+		{
+			debugUpdatesCaptured += 1;
 		}
 		
 		int[] blockData = getSurroundingBlockData(world, x, y, z);
@@ -1139,19 +1149,25 @@ public class EM_PhysManager
 				updateNum = EM_Settings.updateCap;
 			}
 			
-			if(EnviroMine.proxy.isClient())
-			{
-				debugUpdatesCaptured += updateNum;
-			}
-			
 			for(int i = updateNum - 1; i >= 0; i -= 1)
 			{
 				if(!MinecraftServer.getServer().isServerRunning())
 				{
 					physSchedule.clear();
+					physSchedule = new ArrayList<Object[]>();
 					canClear = true;
 					break;
 				}
+				
+				if(timer.elapsed(TimeUnit.SECONDS) > 2)
+				{
+					EnviroMine.logger.log(Level.SEVERE, "Physics updates are taking too long! Dumping schedule!");
+					physSchedule.clear();
+					physSchedule = new ArrayList<Object[]>();
+					canClear = false;
+					break;
+				}
+				
 				Object[] entry = physSchedule.get(i);
 				
 				boolean locLoaded = false;
@@ -1159,11 +1175,9 @@ public class EM_PhysManager
 				if(((World)entry[0]).getChunkProvider().chunkExists((Integer)entry[1] >> 4, (Integer)entry[3] >> 4))
 				{
 					locLoaded = ((World)entry[0]).getChunkFromChunkCoords((Integer)entry[1] >> 4, (Integer)entry[3] >> 4).isChunkLoaded;
-					System.out.println("Location (" + (Integer)entry[1] + "," + (Integer)entry[3] + ") not loaded");
 				} else
 				{
 					locLoaded = false;
-					System.out.println("Location (" + (Integer)entry[1] + "," + (Integer)entry[3] + ") non existant");
 				}
 				
 				if(locLoaded)//getChunkFromBlockCoords((Integer)entry[1], (Integer)entry[3]).isChunkLoaded)
