@@ -91,7 +91,7 @@ public class EM_PhysManager
 		physSchedule.add(entry);
 	}
 	
-	public static void updateSurroundingPhys(World world, int x, int y, int z, boolean updateSelf, String type)
+	/*public static void updateSurroundingPhys(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
 		if(world.isRemote)
 		{
@@ -120,7 +120,7 @@ public class EM_PhysManager
 				}
 			}
 		}
-	}
+	}*/
 	
 	public static void updateSurroundingWithExclusions(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
@@ -184,6 +184,7 @@ public class EM_PhysManager
 			return;
 		}
 		
+		System.out.println("Calling " + type + " update at (" + x + "," + y + "," + z + ") in dimension " + world.provider.dimensionId);
 		callPhysUpdate(world, x, y, z, Block.blocksList[world.getBlockId(x, y, z)], world.getBlockMetadata(x, y, z), type);
 	}
 	
@@ -1145,8 +1146,27 @@ public class EM_PhysManager
 			
 			for(int i = updateNum - 1; i >= 0; i -= 1)
 			{
+				if(!MinecraftServer.getServer().isServerRunning())
+				{
+					physSchedule.clear();
+					canClear = true;
+					break;
+				}
 				Object[] entry = physSchedule.get(i);
-				if((Boolean)entry[5])
+				
+				boolean locLoaded = false;
+				
+				if(((World)entry[0]).getChunkProvider().chunkExists((Integer)entry[1] >> 4, (Integer)entry[3] >> 4))
+				{
+					locLoaded = ((World)entry[0]).getChunkFromChunkCoords((Integer)entry[1] >> 4, (Integer)entry[3] >> 4).isChunkLoaded;
+					System.out.println("Location (" + (Integer)entry[1] + "," + (Integer)entry[3] + ") not loaded");
+				} else
+				{
+					locLoaded = false;
+					System.out.println("Location (" + (Integer)entry[1] + "," + (Integer)entry[3] + ") non existant");
+				}
+				
+				if(locLoaded)//getChunkFromBlockCoords((Integer)entry[1], (Integer)entry[3]).isChunkLoaded)
 				{
 					canClear = false;
 					if(((String)entry[6]).equalsIgnoreCase("Slide"))
@@ -1161,16 +1181,7 @@ public class EM_PhysManager
 					{
 						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
 					}
-				}/* else
-				{
-					if(((String)entry[6]).equalsIgnoreCase("Slide"))
-					{
-						callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[6]);
-					} else
-					{
-						updateSurroundingPhys((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[6]);
-					}
-				}*/
+				}
 				physSchedule.remove(i);
 			}
 			currentTime = 0;
@@ -1191,6 +1202,7 @@ public class EM_PhysManager
 			timer.stop();
 			EM_GuiEnviroMeters.DB_physTimer = timer.toString();
 			EM_GuiEnviroMeters.DB_physUpdates = debugUpdatesCaptured;
+			EM_GuiEnviroMeters.DB_physBuffer = physSchedule.size();
 			timer.reset();
 			debugTime = 0;
 		} else if(EnviroMine.proxy.isClient() && timer.isRunning())
@@ -1218,19 +1230,19 @@ public class EM_PhysManager
 		
 		ArrayList<String> canSlideDir = new ArrayList<String>();
 		
-		if(blockNotSolid(world, x + 1, y, z, false) && blockNotSolid(world, x + 1, y - 1, z, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0))
+		if(blockNotSolid(world, x + 1, y, z, true) && blockNotSolid(world, x + 1, y - 1, z, false) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x + 1, y - 2, z, x + 2, y, z + 1)).size() <= 0))
 		{
 			canSlideDir.add("X+");
 		}
-		if(blockNotSolid(world, x - 1, y, z, false) && blockNotSolid(world, x - 1, y - 1, z, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0))
+		if(blockNotSolid(world, x - 1, y, z, true) && blockNotSolid(world, x - 1, y - 1, z, false) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x - 1, y - 2, z, x, y, z + 1)).size() <= 0))
 		{
 			canSlideDir.add("X-");
 		}
-		if(blockNotSolid(world, x, y, z + 1, false) && blockNotSolid(world, x, y - 1, z + 1, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0))
+		if(blockNotSolid(world, x, y, z + 1, true) && blockNotSolid(world, x, y - 1, z + 1, false) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z + 1, x + 1, y, z + 2)).size() <= 0))
 		{
 			canSlideDir.add("Z+");
 		}
-		if(blockNotSolid(world, x, y, z - 1, false) && blockNotSolid(world, x, y - 1, z - 1, true) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z - 1, x + 1, y, z)).size() <= 0))
+		if(blockNotSolid(world, x, y, z - 1, true) && blockNotSolid(world, x, y - 1, z - 1, false) && (!checkEntities || world.getEntitiesWithinAABB(EntityPhysicsBlock.class, AxisAlignedBB.getBoundingBox(x, y - 2, z - 1, x + 1, y, z)).size() <= 0))
 		{
 			canSlideDir.add("Z-");
 		}

@@ -436,6 +436,7 @@ public class EM_GuiEnviroMeters extends Gui
 	public static String DB_timer = "";
 	public static String DB_physTimer = "";
 	public static int DB_physUpdates = 0;
+	public static int DB_physBuffer = 0;
 	
 	public static String DB_biomeName = "";
 	
@@ -487,6 +488,7 @@ public class EM_GuiEnviroMeters extends Gui
 		{
 			Minecraft.getMinecraft().fontRenderer.drawString("Physics Update Speed: " + DB_physTimer, 10, 10 * 9, 16777215);
 			Minecraft.getMinecraft().fontRenderer.drawString("No. Physics Updates: " + DB_physUpdates, 10, 10 * 10, 16777215);
+			Minecraft.getMinecraft().fontRenderer.drawString("No. Buffered Updates: " + DB_physBuffer, 10, 10 * 11, 16777215);
 		}
 	}
 }
