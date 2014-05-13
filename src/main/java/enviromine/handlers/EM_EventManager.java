@@ -863,6 +863,9 @@ public class EM_EventManager
 							tracker.sanity = 100F;
 							tracker.hydrate(10F);
 						}
+						
+						tracker.trackedEntity.removePotionEffect(EnviroPotion.frostbite.id);
+						tracker.frostbiteLevel = 0;
 					} else if(item.itemID == Item.bowlSoup.itemID || item.itemID == Item.pumpkinPie.itemID)
 					{
 						if(tracker.bodyTemp <= 40F)
