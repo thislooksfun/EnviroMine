@@ -38,7 +38,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		
 		if(update)
 		{
-			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, true, "Collapse");
+			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, "Collapse");
 		}
 	}
 	
@@ -134,7 +134,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 						
 						if(!this.isBreakingAnvil2 && this.worldObj.canPlaceEntityOnSide(Block.anvil.blockID, i, j, k, true, 1, (Entity)null, (ItemStack)null) && !BlockSand.canFallBelow(this.worldObj, i, j - 1, k) && this.worldObj.setBlock(i, j, k, this.blockID, this.metadata, 3))
 						{
-							EM_PhysManager.schedulePhysUpdate(this.worldObj, i, j, k, true, true, "Collapse");
+							EM_PhysManager.schedulePhysUpdate(this.worldObj, i, j, k, true, "Collapse");
 							
 							if(Block.blocksList[this.blockID] instanceof BlockSand)
 							{
