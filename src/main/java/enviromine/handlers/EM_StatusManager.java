@@ -218,7 +218,7 @@ public class EM_StatusManager
 			}
 		}
 		
-		if(!isDay && blockLightLev <= 1 && entityLiving.getActivePotionEffect(Potion.nightVision) == null)
+		if(!isDay && blockLightLev <= 1 && entityLiving.getActivePotionEffect(Potion.nightVision) != null)
 		{
 			sanityStartRate = -0.01F;
 			sanityRate = -0.01F;
@@ -502,7 +502,7 @@ public class EM_StatusManager
 			quality = 2F;
 		} else
 		{
-			if(sanityRate <= sanityStartRate && sanityRate > -0.1F && (blockLightLev <= 1 || entityLiving.worldObj.provider.isHellWorld))
+			if(sanityRate <= sanityStartRate && sanityRate > -0.1F && ((blockLightLev <= 1 && entityLiving.getActivePotionEffect(Potion.nightVision) == null) || entityLiving.worldObj.provider.isHellWorld))
 			{
 				sanityRate = -0.1F;
 			}
@@ -624,7 +624,7 @@ public class EM_StatusManager
 			
 			EnviroDataTracker mobTrack = lookupTracker((EntityLivingBase)mob);
 			
-			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer)
+			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				EntityVillager villager = (EntityVillager)mob;
 				Village village = entityLiving.worldObj.villageCollectionObj.findNearestVillage(MathHelper.floor_double(villager.posX), MathHelper.floor_double(villager.posY), MathHelper.floor_double(villager.posZ), 32);
@@ -668,21 +668,21 @@ public class EM_StatusManager
 				}
 			}
 			
-			if(mob instanceof EntityBat)
+			/*if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			{
+				if(sanityRate <= sanityStartRate && sanityRate > -0.05F)
+				{
+					sanityRate = -0.01F;
+				}
+			}
+			
+			if(mob instanceof EntityEnderman && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.1F)
 				{
 					sanityRate = -0.1F;
 				}
-			}
-			
-			if(mob instanceof EntityEnderman)
-			{
-				if(sanityRate <= sanityStartRate && sanityRate > -1F)
-				{
-					sanityRate = -0.1F;
-				}
-			}
+			}*/
 			
 			if(mobTrack != null)
 			{
@@ -725,12 +725,12 @@ public class EM_StatusManager
 				{
 					for(int index = 0; index < enchTags.tagCount(); index++)
 					{
-						int enID = ((NBTTagCompound)enchTags.tagAt(i)).getShort("id");
-						int enLV = ((NBTTagCompound)enchTags.tagAt(i)).getShort("lvl");
+						int enID = ((NBTTagCompound)enchTags.tagAt(index)).getShort("id");
+						int enLV = ((NBTTagCompound)enchTags.tagAt(index)).getShort("lvl");
 						
 						if(enID == Enchantment.respiration.effectId)
 						{
-							leaves += 5F * enLV;
+							leaves += 3F * enLV;
 						}
 					}
 				}

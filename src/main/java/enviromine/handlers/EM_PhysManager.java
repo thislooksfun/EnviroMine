@@ -990,7 +990,7 @@ public class EM_PhysManager
 						String position = (new StringBuilder()).append((Integer)entry[1]).append(",").append((Integer)entry[2]).append(",").append((Integer)entry[3]).toString();
 						if(!excluded.containsKey(position))
 						{
-							excluded.put(position, (String)entry[6]);
+							excluded.put(position, (String)entry[5]);
 							callPhysUpdate((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (String)entry[5]);
 						}
 					} else
