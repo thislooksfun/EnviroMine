@@ -87,7 +87,7 @@ public class EM_EventManager
 					EM_StatusManager.syncMultiplayerTracker(emTrack);
 				}
 			}
-		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote && event.world.getWorldTime() < EM_Settings.worldDelay)
+		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote && event.world.getWorldTime() > EM_Settings.worldDelay)
 		{
 			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
 			
