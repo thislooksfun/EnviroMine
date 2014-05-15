@@ -668,7 +668,7 @@ public class EM_StatusManager
 				}
 			}
 			
-			/*if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.05F)
 				{
@@ -682,7 +682,7 @@ public class EM_StatusManager
 				{
 					sanityRate = -0.1F;
 				}
-			}*/
+			}
 			
 			if(mobTrack != null)
 			{
