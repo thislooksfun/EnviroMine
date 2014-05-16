@@ -5,7 +5,6 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.creativetab.CreativeTabs;
@@ -17,9 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.EnumHelper;
-
 import org.lwjgl.input.Keyboard;
-
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -39,6 +36,7 @@ import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
+import enviromine.handlers.EM_EventManager;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.items.EnviroArmor;
@@ -126,7 +124,8 @@ public class EnviroMine
 		
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
-		EnviroMine.logger.log(Level.INFO, "Registering Handlers");
+		GameRegistry.registerWorldGenerator(new EM_EventManager());
+		
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}

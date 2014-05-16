@@ -36,6 +36,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -44,20 +45,30 @@ public class EM_PhysManager
 	public static ArrayList<String> usedSlidePositions = new ArrayList<String>();
 	public static HashMap<String, String> excluded = new HashMap<String, String>();
 	public static ArrayList<Object[]> physSchedule = new ArrayList<Object[]>();
-	public static int currentTime = 0;
+	public static HashMap<String, Long> chunkDelay = new HashMap<String, Long>();
 	
+	public static int currentTime = 0;
 	public static int debugInterval = 15;
 	public static int debugTime = 0;
-	
 	public static int debugUpdatesCaptured = 0;
-	
 	private static Stopwatch timer = new Stopwatch();
+	
+	public static long worldStartTime = -1;
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
-		if(world.isRemote || world.getWorldTime() < EM_Settings.worldDelay)
+		if(world.isRemote || world.getWorldTime() < worldStartTime + EM_Settings.worldDelay)
 		{
 			return;
+		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
+		{
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < world.getWorldTime())
+			{
+				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
+			} else
+			{
+				return;
+			}
 		}
 		
 		Object[] entry = new Object[6];
@@ -76,6 +87,15 @@ public class EM_PhysManager
 		if(world.isRemote || world.getWorldTime() < EM_Settings.worldDelay)
 		{
 			return;
+		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
+		{
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < world.getWorldTime() - EM_Settings.chunkDelay)
+			{
+				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
+			} else
+			{
+				return;
+			}
 		}
 		
 		Object[] entry = new Object[6];
@@ -174,13 +194,14 @@ public class EM_PhysManager
 		int[] blockData = getSurroundingBlockData(world, x, y, z);
 		
 		boolean waterLogged = false;
+		boolean isMuddy = false;
 		boolean touchingWaterDirect = blockData[2] > 0;//isTouchingLiquid(world, x, y, z, true);
 		boolean touchingWater = blockData[3] > 0;//isTouchingLiquid(world, x, y, z, false);
 		
 		Chunk chunk = world.getChunkFromBlockCoords(x, z);
 		if(chunk != null)
 		{
-			waterLogged = (chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining()) || touchingWater;
+			waterLogged = (chunk.getBiomeGenForWorldCoords(x & 15, z & 15, world.getWorldChunkManager()).rainfall > 0 && world.isRaining() && world.canBlockSeeTheSky(x, y + 1, z)) || touchingWater;
 		}
 		
 		boolean validSlideType = false;
@@ -198,8 +219,9 @@ public class EM_PhysManager
 				slideProps = EM_Settings.blockProperties.get("" + block.blockID);
 			}
 			
-			validSlideType = slideProps.slides || (((waterLogged && world.canBlockSeeTheSky(x, y + 1, z)) || touchingWater) && slideProps.wetSlide);
-		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && ((waterLogged && world.canBlockSeeTheSky(x, y + 1, z)) || touchingWater)))
+			validSlideType = slideProps.slides || ((waterLogged || touchingWater) && slideProps.wetSlide);
+			isMuddy = ((waterLogged || touchingWater) && slideProps.wetSlide);
+		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && (waterLogged || touchingWater)))
 		{
 			if(block instanceof BlockAnvil)
 			{
@@ -207,6 +229,7 @@ public class EM_PhysManager
 			} else
 			{
 				validSlideType = true;
+				isMuddy = (block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID);
 			}
 		}
 		
@@ -458,12 +481,12 @@ public class EM_PhysManager
 				dropChance = 1;
 			}
 			
-			boolean supported = hasSupports(world, x, y, z, touchingWaterDirect? supportDist/2 : supportDist);
+			boolean supported = hasSupports(world, x, y, z, (touchingWaterDirect || isMuddy)? MathHelper.floor_double(supportDist/2D) : supportDist);
 			//missingBlocks total = 25 - 26
 			
 			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z, false) && !supported)
 			{
-				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0 || type.equals("Collapse"))) || missingBlocks >= maxThreshold || (touchingWaterDirect && world.rand.nextBoolean())))
+				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0 || type.equals("Collapse"))) || missingBlocks >= maxThreshold || ((touchingWaterDirect || isMuddy) && world.rand.nextBoolean())))
 				{
 					if(dropType == 2)
 					{
@@ -515,10 +538,14 @@ public class EM_PhysManager
 					{
 						return;
 					}
-					if(block.blockID == Block.stone.blockID && EM_Settings.stoneCracks)
+					if(block.blockID == Block.stone.blockID && EM_Settings.stoneCracks && !isCustom)
 					{
 						world.setBlock(x, y, z, Block.cobblestone.blockID);
 						dropBlock = Block.cobblestone.blockID;
+					} else if(block.blockID == Block.grass.blockID && !isCustom)
+					{
+						world.setBlock(x, y, z, Block.dirt.blockID);
+						dropBlock = Block.dirt.blockID;
 					} else
 					{
 						if(world.getBlockId(x, y, z) != dropBlock)
@@ -551,9 +578,15 @@ public class EM_PhysManager
 					}
 					world.spawnEntityInWorld(entityphysblock);
 					
-				} else if(block.blockID == Block.stone.blockID && missingBlocks > minThreshold && !world.isRemote && EM_Settings.stoneCracks)
+				} else if(missingBlocks > minThreshold && !world.isRemote && EM_Settings.stoneCracks)
 				{
-					world.setBlock(x, y, z, Block.cobblestone.blockID);
+					if(block.blockID == Block.stone.blockID && !isCustom)
+					{
+						world.setBlock(x, y, z, Block.cobblestone.blockID);
+					} else if(block.blockID == Block.grass.blockID && !isCustom)
+					{
+						world.setBlock(x, y, z, Block.dirt.blockID);
+					}
 				}
 			}
 		}

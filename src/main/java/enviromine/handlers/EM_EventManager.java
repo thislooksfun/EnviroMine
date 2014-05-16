@@ -1,8 +1,10 @@
 package enviromine.handlers;
 
 import java.awt.Color;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
+import cpw.mods.fml.common.IWorldGenerator;
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -27,8 +29,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
@@ -41,6 +43,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -53,15 +56,28 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.event.world.WorldEvent.Unload;
 
-public class EM_EventManager
+public class EM_EventManager implements IWorldGenerator
 {
 	
 	@ForgeSubscribe
 	public void onEntityJoinWorld(EntityJoinWorldEvent event)
 	{
+		boolean chunkPhys = true;
+		if(EM_PhysManager.chunkDelay.containsKey("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)))
+		{
+			if(EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) != null)
+			{
+				chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < event.world.getWorldTime() - EM_Settings.chunkDelay);
+			} else
+			{
+				EM_PhysManager.chunkDelay.remove("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4));
+			}
+		}
+		
 		if(event.entity instanceof EntityLivingBase)
 		{
 			if(event.entity.worldObj != null)
@@ -87,7 +103,7 @@ public class EM_EventManager
 					EM_StatusManager.syncMultiplayerTracker(emTrack);
 				}
 			}
-		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote && event.world.getWorldTime() > EM_Settings.worldDelay)
+		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote && event.world.getWorldTime() > EM_PhysManager.worldStartTime + EM_Settings.worldDelay && chunkPhys)
 		{
 			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
 			
@@ -96,7 +112,11 @@ public class EM_EventManager
 				return;
 			}
 			
+			NBTTagCompound oldTags = new NBTTagCompound();
+			oldSand.writeToNBT(oldTags);
+			
 			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata, true);
+			newSand.readFromNBT(oldTags);
 			event.setCanceled(true);
 			event.world.spawnEntityInWorld(newSand);
 		}
@@ -927,6 +947,15 @@ public class EM_EventManager
 	}
 	
 	@ForgeSubscribe
+	public void onWorldUnload(Load event)
+	{
+		if(EM_PhysManager.worldStartTime < 0)
+		{
+			EM_PhysManager.worldStartTime = event.world.getWorldTime();
+		}
+	}
+	
+	@ForgeSubscribe
 	public void onWorldUnload(Unload event)
 	{
 		EM_StatusManager.saveAndDeleteWorldTrackers(event.world);
@@ -936,6 +965,7 @@ public class EM_EventManager
 			if(!MinecraftServer.getServer().isServerRunning())
 			{
 				EM_PhysManager.physSchedule.clear();
+				EM_PhysManager.worldStartTime = -1;
 			}
 		}
 	}
@@ -968,5 +998,11 @@ public class EM_EventManager
 		}
 		Vec3 vec31 = vec3.addVector((double)f7 * d3, (double)f6 * d3, (double)f8 * d3);
 		return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
+	}
+
+	@Override
+	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
+	{
+		EM_PhysManager.chunkDelay.put("" + chunkX + "," + chunkZ, world.getWorldTime());
 	}
 }

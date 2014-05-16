@@ -82,6 +82,7 @@ public class EM_Settings
 	public static boolean genArmorConfigs = false;
 	public static int physInterval;
 	public static int worldDelay;
+	public static int chunkDelay;
 	
 	public static float convertToFarenheit(float num)
 	{
