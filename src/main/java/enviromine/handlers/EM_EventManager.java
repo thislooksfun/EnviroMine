@@ -66,12 +66,20 @@ public class EM_EventManager implements IWorldGenerator
 	@ForgeSubscribe
 	public void onEntityJoinWorld(EntityJoinWorldEvent event)
 	{
+		long time = 0;
+		MinecraftServer mc = MinecraftServer.getServer();
+		
+		if(mc.isServerRunning())
+		{
+			time = mc.worldServers[0].getWorldTime();
+		}
+		
 		boolean chunkPhys = true;
 		if(EM_PhysManager.chunkDelay.containsKey("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)))
 		{
 			if(EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) != null)
 			{
-				chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < event.world.getWorldTime() - EM_Settings.chunkDelay);
+				chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < time - EM_Settings.chunkDelay);
 			} else
 			{
 				EM_PhysManager.chunkDelay.remove("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4));
@@ -103,7 +111,7 @@ public class EM_EventManager implements IWorldGenerator
 					EM_StatusManager.syncMultiplayerTracker(emTrack);
 				}
 			}
-		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote && event.world.getWorldTime() > EM_PhysManager.worldStartTime + EM_Settings.worldDelay && chunkPhys)
+		} else if(event.entity instanceof EntityFallingSand && !(event.entity instanceof EntityPhysicsBlock) && !event.world.isRemote && time > EM_PhysManager.worldStartTime + EM_Settings.worldDelay && chunkPhys)
 		{
 			EntityFallingSand oldSand = (EntityFallingSand)event.entity;
 			
@@ -1003,6 +1011,14 @@ public class EM_EventManager implements IWorldGenerator
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
 	{
-		EM_PhysManager.chunkDelay.put("" + chunkX + "," + chunkZ, world.getWorldTime());
+		long time = 0;
+		MinecraftServer mc = MinecraftServer.getServer();
+		
+		if(mc.isServerRunning())
+		{
+			time = mc.worldServers[0].getWorldTime();
+		}
+		
+		EM_PhysManager.chunkDelay.put("" + chunkX + "," + chunkZ, time);
 	}
 }

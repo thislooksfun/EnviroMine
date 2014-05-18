@@ -57,12 +57,20 @@ public class EM_PhysManager
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
-		if(world.isRemote || world.getWorldTime() < worldStartTime + EM_Settings.worldDelay)
+		long time = 0;
+		MinecraftServer mc = MinecraftServer.getServer();
+		
+		if(mc.isServerRunning())
+		{
+			time = mc.worldServers[0].getWorldTime();
+		}
+		
+		if(world.isRemote || time < worldStartTime + EM_Settings.worldDelay)
 		{
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < world.getWorldTime())
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < time)
 			{
 				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
 			} else
@@ -84,12 +92,20 @@ public class EM_PhysManager
 	
 	public static void scheduleSlideUpdate(World world, int x, int y, int z)
 	{
-		if(world.isRemote || world.getWorldTime() < EM_Settings.worldDelay)
+		long time = 0;
+		MinecraftServer mc = MinecraftServer.getServer();
+		
+		if(mc.isServerRunning())
+		{
+			time = mc.worldServers[0].getWorldTime();
+		}
+		
+		if(world.isRemote || time < EM_Settings.worldDelay)
 		{
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < world.getWorldTime() - EM_Settings.chunkDelay)
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < time - EM_Settings.chunkDelay)
 			{
 				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
 			} else
