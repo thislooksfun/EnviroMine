@@ -68,21 +68,24 @@ public class EM_EventManager implements IWorldGenerator
 	{
 		long time = 0;
 		MinecraftServer mc = MinecraftServer.getServer();
-		
-		if(mc.isServerRunning())
-		{
-			time = mc.worldServers[0].getWorldTime();
-		}
-		
 		boolean chunkPhys = true;
-		if(EM_PhysManager.chunkDelay.containsKey("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)))
+		
+		if(!event.world.isRemote)
 		{
-			if(EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) != null)
+			if(mc != null && mc.isServerRunning())
 			{
-				chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < time - EM_Settings.chunkDelay);
-			} else
+				time = mc.worldServers[0].getWorldTime();
+			}
+			
+			if(EM_PhysManager.chunkDelay.containsKey("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)))
 			{
-				EM_PhysManager.chunkDelay.remove("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4));
+				if(EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) != null)
+				{
+					chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < time - EM_Settings.chunkDelay);
+				} else
+				{
+					EM_PhysManager.chunkDelay.remove("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4));
+				}
 			}
 		}
 		
@@ -955,11 +958,24 @@ public class EM_EventManager implements IWorldGenerator
 	}
 	
 	@ForgeSubscribe
-	public void onWorldUnload(Load event)
+	public void onWorldLoad(Load event)
 	{
+		if(event.world.isRemote)
+		{
+			return;
+		}
+		
 		if(EM_PhysManager.worldStartTime < 0)
 		{
-			EM_PhysManager.worldStartTime = event.world.getWorldTime();
+			long time = 0;
+			MinecraftServer mc = MinecraftServer.getServer();
+			
+			if(mc != null && mc.isServerRunning())
+			{
+				time = mc.worldServers[0].getWorldTime();
+			}
+			
+			EM_PhysManager.worldStartTime = time;
 		}
 	}
 	
@@ -1011,10 +1027,15 @@ public class EM_EventManager implements IWorldGenerator
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
 	{
+		if(world.isRemote)
+		{
+			return;
+		}
+		
 		long time = 0;
 		MinecraftServer mc = MinecraftServer.getServer();
 		
-		if(mc.isServerRunning())
+		if(mc != null && mc.isServerRunning())
 		{
 			time = mc.worldServers[0].getWorldTime();
 		}
