@@ -14,7 +14,9 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.EnumHelper;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
@@ -43,6 +45,9 @@ import enviromine.items.EnviroArmor;
 import enviromine.items.EnviroItemBadWaterBottle;
 import enviromine.items.EnviroItemColdWaterBottle;
 import enviromine.items.EnviroItemSaltWaterBottle;
+import enviromine.items.ItemAirFilter;
+import enviromine.world.WorldProviderCaves;
+import enviromine.world.biomes.BiomeGenCaves;
 
 @Mod(modid = EM_Settings.ID, name = EM_Settings.Name, version = EM_Settings.Version)
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = {EM_Settings.Channel}, packetHandler = EnviroPacketHandler.class)
@@ -53,8 +58,13 @@ public class EnviroMine
 	public static Item saltWaterBottle;
 	public static Item coldWaterBottle;
 	
+	public static BiomeGenBase caves;
+	
 	public static EnumArmorMaterial camelPackMaterial;
 	public static ItemArmor camelPack;
+	public static ItemArmor gasMask;
+	public static ItemArmor hardHat;
+	public static Item airFilter;
 	
 	@Instance("EM_Instance")
 	public static EnviroMine instance;
@@ -78,9 +88,15 @@ public class EnviroMine
 		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("saltWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("coldWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
 		
+		//airFilter = new ItemAirFilter(EM_Settings.airFilterID).setMaxStackSize(1).setUnlocalizedName("airFilter").setCreativeTab(CreativeTabs.tabTools);
+		airFilter = new Item(EM_Settings.airFilterID).setMaxStackSize(1).setUnlocalizedName("airFilter").setCreativeTab(CreativeTabs.tabTools).setTextureName("enviromine:air_filter");
+		
 		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{0, 0, 0, 0}, 0);
 		
 		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
+		gasMask = (ItemArmor)new EnviroArmor(EM_Settings.gasMaskID, EnumArmorMaterial.IRON, 4, 0).setTextureName("gas_mask").setUnlocalizedName("gasMask").setCreativeTab(CreativeTabs.tabTools);
+		//hardHat = (ItemArmor)new EnviroArmor(EM_Settings.hardHatID, EnumArmorMaterial.CLOTH, 4, 0).setTextureName("hard_hat").setUnlocalizedName("hardHat").setCreativeTab(CreativeTabs.tabTools);
+		//GameRegistry.registerItem(airFilter, "enviromine.airFilter");
 		
 		if(EM_Settings.shaftGen == true)
 		{
@@ -98,6 +114,9 @@ public class EnviroMine
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
 		LanguageRegistry.addName(camelPack, "Camel Pack");
+		LanguageRegistry.addName(gasMask, "Gas Mask");
+		//LanguageRegistry.addName(hardHat, "Hard Hat");
+		LanguageRegistry.addName(airFilter, "Air Filter");
 		
 		extendPotionList();
 		
@@ -121,10 +140,17 @@ public class EnviroMine
 		GameRegistry.addShapelessRecipe(new ItemStack(saltWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.sand, 1));
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
+		GameRegistry.addRecipe(new ItemStack(airFilter, 1), "xyx", "xzx", "xyx", 'x', new ItemStack(Item.ingotIron), 'y', new ItemStack(Block.cloth), 'z', new ItemStack(Item.coal, 1, 1));
+		GameRegistry.addRecipe(new ItemStack(gasMask, 1), "xxx", "xzx", "yxy", 'x', new ItemStack(Item.ingotIron), 'y', new ItemStack(airFilter), 'z', new ItemStack(Block.thinGlass));
 		
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
 		GameRegistry.registerWorldGenerator(new EM_EventManager());
+		
+		caves = (new BiomeGenCaves(23)).setColor(16711680).setBiomeName("Caves").setDisableRain().setTemperatureRainfall(1.0F, 0.0F);
+		GameRegistry.addBiome(caves);
+		DimensionManager.registerProviderType(EM_Settings.caveDimID, WorldProviderCaves.class, false);
+		DimensionManager.registerDimension(EM_Settings.caveDimID, EM_Settings.caveDimID);
 		
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();

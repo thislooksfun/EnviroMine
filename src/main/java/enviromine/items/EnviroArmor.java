@@ -13,6 +13,8 @@ import net.minecraft.util.Icon;
 public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmorTextureProvider
 {
 	public Icon cpIcon;
+	public Icon gmIcon;
+	public Icon hhIcon;
 	
 	public EnviroArmor(int par1, EnumArmorMaterial par2EnumArmorMaterial, int par3, int par4)
 	{
@@ -27,6 +29,9 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 		if(itemID == EnviroMine.camelPack.itemID)
 		{
 			return "enviroMine:textures/models/armor/camelpack_layer_1.png";
+		} else if(itemID == EnviroMine.gasMask.itemID)
+		{
+			return "enviroMine:textures/models/armor/gasmask_layer_1.png";
 		} else
 		{
 			return null;
@@ -38,6 +43,7 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	public void registerIcons(IconRegister par1IconRegister)
 	{
 		this.cpIcon = par1IconRegister.registerIcon("enviromine:camel_pack");
+		this.gmIcon = par1IconRegister.registerIcon("enviromine:gas_mask");
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -46,9 +52,12 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	 */
 	public Icon getIconFromDamage(int par1)
 	{
-		if(cpIcon != null)
+		if(this.itemID == EnviroMine.camelPack.itemID && cpIcon != null)
 		{
 			return this.cpIcon;
+		} else if(this.itemID == EnviroMine.gasMask.itemID && gmIcon != null)
+		{
+			return this.gmIcon;
 		} else
 		{
 			return super.getIconFromDamage(par1);
@@ -61,6 +70,12 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	 */
 	public boolean getIsRepairable(ItemStack par1ItemStack, ItemStack par2ItemStack)
 	{
-		return false;
+		if(par1ItemStack.itemID == EnviroMine.hardHat.itemID && par2ItemStack.itemID == EnviroMine.hardHat.itemID)
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
 	}
 }
