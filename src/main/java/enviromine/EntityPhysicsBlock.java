@@ -29,6 +29,14 @@ public class EntityPhysicsBlock extends EntityFallingSand
 	public float fallHurtAmount2;
 	public boolean isLandSlide = false;
 	
+	public EntityPhysicsBlock(World world)
+	{
+		super(world);
+		this.setIsAnvil(true);
+		this.fallHurtMax2 = 40;
+		this.fallHurtAmount2 = 2.0F;
+	}
+	
 	public EntityPhysicsBlock(World world, double x, double y, double z, int id, int meta, boolean update)
 	{
 		super(world, x, y, z, flowerID(id), meta);
