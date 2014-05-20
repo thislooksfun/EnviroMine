@@ -77,12 +77,14 @@ public class EM_Settings
 	public static double hydrationMult = 1.0D;
 	public static double tempMult = 1.0D;
 	public static double airMult = 1.0D;
-	public static boolean updateCheck = true;
 	
+	public static boolean updateCheck = true;
+	public static boolean useDefaultConfig = true;
 	public static boolean genArmorConfigs = false;
 	public static int physInterval;
 	public static int worldDelay;
 	public static int chunkDelay;
+	public static int physBlockID;
 	
 	public static float convertToFarenheit(float num)
 	{

@@ -645,7 +645,7 @@ public class EM_EventManager implements IWorldGenerator
 		
 		UUID EM_DEHY1_ID = EM_Settings.DEHY1_UUID;
 		
-		if(tracker.hydration < 25F)
+		if(tracker.hydration < 10F)
 		{
 			event.entityLiving.addPotionEffect(new PotionEffect(Potion.weakness.id, 200, 0));
 			event.entityLiving.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 200, 0));
