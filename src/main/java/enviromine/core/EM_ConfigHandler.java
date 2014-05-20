@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
@@ -48,17 +48,15 @@ public class EM_ConfigHandler
 		// Check for Data Directory 
 		CheckDir(new File(customPath));
 		
-		EnviroMine.logger.log(Level.INFO, "Loading configs");
+		EnviroMine.logger.log(Level.INFO, "Loading configs...");
 		
 		File stabConfigFile = new File(configPath + "StabilityTypes.cfg");
 		loadStabilityTypes(stabConfigFile);
 		
 		// load defaults
-		loadDefaultArmorProperties();
-		
-		if(EM_Settings.genArmorConfigs)
+		if(EM_Settings.useDefaultConfig)
 		{
-			SearchForModdedArmors();
+			loadDefaultArmorProperties();
 		}
 		
 		// Now load Files from "Custom Objects"
@@ -71,13 +69,6 @@ public class EM_ConfigHandler
 		// Load Main Config File And this will go though changes
 		File configFile = new File(configPath + "EnviroMine.cfg");
 		loadGeneralConfig(configFile);
-		
-		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.armorProperties.size() + " armor properties");
-		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.blockProperties.size() + " block properties");
-		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.livingProperties.size() + " entity properties");
-		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.itemProperties.size() + " item properties");
-		
-		EnviroMine.logger.log(Level.INFO, "Finished loading configs");
 		
 		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size()+ EM_Settings.itemProperties.size();
 		
@@ -175,6 +166,7 @@ public class EM_ConfigHandler
 		EM_Settings.enableAirQ = config.get(Configuration.CATEGORY_GENERAL, "Allow Air Quality", true, "True/False to turn Enviromine Trackers for Sanity, Air Quality, Hydration, and Body Temperature.").getBoolean(true);
 		EM_Settings.trackNonPlayer = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", false, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(false);
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
+		EM_Settings.physBlockID = config.get(Configuration.CATEGORY_GENERAL, "EntityPhysicsBlock ID", EntityRegistry.findGlobalUniqueEntityId()).getInt(EntityRegistry.findGlobalUniqueEntityId());
 		
 		// Physics Settings
 		String PhySetCat = "Physics";
@@ -219,7 +211,10 @@ public class EM_ConfigHandler
 		EM_Settings.airMult = config.get("Speed Multipliers", "AirQuality", 1.0D).getDouble(1.0D);
 		EM_Settings.sanityMult = config.get("Speed Multipliers", "Sanity", 1.0D).getDouble(1.0D);
 		
-		EM_Settings.genArmorConfigs = config.get("Config", "Generate Armor Configs", true, "Will attempt to find and generate blank configs for any custom armors loaded before EnviroMine.").getBoolean(true);
+		// Config Options
+		String ConSetCat = "Config";
+		EM_Settings.genArmorConfigs = config.get(ConSetCat, "Generate Armor Configs", true, "Will attempt to find and generate blank configs for any custom armors loaded before EnviroMine.").getBoolean(true);
+		EM_Settings.useDefaultConfig = config.get(ConSetCat, "Generate Defaults", true).getBoolean(true);
 		
 		config.save();
 	}
@@ -569,7 +564,7 @@ public class EM_ConfigHandler
 		config.get(catName, APName[8], air).getDouble(air);
 	}
 	
-	private static void SearchForModdedArmors()
+	public static void SearchForModdedArmors()
 	{
 		EnviroMine.logger.log(Level.INFO, "Searcing for mod armors...");
 		int armorCount = 0;
@@ -599,8 +594,6 @@ public class EM_ConfigHandler
 				return;
 			}
 		}
-		
-		EnviroMine.logger.log(Level.INFO, "Generating armor config for " + armor.getUnlocalizedName() + " in " + armorFile.getName());
 		
 		Configuration config = new Configuration(armorFile, true);
 		config.load();

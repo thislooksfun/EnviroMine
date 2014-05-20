@@ -421,6 +421,11 @@ public class EM_StatusManager
 							sanityRate = -0.01F;
 						}
 					}
+					
+					if((id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID))
+					{
+						nearLava = true;
+					}
 				}
 			}
 		}
@@ -955,7 +960,7 @@ public class EM_StatusManager
 		
 		data[0] = quality * (float)EM_Settings.airMult;
 		data[1] = tempFin;
-		data[2] = unused;
+		data[2] = nearLava? 1 : 0;
 		data[3] = dehydrateBonus * (float)EM_Settings.hydrationMult;
 		data[4] = dropSpeed * (float)EM_Settings.tempMult;
 		data[5] = riseSpeed * (float)EM_Settings.tempMult;

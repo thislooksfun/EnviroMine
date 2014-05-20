@@ -340,12 +340,12 @@ public class EnviroDataTracker
 				}
 			}
 			
-			if(bodyTemp >= 75F || (enviroData[2] == 1 && bodyTemp >= 50))
+			if(bodyTemp >= 45F && enviroData[2] == 1)
 			{
 				trackedEntity.setFire(10);
 			}
 			
-			if(hydration <= 1.0F)
+			if(hydration <= 0F)
 			{
 				trackedEntity.attackEntityFrom(EnviroDamageSource.dehydrate, 2.0F);
 			}

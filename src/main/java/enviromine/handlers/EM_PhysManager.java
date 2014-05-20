@@ -60,9 +60,12 @@ public class EM_PhysManager
 		long time = 0;
 		MinecraftServer mc = MinecraftServer.getServer();
 		
-		if(mc.isServerRunning())
+		if(!world.isRemote)
 		{
-			time = mc.worldServers[0].getWorldTime();
+			if(mc != null && mc.isServerRunning())
+			{
+				time = mc.worldServers[0].getWorldTime();
+			}
 		}
 		
 		if(world.isRemote || time < worldStartTime + EM_Settings.worldDelay)
@@ -95,9 +98,12 @@ public class EM_PhysManager
 		long time = 0;
 		MinecraftServer mc = MinecraftServer.getServer();
 		
-		if(mc.isServerRunning())
+		if(!world.isRemote)
 		{
-			time = mc.worldServers[0].getWorldTime();
+			if(mc != null && mc.isServerRunning())
+			{
+				time = mc.worldServers[0].getWorldTime();
+			}
 		}
 		
 		if(world.isRemote || time < EM_Settings.worldDelay)
@@ -968,6 +974,11 @@ public class EM_PhysManager
 	
 	public static void updateSchedule()
 	{
+		if(MinecraftServer.getServer() == null)
+		{
+			return;
+		}
+		
 		if(physSchedule.size() >= 4096 && EM_Settings.updateCap <= -1)
 		{
 			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 4096/tick! Dumping update schedule, things may break.");
