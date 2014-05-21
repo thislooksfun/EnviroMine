@@ -2,12 +2,12 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 import enviromine.EnviroDamageSource;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
+import enviromine.handlers.ObjectHandler;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -116,6 +116,15 @@ public class EnviroDataTracker
 		}
 		
 		float[] enviroData = EM_StatusManager.getSurroundingData(trackedEntity, 5);
+		boolean isCreative = false;
+		
+		if(trackedEntity instanceof EntityPlayer)
+		{
+			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
+			{
+				isCreative = true;
+			}
+		}
 		
 		if((trackedEntity.getHealth() <= 2F || bodyTemp >= 41F) && enviroData[7] > (float)(-1F * EM_Settings.sanityMult))
 		{
@@ -123,6 +132,29 @@ public class EnviroDataTracker
 		}
 		
 		// Air checks
+		ItemStack helmet = trackedEntity.getCurrentItemOrArmor(4);
+		if(helmet != null && !isCreative)
+		{
+			if(helmet.itemID == ObjectHandler.gasMask.itemID)
+			{
+				if(helmet.getItemDamage() < helmet.getMaxDamage() && airQuality <= 99F)
+				{
+					int airDrop = MathHelper.floor_float(enviroData[0]);
+					
+					enviroData[0] -= helmet.getMaxDamage() - helmet.getItemDamage();
+					
+					if(enviroData[0] <= 0)
+					{
+						enviroData[0] = 0;
+						helmet.setItemDamage(helmet.getItemDamage() - airDrop);
+					} else
+					{
+						helmet.setItemDamage(helmet.getMaxDamage());
+					}
+				}
+			}
+		}
+		
 		airQuality += enviroData[0];
 		
 		if(airQuality <= 0F)
@@ -263,9 +295,9 @@ public class EnviroDataTracker
 		// Camel Pack Stuff
 		ItemStack plate = trackedEntity.getCurrentItemOrArmor(3);
 		
-		if(plate != null)
+		if(plate != null && !isCreative)
 		{
-			if(plate.itemID == EnviroMine.camelPack.itemID)
+			if(plate.itemID == ObjectHandler.camelPack.itemID)
 			{
 				if(plate.getItemDamage() < plate.getMaxDamage() && hydration <= 99F)
 				{
@@ -369,15 +401,12 @@ public class EnviroDataTracker
 		
 		EnviroPotion.checkAndApplyEffects(trackedEntity);
 		
-		if(trackedEntity instanceof EntityPlayer)
+		if(isCreative)
 		{
-			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
-			{
-				bodyTemp = prevBodyTemp;
-				airQuality = prevAirQuality;
-				hydration = prevHydration;
-				sanity = prevSanity;
-			}
+			bodyTemp = prevBodyTemp;
+			airQuality = prevAirQuality;
+			hydration = prevHydration;
+			sanity = prevSanity;
 		}
 		
 		this.fixFloatinfPointErrors();

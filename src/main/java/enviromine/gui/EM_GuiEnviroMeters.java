@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import enviromine.EnviroUtils;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
@@ -397,7 +398,7 @@ public class EM_GuiEnviroMeters extends Gui
 				{
 					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39)) / 3)) * 96);
 				}
-				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(255, 255, 255, grad), EnviroMine.getColorFromRGBA(255, 255, 255, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, grad), EnviroUtils.getColorFromRGBA(255, 255, 255, grad));
 			} else if(tracker.bodyTemp <= 35F)
 			{
 				int grad = 0;
@@ -408,15 +409,15 @@ public class EM_GuiEnviroMeters extends Gui
 				{
 					grad = (int)(((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
 				}
-				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(125, 255, 255, grad), EnviroMine.getColorFromRGBA(125, 255, 255, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(125, 255, 255, grad), EnviroUtils.getColorFromRGBA(125, 255, 255, grad));
 			} else if(tracker.airQuality < 50F)
 			{
 				int grad = (int)((50 - tracker.airQuality) / 50 * 64);
-				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(32, 96, 0, grad), EnviroMine.getColorFromRGBA(32, 96, 0, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(32, 96, 0, grad), EnviroUtils.getColorFromRGBA(32, 96, 0, grad));
 			} else if(tracker.sanity < 50F)
 			{
 				int grad = (int)((50 - tracker.sanity) / 50 * 64);
-				this.drawGradientRect(0, 0, width, height, EnviroMine.getColorFromRGBA(200, 0, 249, grad), EnviroMine.getColorFromRGBA(200, 0, 249, grad));
+				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(200, 0, 249, grad), EnviroUtils.getColorFromRGBA(200, 0, 249, grad));
 			}
 		}
 		

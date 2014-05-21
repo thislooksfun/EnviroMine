@@ -55,6 +55,7 @@ public class EM_Settings
 	public static int gasMaskID = 5005;
 	public static int airFilterID = 5006;
 	public static int hardHatID = 5007;
+	public static int blockElevatorID = 5008;
 	
 	public static int hypothermiaPotionID = 27;
 	public static int heatstrokePotionID = 28;

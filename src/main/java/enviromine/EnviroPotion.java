@@ -1,7 +1,9 @@
 package enviromine;
 
+import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
 import enviromine.trackers.EnviroDataTracker;
@@ -28,6 +30,21 @@ public class EnviroPotion extends Potion
 	public EnviroPotion(int par1, boolean par2, int par3)
 	{
 		super(par1, par2, par3);
+	}
+	
+	public static void RegisterPotions()
+	{
+		EnviroPotion.frostbite = (EnviroPotion)new EnviroPotion(EM_Settings.frostBitePotionID, true, 8171462).setPotionName("potion.frostbite").setIconIndex(0, 0);
+		EnviroPotion.dehydration = (EnviroPotion)new EnviroPotion(EM_Settings.dehydratePotionID, true, 3035801).setPotionName("potion.dehydration").setIconIndex(1, 0);
+		EnviroPotion.insanity = (EnviroPotion)new EnviroPotion(EM_Settings.insanityPotionID, true, 5578058).setPotionName("potion.insanity").setIconIndex(2, 0);
+		EnviroPotion.heatstroke = (EnviroPotion)new EnviroPotion(EM_Settings.heatstrokePotionID, true, EnviroUtils.getColorFromRGBA(255, 0, 0, 255)).setPotionName("potion.heatstroke").setIconIndex(3, 0);
+		EnviroPotion.hypothermia = (EnviroPotion)new EnviroPotion(EM_Settings.hypothermiaPotionID, true, 8171462).setPotionName("potion.hypothermia").setIconIndex(4, 0);
+		
+		LanguageRegistry.instance().addStringLocalization("potion.hypothermia", "Hypothermia");
+		LanguageRegistry.instance().addStringLocalization("potion.heatstroke", "Heat Stroke");
+		LanguageRegistry.instance().addStringLocalization("potion.frostbite", "Frostbite");
+		LanguageRegistry.instance().addStringLocalization("potion.dehydration", "Dehydration");
+		LanguageRegistry.instance().addStringLocalization("potion.insanity", "Insanity");
 	}
 	
 	public static void checkAndApplyEffects(EntityLivingBase entityLiving)

@@ -3,6 +3,7 @@ package enviromine.items;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EnviroMine;
+import enviromine.handlers.ObjectHandler;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.EnumArmorMaterial;
@@ -26,12 +27,15 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	
 	public String getArmorTexture(ItemStack stack, Entity entity, int slot, String type)
 	{
-		if(itemID == EnviroMine.camelPack.itemID)
+		if(itemID == ObjectHandler.camelPack.itemID)
 		{
 			return "enviroMine:textures/models/armor/camelpack_layer_1.png";
-		} else if(itemID == EnviroMine.gasMask.itemID)
+		} else if(itemID == ObjectHandler.gasMask.itemID)
 		{
 			return "enviroMine:textures/models/armor/gasmask_layer_1.png";
+		} else if(itemID == ObjectHandler.hardHat.itemID)
+		{
+			return "enviroMine:textures/models/armor/hardhat_layer_1.png";
 		} else
 		{
 			return null;
@@ -44,6 +48,7 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	{
 		this.cpIcon = par1IconRegister.registerIcon("enviromine:camel_pack");
 		this.gmIcon = par1IconRegister.registerIcon("enviromine:gas_mask");
+		this.hhIcon = par1IconRegister.registerIcon("enviromine:hard_hat");
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -52,13 +57,16 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	 */
 	public Icon getIconFromDamage(int par1)
 	{
-		if(this.itemID == EnviroMine.camelPack.itemID && cpIcon != null)
+		if(this.itemID == ObjectHandler.camelPack.itemID && cpIcon != null)
 		{
 			return this.cpIcon;
-		} else if(this.itemID == EnviroMine.gasMask.itemID && gmIcon != null)
+		} else if(this.itemID == ObjectHandler.gasMask.itemID && gmIcon != null)
 		{
 			return this.gmIcon;
-		} else
+		} else if(this.itemID == ObjectHandler.hardHat.itemID && hhIcon != null)
+		{
+			return this.hhIcon;
+		}
 		{
 			return super.getIconFromDamage(par1);
 		}
@@ -70,7 +78,7 @@ public class EnviroArmor extends ItemArmor //implements ITextureProvider, IArmor
 	 */
 	public boolean getIsRepairable(ItemStack par1ItemStack, ItemStack par2ItemStack)
 	{
-		if(par1ItemStack.itemID == EnviroMine.hardHat.itemID && par2ItemStack.itemID == EnviroMine.hardHat.itemID)
+		if(par1ItemStack.itemID == ObjectHandler.hardHat.itemID && par2ItemStack.itemID == ObjectHandler.hardHat.itemID)
 		{
 			return true;
 		} else

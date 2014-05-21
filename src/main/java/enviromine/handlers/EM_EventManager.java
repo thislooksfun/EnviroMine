@@ -340,17 +340,17 @@ public class EM_EventManager implements IWorldGenerator
 						}
 						case 1:
 						{
-							newItem = EnviroMine.badWaterBottle;
+							newItem = ObjectHandler.badWaterBottle;
 							break;
 						}
 						case 2:
 						{
-							newItem = EnviroMine.saltWaterBottle;
+							newItem = ObjectHandler.saltWaterBottle;
 							break;
 						}
 						case 3:
 						{
-							newItem = EnviroMine.coldWaterBottle;
+							newItem = ObjectHandler.coldWaterBottle;
 							break;
 						}
 					}
