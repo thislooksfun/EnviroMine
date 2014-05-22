@@ -5,11 +5,8 @@ import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
 import enviromine.core.EnviroMine;
 import enviromine.gui.EM_GuiEnviroMeters;
-import enviromine.handlers.EM_ClientScheduledTickHandler;
 
 public class EM_ClientProxy extends EM_CommonProxy
 {
@@ -38,7 +35,6 @@ public class EM_ClientProxy extends EM_CommonProxy
 	public void registerTickHandlers()
 	{
 		super.registerTickHandlers();
-		TickRegistry.registerTickHandler(new EM_ClientScheduledTickHandler(), Side.CLIENT);
 	}
 	
 	public void registerEventHandlers()
