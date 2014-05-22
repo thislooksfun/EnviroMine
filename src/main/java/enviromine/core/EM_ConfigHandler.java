@@ -177,6 +177,7 @@ public class EM_ConfigHandler
 		EM_Settings.defaultStability = config.get(PhySetCat, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "At what Minecraft time the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
 		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after generation").getInt(500);
+		EM_Settings.physInterval = EM_Settings.physInterval > 0? EM_Settings.physInterval : 1;
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";

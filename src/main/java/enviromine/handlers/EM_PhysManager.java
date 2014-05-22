@@ -28,6 +28,7 @@ import net.minecraft.block.BlockSign;
 import net.minecraft.block.BlockWeb;
 import net.minecraft.block.BlockObsidian;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -57,23 +58,12 @@ public class EM_PhysManager
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
-		long time = 0;
-		MinecraftServer mc = MinecraftServer.getServer();
-		
-		if(!world.isRemote)
-		{
-			if(mc != null && mc.isServerRunning())
-			{
-				time = mc.worldServers[0].getWorldTime();
-			}
-		}
-		
-		if(world.isRemote || time < worldStartTime + EM_Settings.worldDelay)
+		if(world.isRemote || world.getTotalWorldTime() < worldStartTime + EM_Settings.worldDelay)
 		{
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < time)
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < world.getTotalWorldTime())
 			{
 				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
 			} else
@@ -95,29 +85,23 @@ public class EM_PhysManager
 	
 	public static void scheduleSlideUpdate(World world, int x, int y, int z)
 	{
-		long time = 0;
-		MinecraftServer mc = MinecraftServer.getServer();
-		
-		if(!world.isRemote)
-		{
-			if(mc != null && mc.isServerRunning())
-			{
-				time = mc.worldServers[0].getWorldTime();
-			}
-		}
-		
-		if(world.isRemote || time < EM_Settings.worldDelay)
+		if(world.isRemote || world.getTotalWorldTime() < worldStartTime + EM_Settings.worldDelay)
 		{
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < time - EM_Settings.chunkDelay)
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < world.getTotalWorldTime() - EM_Settings.chunkDelay)
 			{
 				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
 			} else
 			{
 				return;
 			}
+		}
+		
+		if(world.isAirBlock(x, y, z))
+		{
+			return;
 		}
 		
 		Object[] entry = new Object[6];
@@ -203,7 +187,17 @@ public class EM_PhysManager
 	
 	public static void callPhysUpdate(World world, int x, int y, int z, Block block, int meta, String type)
 	{
-		if(world.isRemote || block == null)
+		boolean locLoaded = false;
+		
+		if(world.getChunkProvider().chunkExists(x >> 4, z >> 4))
+		{
+			locLoaded = world.getChunkFromChunkCoords(x >> 4, z >> 4).isChunkLoaded;
+		} else
+		{
+			locLoaded = false;
+		}
+		
+		if(world.isRemote || block == null || !locLoaded)
 		{
 			return;
 		}
@@ -981,7 +975,7 @@ public class EM_PhysManager
 		
 		if(physSchedule.size() >= 4096 && EM_Settings.updateCap <= -1)
 		{
-			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 4096/tick! Dumping update schedule, things may break.");
+			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 4096! Dumping update schedule");
 			physSchedule.clear();
 			return;
 		}
@@ -992,6 +986,7 @@ public class EM_PhysManager
 			{
 				if(!timer.isRunning())
 				{
+					timer.reset();
 					timer.start();
 				}
 				debugUpdatesCaptured = 0;
@@ -1019,6 +1014,25 @@ public class EM_PhysManager
 					physSchedule = new ArrayList<Object[]>();
 					canClear = true;
 					break;
+				}
+				
+				if(EnviroMine.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning())
+				{
+					if(Minecraft.getMinecraft().getIntegratedServer().getServerListeningThread().isGamePaused() && !EnviroMine.proxy.isOpenToLAN())
+					{
+						if(timer.isRunning())
+						{
+							timer.stop();
+							debugTime = 0;
+						}
+						break;
+					} else
+					{
+						if(!timer.isRunning())
+						{
+							timer.start();
+						}
+					}
 				}
 				
 				if(timer.elapsed(TimeUnit.SECONDS) > 2)
@@ -1069,9 +1083,8 @@ public class EM_PhysManager
 		if(canClear)
 		{
 			excluded.clear();
+			usedSlidePositions.clear();
 		}
-		
-		usedSlidePositions.clear();
 		
 		if(EnviroMine.proxy.isClient() && debugTime >= debugInterval && timer.isRunning())
 		{
@@ -1081,7 +1094,7 @@ public class EM_PhysManager
 			EM_GuiEnviroMeters.DB_physBuffer = physSchedule.size();
 			timer.reset();
 			debugTime = 0;
-		} else if(EnviroMine.proxy.isClient() && timer.isRunning())
+		} else if(EnviroMine.proxy.isClient())
 		{
 			debugTime += 1;
 		}

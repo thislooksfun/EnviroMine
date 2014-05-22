@@ -16,6 +16,11 @@ public class EM_ServerScheduledTickHandler implements ITickHandler
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData)
 	{
+		if(((World)tickData[0]).isRemote)
+		{
+			return;
+		}
+		
 		if(EM_Settings.enablePhysics)
 		{
 			EM_PhysManager.updateSchedule();
@@ -25,7 +30,7 @@ public class EM_ServerScheduledTickHandler implements ITickHandler
 	@Override
 	public EnumSet<TickType> ticks()
 	{
-		return EnumSet.of(TickType.SERVER);
+		return EnumSet.of(TickType.WORLD);
 	}
 	
 	@Override
