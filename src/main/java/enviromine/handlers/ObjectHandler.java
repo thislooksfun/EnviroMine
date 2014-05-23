@@ -6,6 +6,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import enviromine.EntityPhysicsBlock;
 import enviromine.blocks.BlockElevator;
 import enviromine.blocks.BlockGas;
+import enviromine.blocks.TileEntityGas;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.items.EnviroArmor;
@@ -71,6 +72,7 @@ public class ObjectHandler
 	public static void RegisterEntities()
 	{
 		EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID);
+		GameRegistry.registerTileEntity(TileEntityGas.class, "enviromine.tile.gas");
 	}
 	
 	public static void RegisterRecipes()

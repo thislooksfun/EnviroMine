@@ -27,10 +27,10 @@ public class BlockGas extends Block implements ITileEntityProvider
 		return false;
 	}
 	
-	/*public boolean renderAsNormalBlock()
+	public boolean renderAsNormalBlock()
 	{
 		return false;
-	}*/
+	}
 	
 	public boolean canCollideCheck(int par1, boolean par2)
     {
@@ -80,8 +80,13 @@ public class BlockGas extends Block implements ITileEntityProvider
 		return new TileEntityGas();
 	}
 	
+	public Icon getIcon(int par1, int par2)
+    {
+		return gasIcon;
+    }
+	
 	public void registerIcons(IconRegister par1IconRegister)
     {
-		//gasIcon;
+		this.gasIcon = par1IconRegister.registerIcon("enviromine:block_gas");
     }
 }
