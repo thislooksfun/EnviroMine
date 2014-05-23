@@ -5,7 +5,9 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import enviromine.EntityPhysicsBlock;
 import enviromine.blocks.BlockElevator;
+import enviromine.blocks.BlockGas;
 import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
 import enviromine.items.EnviroArmor;
 import enviromine.items.EnviroItemBadWaterBottle;
 import enviromine.items.EnviroItemColdWaterBottle;
@@ -37,30 +39,33 @@ public class ObjectHandler
 	public static ItemArmor hardHat;
 	
 	public static Block elevator;
+	public static Block gasBlock;
 	
 	public static void RegisterItems()
 	{
-		badWaterBottle = new EnviroItemBadWaterBottle(EM_Settings.dirtBottleID).setMaxStackSize(1).setUnlocalizedName("dirtyWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
-		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("saltWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
-		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("coldWaterBottle").setCreativeTab(CreativeTabs.tabBrewing);
-		airFilter = new Item(EM_Settings.airFilterID).setMaxStackSize(1).setUnlocalizedName("airFilter").setCreativeTab(CreativeTabs.tabTools).setTextureName("enviromine:air_filter");
+		badWaterBottle = new EnviroItemBadWaterBottle(EM_Settings.dirtBottleID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.badwater").setCreativeTab(EnviroMine.enviroTab);
+		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.saltwater").setCreativeTab(EnviroMine.enviroTab);
+		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.coldwater").setCreativeTab(EnviroMine.enviroTab);
+		airFilter = new Item(EM_Settings.airFilterID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.airfilter").setCreativeTab(EnviroMine.enviroTab).setTextureName("enviromine:air_filter");
 		
 		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{1, 0, 0, 0}, 0);
 		
-		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
-		gasMask = (ItemArmor)new EnviroArmor(EM_Settings.gasMaskID, camelPackMaterial, 4, 0).setTextureName("gas_mask").setUnlocalizedName("gasMask").setCreativeTab(CreativeTabs.tabTools);
-		hardHat = (ItemArmor)new EnviroArmor(EM_Settings.hardHatID, camelPackMaterial, 4, 0).setTextureName("hard_hat").setUnlocalizedName("hardHat").setCreativeTab(CreativeTabs.tabTools);
+		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("enviromine.item.camelpack").setCreativeTab(EnviroMine.enviroTab);
+		gasMask = (ItemArmor)new EnviroArmor(EM_Settings.gasMaskID, camelPackMaterial, 4, 0).setTextureName("gas_mask").setUnlocalizedName("enviromine.item.gasmask").setCreativeTab(EnviroMine.enviroTab);
+		hardHat = (ItemArmor)new EnviroArmor(EM_Settings.hardHatID, camelPackMaterial, 4, 0).setTextureName("hard_hat").setUnlocalizedName("enviromine.item.hardhat").setCreativeTab(EnviroMine.enviroTab);
 		//GameRegistry.registerItem(airFilter, "enviromine.airFilter");
 	}
 	
 	public static void RegisterBlocks()
 	{
 		//elevator = new BlockElevator(EM_Settings.blockElevatorID, Material.iron);
+		gasBlock = new BlockGas(EM_Settings.gasBlockID, Material.air).setUnlocalizedName("enviromine.block.gas").setTickRandomly(true).setCreativeTab(EnviroMine.enviroTab);
+		
+		GameRegistry.registerBlock(gasBlock, "enviromine.block.gas");
 	}
 	
 	public static void RegisterGases()
 	{
-		
 	}
 	
 	public static void RegisterEntities()

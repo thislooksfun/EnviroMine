@@ -1,23 +1,13 @@
 package enviromine.core;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.minecraft.block.Block;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.EnumArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.EnumHelper;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
@@ -29,14 +19,12 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EM_VillageMineshaft;
-import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.EnviroUtils;
 import enviromine.core.proxies.EM_CommonProxy;
@@ -45,10 +33,6 @@ import enviromine.handlers.EM_EventManager;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.handlers.ObjectHandler;
-import enviromine.items.EnviroArmor;
-import enviromine.items.EnviroItemBadWaterBottle;
-import enviromine.items.EnviroItemColdWaterBottle;
-import enviromine.items.EnviroItemSaltWaterBottle;
 import enviromine.world.WorldProviderCaves;
 import enviromine.world.biomes.BiomeGenCaves;
 
@@ -58,6 +42,13 @@ public class EnviroMine
 {
 	public static Logger logger;
 	public static BiomeGenBase caves;
+	public static CreativeTabs enviroTab = new CreativeTabs("EnviroMine")
+	{
+		public ItemStack getIconItemStack()
+		{
+			return new ItemStack(ObjectHandler.camelPack, 1, 0);
+		}
+	};
 	
 	@Instance("EM_Instance")
 	public static EnviroMine instance;
@@ -75,6 +66,8 @@ public class EnviroMine
 		
 		// Load Configuration files And Custom files
 		EM_ConfigHandler.initConfig();
+		
+		LanguageRegistry.instance().addStringLocalization("itemGroup.EnviroMine", "en_US", "EnviroMine");
 		
 		ObjectHandler.RegisterItems();
 		ObjectHandler.RegisterBlocks();

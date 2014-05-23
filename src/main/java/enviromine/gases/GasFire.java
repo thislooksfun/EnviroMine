@@ -13,7 +13,7 @@ public class GasFire extends EnviroGas
 	@Override
 	public void applyEffects(EntityLivingBase entityLiving)
 	{
-		entityLiving.attackEntityFrom(EnviroDamageSource.gasfire, 5F);
+		entityLiving.attackEntityFrom(EnviroDamageSource.gasfire, 1F);
 	}
 	
 	@Override
