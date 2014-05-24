@@ -43,6 +43,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.EnumPlantType;
 
 public class EM_StatusManager
 {
@@ -357,19 +358,28 @@ public class EM_StatusManager
 							temp = getTempFalloff(75, dist, range);
 
 						}
-					} else if(id == Block.leaves.blockID || id == Block.plantYellow.blockID || id == Block.plantRed.blockID || id == Block.waterlily.blockID || id == Block.grass.blockID)
+					} else if(id == Block.leaves.blockID || Block.blocksList[id] instanceof BlockFlower || id == Block.waterlily.blockID || id == Block.grass.blockID)
 					{
-						if(id == Block.plantRed.blockID || id == Block.plantYellow.blockID)
+						boolean isPlant = true;
+						
+						if(Block.blocksList[id] instanceof BlockFlower & sBoost <= 0.1F)
 						{
-							if(isDay)
+							if(((BlockFlower)Block.blocksList[id]).getPlantType(entityLiving.worldObj, i, j, k) == EnumPlantType.Plains)
 							{
-								if(sBoost < 0.1F)
+								if(isDay)
 								{
 									sBoost = 0.1F;
 								}
+							} else
+							{
+								isPlant = false;
 							}
 						}
-						leaves += 1;
+						
+						if(isPlant)
+						{
+							leaves += 1;
+						}
 					} else if(id == Block.netherrack.blockID)
 					{
 						if(temp < getTempFalloff(50, dist, range))
@@ -498,6 +508,16 @@ public class EM_StatusManager
 							sBoost = itemProps.ambSanity * stackMult;
 						}
 					}
+				} else if(stack.getItem() instanceof ItemBlock)
+				{
+					ItemBlock itemBlock = (ItemBlock)stack.getItem();
+					if(Block.blocksList[itemBlock.getBlockID()] instanceof BlockFlower && isDay & sBoost <= 0.1F)
+					{
+						if(((BlockFlower)Block.blocksList[itemBlock.getBlockID()]).getPlantType(entityLiving.worldObj, i, j, k) == EnumPlantType.Plains)
+						{
+							sBoost = 0.1F;
+						}
+					}
 				}
 			}
 		}
@@ -532,32 +552,35 @@ public class EM_StatusManager
 			bTemp *= 20;
 		}
 		
-		if(entityLiving.posY <= 48)
+		if(!entityLiving.worldObj.provider.isHellWorld)
 		{
-			if(bTemp < 20F)
+			if(entityLiving.posY <= 48)
 			{
-				bTemp += (50 * (1 - (entityLiving.posY / 48)));
-			} else
+				if(bTemp < 20F)
+				{
+					bTemp += (50 * (1 - (entityLiving.posY / 48)));
+				} else
+				{
+					bTemp += (20 * (1 - (entityLiving.posY / 48)));
+				}
+			} else if(entityLiving.posY > 96 && entityLiving.posY < 256)
 			{
-				bTemp += (20 * (1 - (entityLiving.posY / 48)));
-			}
-		} else if(entityLiving.posY > 96 && entityLiving.posY < 256)
-		{
-			if(bTemp < 20F)
+				if(bTemp < 20F)
+				{
+					bTemp -= (float)(20F * ((entityLiving.posY - 96)/159));
+				} else
+				{
+					bTemp -= (float)(40F * ((entityLiving.posY - 96)/159));
+				}
+			} else if(entityLiving.posY >= 256)
 			{
-				bTemp -= (float)(20F * ((entityLiving.posY - 96)/159));
-			} else
-			{
-				bTemp -= (float)(40F * ((entityLiving.posY - 96)/159));
-			}
-		} else if(entityLiving.posY >= 256)
-		{
-			if(bTemp < 20F)
-			{
-				bTemp -= 20F;
-			} else
-			{
-				bTemp -= 40F;
+				if(bTemp < 20F)
+				{
+					bTemp -= 20F;
+				} else
+				{
+					bTemp -= 40F;
+				}
 			}
 		}
 		

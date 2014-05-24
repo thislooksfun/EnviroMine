@@ -85,6 +85,7 @@ public class EM_Settings
 	public static int worldDelay;
 	public static int chunkDelay;
 	public static int physBlockID;
+	public static int entityFailsafe;
 	
 	public static float convertToFarenheit(float num)
 	{

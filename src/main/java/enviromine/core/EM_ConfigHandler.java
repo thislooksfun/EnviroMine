@@ -175,9 +175,10 @@ public class EM_ConfigHandler
 		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 1 , "The number of ticks between physics update passes").getInt(1);
 		EM_Settings.stoneCracks = config.get(PhySetCat, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(PhySetCat, "Default Stability Type (BlockIDs > 175)", "loose").getString();
-		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "At what Minecraft time the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
-		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after generation").getInt(500);
+		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "How long after world start until the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
+		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after loading (DO NOT SET TOO LOW)").getInt(500);
 		EM_Settings.physInterval = EM_Settings.physInterval > 0? EM_Settings.physInterval : 1;
+		EM_Settings.entityFailsafe = config.get(PhySetCat, "Physics entity fail safe level", 1, "0 = No action, 1 = Limit to < 100 per 16x16 block area, 2 = Delete excessive entities & Dump physics (EMERGENCY ONLY)").getInt(1);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";

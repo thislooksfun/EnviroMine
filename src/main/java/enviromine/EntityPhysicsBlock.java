@@ -3,7 +3,9 @@ package enviromine;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.logging.Level;
+import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_PhysManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
@@ -35,6 +37,38 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		this.setIsAnvil(true);
 		this.fallHurtMax2 = 40;
 		this.fallHurtAmount2 = 2.0F;
+		
+		if(EM_Settings.entityFailsafe > 0)
+		{
+			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(16F, 16F, 16F));
+			
+			if(entityList.size() >= 100)
+			{
+				if(EM_Settings.entityFailsafe == 1)
+				{
+					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1");
+					this.setDead();
+					return;
+				} else if(EM_Settings.entityFailsafe >= 2)
+				{
+					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2");
+					Iterator<EntityPhysicsBlock> iterator = entityList.iterator();
+					
+					while(iterator.hasNext())
+					{
+						EntityPhysicsBlock oldPhysBlock = iterator.next();
+						if(!oldPhysBlock.isDead)
+						{
+							oldPhysBlock.setDead();
+						}
+					}
+					this.setDead();
+					
+					EM_PhysManager.physSchedule.clear();
+					return;
+				}
+			}
+		}
 	}
 	
 	public EntityPhysicsBlock(World world, double x, double y, double z, int id, int meta, boolean update)
@@ -43,6 +77,38 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		this.setIsAnvil(true);
 		this.fallHurtMax2 = 40;
 		this.fallHurtAmount2 = 2.0F;
+		
+		if(EM_Settings.entityFailsafe > 0)
+		{
+			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(16F, 16F, 16F));
+			
+			if(entityList.size() >= 100)
+			{
+				if(EM_Settings.entityFailsafe == 1)
+				{
+					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1");
+					this.setDead();
+					return;
+				} else if(EM_Settings.entityFailsafe >= 2)
+				{
+					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2");
+					Iterator<EntityPhysicsBlock> iterator = entityList.iterator();
+					
+					while(iterator.hasNext())
+					{
+						EntityPhysicsBlock oldPhysBlock = iterator.next();
+						if(!oldPhysBlock.isDead)
+						{
+							oldPhysBlock.setDead();
+						}
+					}
+					this.setDead();
+					
+					EM_PhysManager.physSchedule.clear();
+					return;
+				}
+			}
+		}
 		
 		if(update)
 		{

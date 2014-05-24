@@ -128,8 +128,6 @@ public class EnviroMine
 		
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
-		GameRegistry.registerWorldGenerator(new EM_EventManager());
-		
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}

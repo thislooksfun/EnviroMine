@@ -1,10 +1,8 @@
 package enviromine.handlers;
 
 import java.awt.Color;
-import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
-import cpw.mods.fml.common.IWorldGenerator;
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -43,7 +41,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -56,11 +53,12 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.event.world.WorldEvent.Unload;
 
-public class EM_EventManager implements IWorldGenerator
+public class EM_EventManager
 {
 	
 	@ForgeSubscribe
@@ -72,13 +70,7 @@ public class EM_EventManager implements IWorldGenerator
 		{
 			if(EM_PhysManager.chunkDelay.containsKey("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)))
 			{
-				if(EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) != null)
-				{
-					chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < event.world.getTotalWorldTime() - EM_Settings.chunkDelay);
-				} else
-				{
-					EM_PhysManager.chunkDelay.remove("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4));
-				}
+				chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < event.world.getTotalWorldTime());
 			}
 		}
 		
@@ -121,8 +113,9 @@ public class EM_EventManager implements IWorldGenerator
 			
 			EntityPhysicsBlock newSand = new EntityPhysicsBlock(oldSand.worldObj, oldSand.prevPosX, oldSand.prevPosY, oldSand.prevPosZ, oldSand.blockID, oldSand.metadata, true);
 			newSand.readFromNBT(oldTags);
-			event.setCanceled(true);
 			event.world.spawnEntityInWorld(newSand);
+			event.setCanceled(true);
+			event.entity.setDead();
 		}
 	}
 	
@@ -516,7 +509,7 @@ public class EM_EventManager implements IWorldGenerator
 		} else if(biome.biomeName == BiomeGenBase.frozenOcean.biomeName || biome.biomeName == BiomeGenBase.ocean.biomeName || biome.biomeName == BiomeGenBase.beach.biomeName)
 		{
 			return 2;
-		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName || biome.temperature < 0F)
+		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName || biome.temperature < 0F || y > 127)
 		{
 			return 3;
 		} else
@@ -857,7 +850,7 @@ public class EM_EventManager implements IWorldGenerator
 							tracker.hydrate(itemProps.effHydration);
 						} else if(itemProps.effHydration < 0F)
 						{
-							tracker.dehydrate(itemProps.effHydration);
+							tracker.dehydrate(Math.abs(itemProps.effHydration));
 						}
 						
 						if(tracker.airQuality + itemProps.effAir >= 100F)
@@ -977,7 +970,22 @@ public class EM_EventManager implements IWorldGenerator
 				EM_PhysManager.excluded.clear();
 				EM_PhysManager.usedSlidePositions.clear();
 				EM_PhysManager.worldStartTime = -1;
+				EM_PhysManager.chunkDelay.clear();
 			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onChunkLoad(ChunkEvent.Load event)
+	{
+		if(event.world.isRemote)
+		{
+			return;
+		}
+		
+		if(!EM_PhysManager.chunkDelay.containsKey("" + event.getChunk().xPosition + "," + event.getChunk().zPosition))
+		{
+			EM_PhysManager.chunkDelay.put("" + event.getChunk().xPosition + "," + event.getChunk().zPosition, event.world.getTotalWorldTime() + EM_Settings.chunkDelay);
 		}
 	}
 	
@@ -1009,16 +1017,5 @@ public class EM_EventManager implements IWorldGenerator
 		}
 		Vec3 vec31 = vec3.addVector((double)f7 * d3, (double)f6 * d3, (double)f8 * d3);
 		return par1World.rayTraceBlocks_do_do(vec3, vec31, par3, !par3);
-	}
-
-	@Override
-	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
-	{
-		if(world.isRemote)
-		{
-			return;
-		}
-		
-		EM_PhysManager.chunkDelay.put("" + chunkX + "," + chunkZ, world.getTotalWorldTime());
 	}
 }

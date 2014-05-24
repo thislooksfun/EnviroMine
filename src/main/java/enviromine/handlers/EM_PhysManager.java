@@ -63,10 +63,7 @@ public class EM_PhysManager
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < world.getTotalWorldTime())
-			{
-				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
-			} else
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) > world.getTotalWorldTime())
 			{
 				return;
 			}
@@ -90,10 +87,7 @@ public class EM_PhysManager
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < world.getTotalWorldTime() - EM_Settings.chunkDelay)
-			{
-				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
-			} else
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) > world.getTotalWorldTime())
 			{
 				return;
 			}
@@ -272,7 +266,7 @@ public class EM_PhysManager
 			
 			if(emptyBelow)
 			{
-				if(!(block instanceof BlockSand))
+				if(!(block instanceof BlockSand) && !usedSlidePositions.contains("" + pos[0] + "," + pos[2]))
 				{
 					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
 					if(tile != null)
@@ -1072,7 +1066,10 @@ public class EM_PhysManager
 						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[5]);
 					}
 				}
-				physSchedule.remove(i);
+				if(physSchedule.size() - 1 >= i)
+				{
+					physSchedule.remove(i);
+				}
 			}
 			currentTime = 0;
 		} else
