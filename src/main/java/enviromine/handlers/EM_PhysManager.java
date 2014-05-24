@@ -268,6 +268,7 @@ public class EM_PhysManager
 			{
 				if(!(block instanceof BlockSand) && !usedSlidePositions.contains("" + pos[0] + "," + pos[2]))
 				{
+					//usedSlidePositions.add("" + pos[0] + "," + pos[2]);
 					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
 					if(tile != null)
 					{
@@ -279,13 +280,15 @@ public class EM_PhysManager
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
-				usedSlidePositions.add("" + npos[0] + "," + npos[2]);
+				//usedSlidePositions.add("" + npos[0] + "," + npos[2]);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				if(tile != null)
 				{
 					physBlock.fallingBlockTileEntityData = nbtTC;
 				}
+				
+				EnviroMine.logger.log(Level.INFO, "Creating sliding EntityPhysicsBlock at (" + physBlock.posX + "," + physBlock.posY + "," + physBlock.posZ + ") with block ID " + physBlock.blockID + " and name " + Block.blocksList[physBlock.blockID].getUnlocalizedName());
 				world.setBlock(x, y, z, 0);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
@@ -580,6 +583,8 @@ public class EM_PhysManager
 					{
 						entityphysblock = new EntityPhysicsBlock(world, (float)x + 0.5F, (float)y + 0.5F, (float)z + 0.5F, dropBlock, world.getBlockMetadata(x, y, z), true);
 					}
+					
+					EnviroMine.logger.log(Level.INFO, "Dropping EntityPhysicsBlock normally at (" + entityphysblock.posX + "," + entityphysblock.posY + "," + entityphysblock.posZ + ") with block ID " + entityphysblock.blockID + " and name " + Block.blocksList[entityphysblock.blockID].getUnlocalizedName());
 					
 					if(tile != null)
 					{
@@ -987,7 +992,6 @@ public class EM_PhysManager
 			}
 		}
 		
-		boolean canClear = true;
 		if(currentTime >= EM_Settings.physInterval)
 		{
 			int updateNum = 0;
@@ -1006,7 +1010,6 @@ public class EM_PhysManager
 				{
 					physSchedule.clear();
 					physSchedule = new ArrayList<Object[]>();
-					canClear = true;
 					break;
 				}
 				
@@ -1034,7 +1037,6 @@ public class EM_PhysManager
 					EnviroMine.logger.log(Level.SEVERE, "Physics updates are taking too long! Dumping schedule!");
 					physSchedule.clear();
 					physSchedule = new ArrayList<Object[]>();
-					canClear = false;
 					break;
 				}
 				
@@ -1052,7 +1054,6 @@ public class EM_PhysManager
 				
 				if(locLoaded)
 				{
-					canClear = false;
 					if(((String)entry[5]).equalsIgnoreCase("Slide"))
 					{
 						String position = (new StringBuilder()).append((Integer)entry[1]).append(",").append((Integer)entry[2]).append(",").append((Integer)entry[3]).toString();
@@ -1077,11 +1078,8 @@ public class EM_PhysManager
 			currentTime += 1;
 		}
 		
-		if(canClear)
-		{
-			excluded.clear();
-			usedSlidePositions.clear();
-		}
+		excluded.clear();
+		usedSlidePositions.clear();
 		
 		if(EnviroMine.proxy.isClient() && debugTime >= debugInterval && timer.isRunning())
 		{

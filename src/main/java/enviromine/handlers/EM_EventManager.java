@@ -108,6 +108,8 @@ public class EM_EventManager
 				return;
 			}
 			
+			EnviroMine.logger.log(Level.INFO, "Converting EntityFallingSand to EntityPhysicsBlock at (" + oldSand.posX + "," + oldSand.posY + "," + oldSand.posZ + ") with block ID " + oldSand.blockID + " and name " + Block.blocksList[oldSand.blockID].getUnlocalizedName());
+			
 			NBTTagCompound oldTags = new NBTTagCompound();
 			oldSand.writeToNBT(oldTags);
 			

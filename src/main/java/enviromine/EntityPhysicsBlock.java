@@ -46,12 +46,12 @@ public class EntityPhysicsBlock extends EntityFallingSand
 			{
 				if(EM_Settings.entityFailsafe == 1)
 				{
-					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1");
+					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1, Loc: " + this.posX + "," + this.posY + "," + this.posZ);
 					this.setDead();
 					return;
 				} else if(EM_Settings.entityFailsafe >= 2)
 				{
-					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2");
+					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2, Loc: " + this.posX + "," + this.posY + "," + this.posZ);
 					Iterator<EntityPhysicsBlock> iterator = entityList.iterator();
 					
 					while(iterator.hasNext())
@@ -86,12 +86,12 @@ public class EntityPhysicsBlock extends EntityFallingSand
 			{
 				if(EM_Settings.entityFailsafe == 1)
 				{
-					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1");
+					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1, Loc: " + this.posX + "," + this.posY + "," + this.posZ);
 					this.setDead();
 					return;
 				} else if(EM_Settings.entityFailsafe >= 2)
 				{
-					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2");
+					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2, Loc: " + this.posX + "," + this.posY + "," + this.posZ);
 					Iterator<EntityPhysicsBlock> iterator = entityList.iterator();
 					
 					while(iterator.hasNext())
@@ -109,6 +109,8 @@ public class EntityPhysicsBlock extends EntityFallingSand
 				}
 			}
 		}
+		
+		EM_PhysManager.usedSlidePositions.add("" + MathHelper.floor_double(this.posX) + "," + MathHelper.floor_double(this.posZ));
 		
 		if(update)
 		{
