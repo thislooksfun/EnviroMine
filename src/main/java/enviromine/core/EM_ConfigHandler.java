@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -187,6 +188,8 @@ public class EM_ConfigHandler
 		EM_Settings.waterBarPos = config.get(GuiSetCat, "Position Thirst Bar", "Bottom_Left").getString();
 		EM_Settings.sanityBarPos = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
 		EM_Settings.oxygenBarPos = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
+		
+		EM_Settings.guiScale = (float) config.get(GuiSetCat, "Gui Bar Scale", 1.0 , "Scale Enviromine Bars, Enter 0.1(10%) to 1.0(100%)").getDouble(1.0);
 		
 		EM_Settings.ShowDebug = config.get(GuiSetCat, "Show Gui Debugging Info", false, "Show Hide Gui Text Display and Icons").getBoolean(false);
 		EM_Settings.ShowText = config.get(GuiSetCat, "Show Gui Status Text", true).getBoolean(true);
@@ -390,58 +393,72 @@ public class EM_ConfigHandler
 	private static void LoadBlockProperty(Configuration config, String category)
 	{
 		config.addCustomCategoryComment(category, "");
+		//  
+		String idString = 				config.get(category, BPName[0], "0").getString(); 
 		
-		int id = 					config.get(category, BPName[0], 0).getInt(0);
-		int metaData = 				config.get(category, BPName[1], 0).getInt(0);
-		int dropID = 				config.get(category, BPName[2], 0).getInt(0);
-		int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
-		int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
-		boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
-		float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
-		float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
-		float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
-		String stability = 			config.get(category, BPName[9], "loose").getString();
-		boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
-		boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
+		List<Integer> ids = getIDS(idString);
+		
+		Iterator<Integer> iterator = ids.iterator();
+		
+		System.out.println("Loading Blocks in Ram After GetRangedIDS Called");
+		while (iterator.hasNext()) 
+		{
+			int id = iterator.next();
+			System.out.println(id);
+			
+		//	int id = 					config.get(category, BPName[0], 0).getInt(0);
+			int metaData = 				config.get(category, BPName[1], 0).getInt(0);
+			int dropID = 				config.get(category, BPName[2], 0).getInt(0);
+			int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
+			int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
+			boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
+			float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
+			float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
+			float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
+			String stability = 			config.get(category, BPName[9], "loose").getString();
+			boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
+			boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
 		
 		// Get Stability Options
-		int minFall = 99;
-		int maxFall = 99;
-		int supportDist = 5;
-		boolean holdOther = false;
-		boolean canHang = true;
-		boolean hasPhys = false;
-		
-		if(EM_Settings.stabilityTypes.containsKey(stability))
-		{
-			StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
+			int minFall = 99;
+			int maxFall = 99;
+			int supportDist = 5;
+			boolean holdOther = false;
+			boolean canHang = true;
+			boolean hasPhys = false;
 			
-			minFall = stabType.minFall;
-			maxFall = stabType.maxFall;
-			supportDist = stabType.supportDist;
-			hasPhys = stabType.enablePhysics;
-			holdOther = stabType.holdOther;
-			canHang = stabType.canHang;
-		} else
-		{
-			EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
-			minFall = 99;
-			maxFall = 99;
-			supportDist = 9;
-			hasPhys = false;
-			holdOther = false;
-			canHang = true;
-		}
-		
-		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
-		
-		if(metaData < 0)
-		{
-			EM_Settings.blockProperties.put("" + id, entry);
-		} else
-		{
-			EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
-		}
+			if(EM_Settings.stabilityTypes.containsKey(stability))
+			{
+				StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
+				
+				minFall = stabType.minFall;
+				maxFall = stabType.maxFall;
+				supportDist = stabType.supportDist;
+				hasPhys = stabType.enablePhysics;
+				holdOther = stabType.holdOther;
+				canHang = stabType.canHang;
+			} else
+			{
+				EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
+				minFall = 99;
+				maxFall = 99;
+				supportDist = 9;
+				hasPhys = false;
+				holdOther = false;
+				canHang = true;
+			}
+			
+			BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
+			
+			if(metaData < 0)
+			{
+				EM_Settings.blockProperties.put("" + id, entry);
+			} else
+			{
+				EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+			}
+			
+		}//While iterator
 	}
 	
 	private static void LoadArmorProperty(Configuration config, String catagory)
@@ -855,4 +872,154 @@ public class EM_ConfigHandler
 		
 		EM_Settings.stabilityTypes.put("strong", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 	}
+	
+/** 
+ * Pass a <String> of Id's and Returns an ArrayList of All Id's
+ * 	
+ */
+public static List<Integer> getIDS(String idString) 	
+{
+	boolean CommaSplit = false;
+	boolean ColonSplit = false;
+	List<String> CommaList = new ArrayList<String>();
+	List<String> ColonList = new ArrayList<String>();
+	List<Integer> ids = new ArrayList<Integer>();
+	String[] idSplitComma = null;
+	String[] idSplitColon = null;
+	
+	
+	System.out.println("checking number");
+	if(!((String)idString).isEmpty() && ((String)idString).contains(","))
+	{
+		idSplitComma = idString.split(",");
+		
+		
+		
+		for(int o = 0; o <= (idSplitComma.length - 1); ++o)
+		{
+			System.out.println("Found ID "+ idSplitComma[o]);
+			idSplitComma[o] = idSplitComma[o].trim();
+			
+			if(idSplitComma[o].contains(":"))
+			{ 
+				ColonList.add(idSplitComma[o]); 
+			}
+			else
+			{ 
+				ids.add(Integer.parseInt(idSplitComma[o])); 
+			}
+		}
+	
+		CommaSplit = true;
+	}
+
+	if(!((String)idString).isEmpty() && ((String)idString).contains(":"))
+	{
+		
+		
+		if(CommaSplit = false)
+		{
+			idSplitColon = idString.split(":");
+			idSplitColon[0] = idSplitColon[0].trim();
+			idSplitColon[1] = idSplitColon[1].trim();			
+			ids = getRangeIDS(idSplitColon,ids);
+		}
+		
+		else
+		{
+			Iterator<String> iterator = ColonList.iterator();
+			while (iterator.hasNext()) 
+			{
+				idSplitColon = iterator.next().split(":");
+				idSplitColon[0] = idSplitColon[0].trim();
+				idSplitColon[1] = idSplitColon[1].trim();
+				ids = getRangeIDS(idSplitColon,ids);
+			}
+		}
+		
+		/*
+		if(CommaSplit == true)
+		{
+			System.out.println("Checking for Colons");
+
+			Iterator<String> iterator = ColonList.iterator();
+			while (iterator.hasNext()) 
+			{
+
+					System.out.println("Found Colon");
+					idSplitColon = iterator.next().split(":");
+					
+					int Min = Integer.parseInt(idSplitColon[0]);  
+					int Max = Integer.parseInt(idSplitColon[1]);
+					
+					if(Max <= Min)
+					{
+						Min = Integer.parseInt(idSplitColon[1]);  
+						Max = Integer.parseInt(idSplitColon[0]);
+					}
+
+					for(int j = Min; j <= Max ; ++j)
+					{
+						ids.add(j);
+						System.out.println("Found ID "+ j);
+						
+					}
+
+			}	
+				
+
+			
+		}
+		else 
+		{	
+			idSplitColon = idString.split(":");
+			
+			int Min = Integer.parseInt(idSplitColon[0]);  
+			int Max = Integer.parseInt(idSplitColon[1]);
+			
+			if(Max <= Min)
+			{
+				Min = Integer.parseInt(idSplitColon[1]);  
+				Max = Integer.parseInt(idSplitColon[0]);
+			}
+
+			for(int j = 0; j <= (idSplitComma.length - 1); ++j)
+			{
+				
+			}
+		}*/
+		
+		ColonSplit = true;
+	}
+	
+	if(CommaSplit == false && ColonSplit == false)
+	{	ids.add(Integer.parseInt(idString)); 	}
+	
+	return ids;
+}
+
+private static List<Integer> getRangeIDS(String[] idSplitColon, List<Integer> ids) 
+{
+	System.out.println("Found Colon");
+	
+	int Min = Integer.parseInt(idSplitColon[0]);  
+	int Max = Integer.parseInt(idSplitColon[1]);
+	
+	if(Max <= Min)
+	{
+		Min = Integer.parseInt(idSplitColon[1]);  
+		Max = Integer.parseInt(idSplitColon[0]);
+	}
+
+	for(int j = Min; j <= Max ; ++j)
+	{
+		ids.add(j);
+		System.out.println("Found ID "+ j);
+		
+	}
+	
+	return ids;
+	
+}
+
 } // End of Page

@@ -1,22 +1,27 @@
 package enviromine.gui;
 
+import java.awt.Font;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.event.ForgeSubscribe;
+
 import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
 import enviromine.trackers.EnviroDataTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.event.ForgeSubscribe;
 
 public class EM_GuiEnviroMeters extends Gui
 {
@@ -59,12 +64,27 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		int xPos = 4;
 		int yPos = 4;
+
+		// GUI Scaling Code 
+		GL11.glPushMatrix();
+		float scale = EM_Settings.guiScale; 
+		double translate = new BigDecimal(String.valueOf(1/scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
+		GL11.glScalef((float) scale,(float) scale,(float) scale);
+
 		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-		int width = scaleRes.getScaledWidth();
-		int height = scaleRes.getScaledHeight();
+		
+		int width = MathHelper.ceiling_float_int((float) (scaleRes.getScaledWidth() * translate));
+		int height = MathHelper.ceiling_float_int((float) (scaleRes.getScaledHeight() * translate));
+		// End of scaling Code
+		
+		//OLD
+		//int width = scaleRes.getScaledWidth();
+		//int height = scaleRes.getScaledHeight();
+
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_LIGHTING);
+		
 		
 		if(tracker == null)
 		{
@@ -152,6 +172,12 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			int Bottom_Right_X = (width - xPos) - barWidth;
 			int Bottom_Right_Y = (height - yPos);
+			
+			EM_Settings.waterBarPos = "top_left";
+			EM_Settings.heatBarPos = "top_right";
+			EM_Settings.oxygenBarPos= "top_center";
+			
+			EM_Settings.ShowText = true;
 			
 			// Add Bars to String Array for looping
 			String[] barPos = new String[4];
@@ -307,7 +333,6 @@ public class EM_GuiEnviroMeters extends Gui
 				{
 					WAcurX = textPos;
 					WAcurY = curPosY;
-					
 					//water bar
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight);
@@ -373,15 +398,18 @@ public class EM_GuiEnviroMeters extends Gui
 				if(EM_Settings.enableHydrate)
 				{
 					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
+					//this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
 					this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
 				}
 				
 				if(EM_Settings.enableSanity)
 				{
+				
 					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(SAcurX, SAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
+					
 				}
 			}
 			
@@ -421,6 +449,9 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 		
 		ShowDebugText(event);
+		GL11.glPopMatrix();
+
+
 	}
 	
 	public static float DB_bodyTemp = 0;
@@ -461,7 +492,9 @@ public class EM_GuiEnviroMeters extends Gui
 			DB_sanityrate = new BigDecimal(String.valueOf(tracker.sanity - tracker.prevSanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
 			DB_airquality = new BigDecimal(String.valueOf(tracker.airQuality - tracker.prevAirQuality)).setScale(3, RoundingMode.HALF_UP).floatValue();
 			DB_dehydrateRate = new BigDecimal(String.valueOf(tracker.hydration - tracker.prevHydration)).setScale(3, RoundingMode.HALF_UP).floatValue();
-		
+	
+			
+			
 			if(EM_Settings.useFarenheit == true)
 			{
 				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "F", 10, 10, 16777215);
@@ -491,4 +524,41 @@ public class EM_GuiEnviroMeters extends Gui
 			Minecraft.getMinecraft().fontRenderer.drawString("No. Buffered Updates: " + DB_physBuffer, 10, 10 * 11, 16777215);
 		}
 	}
+	
+	
+    public void drawTexturedModalRectScale(int par1, int par2, int par3, int par4, int par5, int par6 ,float par7)
+    {
+    	
+		
+    	//par6 = par6 *2;
+    	//par5 = par5 *2;
+
+        //GL11.glEnable(GL11.GL_BLEND);
+       	float Scale = par7;
+       	//double translate = 1/Scale;
+       	
+       	double translation = new BigDecimal(String.valueOf(1/Scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
+       	System.out.println( "1 divided by "+ Scale +" = "+ translation);
+       	
+    	//((double)this.zLevel + par7)
+   
+       	float f = 0.00390625F;
+        float f1 = 0.00390625F;
+        Tessellator tessellator = Tessellator.instance;
+        double par1Tran = (double) (par1/translation);
+        
+        
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV((double)(par1Tran + 0), (double)(par2 + (par6*Scale)),(double) this.zLevel  , (double)((float)(par3 + 0) * f), (double)((float)(par4 + par6) * f1));
+        tessellator.addVertexWithUV((double)(par1Tran + (par5*Scale)), (double)(par2 + (par6*Scale)), (double) this.zLevel, (double)((float)(par3 + par5) * f), (double)((float)(par4 + par6) * f1));
+        tessellator.addVertexWithUV((double)(par1Tran + (par5*Scale)), (double)(par2 + 0), (double) this.zLevel, (double)((float)(par3 + par5) * f), (double)((float)(par4 + 0) * f1));
+        tessellator.addVertexWithUV((double)(par1Tran + 0), (double)(par2 + 0), (double) this.zLevel, (double)((float)(par3 + 0) * f), (double)((float)(par4 + 0) * f1));
+        tessellator.draw();
+
+		//GL11.glPopMatrix();
+
+        //GL11.glDisable(GL11.GL_LIGHTING);
+        //GL11.glEnable(GL11.GL_ALPHA_TEST);
+    }
+    
 }
