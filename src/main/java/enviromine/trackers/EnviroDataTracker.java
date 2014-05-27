@@ -174,19 +174,20 @@ public class EnviroDataTracker
 		
 		if(bodyTemp - airTemp > 0)
 		{
-			if(bodyTemp - airTemp >= tnm)
+			float spAmp = Math.abs(bodyTemp - airTemp) > 10F? Math.abs(bodyTemp - airTemp)/10F : 1F;
+			if(bodyTemp - airTemp >= tnm * spAmp)
 			{
-				bodyTemp -= tnm;
+				bodyTemp -= tnm * spAmp;
 			} else
 			{
 				bodyTemp = airTemp;
 			}
 		} else if(bodyTemp - airTemp < 0)
 		{
-			
-			if(bodyTemp - airTemp <= -tpm)
+			float spAmp = Math.abs(bodyTemp - airTemp) > 10F? Math.abs(bodyTemp - airTemp)/10F : 1F;
+			if(bodyTemp - airTemp <= -tpm * spAmp)
 			{
-				bodyTemp += tpm;
+				bodyTemp += tpm * spAmp;
 			} else
 			{
 				bodyTemp = airTemp;

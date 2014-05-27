@@ -90,6 +90,8 @@ public class EM_Settings
 	public static int worldDelay;
 	public static int chunkDelay;
 	public static int physBlockID;
+	public static int entityFailsafe;
+	public static boolean villageAssist;
 	
 	public static int caveDimID = -3;
 	

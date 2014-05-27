@@ -102,7 +102,7 @@ public class EM_ConfigHandler
 		BPName[10] = "11.Slides";
 		BPName[11] = "12.Slides When Wet";
 		
-		EPName = new String[7];
+		EPName = new String[9];
 		EPName[0] = "01.Entity Name";
 		EPName[1] = "02.Enable EnviroTracker";
 		EPName[2] = "03.Enable Dehydration";
@@ -110,6 +110,8 @@ public class EM_ConfigHandler
 		EPName[4] = "05.Enable Air Quality";
 		EPName[5] = "06.Immune To Frost";
 		EPName[6] = "07.Immune To Heat";
+		EPName[7] = "08.Ambient Sanity";
+		EPName[8] = "09.Hit Sanity";
 		
 		IPName = new String[11];
 		IPName[0] = "01.ID";
@@ -167,6 +169,7 @@ public class EM_ConfigHandler
 		EM_Settings.trackNonPlayer = config.get(Configuration.CATEGORY_GENERAL, "Track NonPlayer entitys", false, "Track enviromine properties on Non-player entites(mobs & animals)").getBoolean(false);
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
 		EM_Settings.physBlockID = config.get(Configuration.CATEGORY_GENERAL, "EntityPhysicsBlock ID", EntityRegistry.findGlobalUniqueEntityId()).getInt(EntityRegistry.findGlobalUniqueEntityId());
+		EM_Settings.villageAssist = config.get(Configuration.CATEGORY_GENERAL, "Enable villager assistance", true).getBoolean(true);
 		
 		// Physics Settings
 		String PhySetCat = "Physics";
@@ -175,9 +178,10 @@ public class EM_ConfigHandler
 		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 1 , "The number of ticks between physics update passes").getInt(1);
 		EM_Settings.stoneCracks = config.get(PhySetCat, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(PhySetCat, "Default Stability Type (BlockIDs > 175)", "loose").getString();
-		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "At what Minecraft time the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
-		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after generation").getInt(500);
+		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "How long after world start until the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
+		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after loading (DO NOT SET TOO LOW)").getInt(500);
 		EM_Settings.physInterval = EM_Settings.physInterval > 0? EM_Settings.physInterval : 1;
+		EM_Settings.entityFailsafe = config.get(PhySetCat, "Physics entity fail safe level", 1, "0 = No action, 1 = Limit to < 100 per 16x16 block area, 2 = Delete excessive entities & Dump physics (EMERGENCY ONLY)").getInt(1);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
@@ -466,14 +470,16 @@ public class EM_ConfigHandler
 	{
 		config.addCustomCategoryComment(catagory, "");
 		String name = 			config.get(catagory, EPName[0], "").getString();
-		Boolean track = 		config.get(catagory, EPName[1], true).getBoolean(true);
-		Boolean dehydration = 	config.get(catagory, EPName[2], true).getBoolean(true);
-		Boolean bodyTemp = 		config.get(catagory, EPName[3], true).getBoolean(true);
-		Boolean airQ = 			config.get(catagory, EPName[4], true).getBoolean(true);
-		Boolean immuneToFrost = config.get(catagory, EPName[5], false).getBoolean(false);
-		Boolean immuneToHeat = 	config.get(catagory, EPName[6], false).getBoolean(false);
+		boolean track = 		config.get(catagory, EPName[1], true).getBoolean(true);
+		boolean dehydration = 	config.get(catagory, EPName[2], true).getBoolean(true);
+		boolean bodyTemp = 		config.get(catagory, EPName[3], true).getBoolean(true);
+		boolean airQ = 			config.get(catagory, EPName[4], true).getBoolean(true);
+		boolean immuneToFrost = config.get(catagory, EPName[5], false).getBoolean(false);
+		boolean immuneToHeat = 	config.get(catagory, EPName[6], false).getBoolean(false);
+		float aSanity = (float)	config.get(catagory, EPName[7], 0.0D).getDouble(0.0D);
+		float hSanity = (float)	config.get(catagory, EPName[8], 0.0D).getDouble(0.0D);
 		
-		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat);
+		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat, aSanity, hSanity);
 		EM_Settings.livingProperties.put(name.toLowerCase(), entry);
 	}
 	
@@ -708,6 +714,8 @@ public class EM_ConfigHandler
 				config.get(nameEntityCat, EPName[4], true).getBoolean(true);
 				config.get(nameEntityCat, EPName[5], false).getBoolean(false);
 				config.get(nameEntityCat, EPName[6], false).getBoolean(false);
+				config.get(nameEntityCat, EPName[7], 0.0D).getDouble(0.0D);
+				config.get(nameEntityCat, EPName[8], 0.0D).getDouble(0.0D);
 				returnValue = "Saved";
 			}
 			

@@ -13,6 +13,7 @@ import enviromine.core.EnviroMine;
 import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.EntityProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
@@ -20,6 +21,7 @@ import net.minecraft.block.BlockFlower;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityMob;
@@ -43,6 +45,7 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.EnumPlantType;
 
 public class EM_StatusManager
 {
@@ -357,19 +360,28 @@ public class EM_StatusManager
 							temp = getTempFalloff(75, dist, range);
 
 						}
-					} else if(id == Block.leaves.blockID || id == Block.plantYellow.blockID || id == Block.plantRed.blockID || id == Block.waterlily.blockID || id == Block.grass.blockID)
+					} else if(id == Block.leaves.blockID || Block.blocksList[id] instanceof BlockFlower || id == Block.waterlily.blockID || id == Block.grass.blockID)
 					{
-						if(id == Block.plantRed.blockID || id == Block.plantYellow.blockID)
+						boolean isPlant = true;
+						
+						if(Block.blocksList[id] instanceof BlockFlower & sBoost <= 0.1F)
 						{
-							if(isDay)
+							if(((BlockFlower)Block.blocksList[id]).getPlantType(entityLiving.worldObj, i, j, k) == EnumPlantType.Plains)
 							{
-								if(sBoost < 0.1F)
+								if(isDay)
 								{
 									sBoost = 0.1F;
 								}
+							} else
+							{
+								isPlant = false;
 							}
 						}
-						leaves += 1;
+						
+						if(isPlant)
+						{
+							leaves += 1;
+						}
 					} else if(id == Block.netherrack.blockID)
 					{
 						if(temp < getTempFalloff(50, dist, range))
@@ -419,6 +431,12 @@ public class EM_StatusManager
 						if(sanityRate <= sanityStartRate && sanityRate > -0.01F)
 						{
 							sanityRate = -0.01F;
+						}
+					} else if(id == Block.dragonEgg.blockID)
+					{
+						if(sBoost < 1F)
+						{
+							sBoost = 1F;
 						}
 					}
 					
@@ -498,6 +516,16 @@ public class EM_StatusManager
 							sBoost = itemProps.ambSanity * stackMult;
 						}
 					}
+				} else if(stack.getItem() instanceof ItemBlock)
+				{
+					ItemBlock itemBlock = (ItemBlock)stack.getItem();
+					if(Block.blocksList[itemBlock.getBlockID()] instanceof BlockFlower && isDay & sBoost <= 0.1F)
+					{
+						if(((BlockFlower)Block.blocksList[itemBlock.getBlockID()]).getPlantType(entityLiving.worldObj, i, j, k) == EnumPlantType.Plains)
+						{
+							sBoost = 0.1F;
+						}
+					}
 				}
 			}
 		}
@@ -532,32 +560,35 @@ public class EM_StatusManager
 			bTemp *= 20;
 		}
 		
-		if(entityLiving.posY <= 48)
+		if(!entityLiving.worldObj.provider.isHellWorld)
 		{
-			if(bTemp < 20F)
+			if(entityLiving.posY <= 48)
 			{
-				bTemp += (50 * (1 - (entityLiving.posY / 48)));
-			} else
+				if(bTemp < 20F)
+				{
+					bTemp += (50 * (1 - (entityLiving.posY / 48)));
+				} else
+				{
+					bTemp += (20 * (1 - (entityLiving.posY / 48)));
+				}
+			} else if(entityLiving.posY > 96 && entityLiving.posY < 256)
 			{
-				bTemp += (20 * (1 - (entityLiving.posY / 48)));
-			}
-		} else if(entityLiving.posY > 96 && entityLiving.posY < 256)
-		{
-			if(bTemp < 20F)
+				if(bTemp < 20F)
+				{
+					bTemp -= (float)(20F * ((entityLiving.posY - 96)/159));
+				} else
+				{
+					bTemp -= (float)(40F * ((entityLiving.posY - 96)/159));
+				}
+			} else if(entityLiving.posY >= 256)
 			{
-				bTemp -= (float)(20F * ((entityLiving.posY - 96)/159));
-			} else
-			{
-				bTemp -= (float)(40F * ((entityLiving.posY - 96)/159));
-			}
-		} else if(entityLiving.posY >= 256)
-		{
-			if(bTemp < 20F)
-			{
-				bTemp -= 20F;
-			} else
-			{
-				bTemp -= 40F;
+				if(bTemp < 20F)
+				{
+					bTemp -= 20F;
+				} else
+				{
+					bTemp -= 40F;
+				}
 			}
 		}
 		
@@ -628,8 +659,17 @@ public class EM_StatusManager
 			}
 			
 			EnviroDataTracker mobTrack = lookupTracker((EntityLivingBase)mob);
+			EntityProperties livingProps = null;
 			
-			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			if(EntityList.getEntityString(mob) != null)
+			{
+				if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(mob).toLowerCase()))
+				{
+					livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(mob).toLowerCase());
+				}
+			}
+			
+			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob) && EM_Settings.villageAssist)
 			{
 				EntityVillager villager = (EntityVillager)mob;
 				Village village = entityLiving.worldObj.villageCollectionObj.findNearestVillage(MathHelper.floor_double(villager.posX), MathHelper.floor_double(villager.posY), MathHelper.floor_double(villager.posZ), 32);
@@ -673,15 +713,25 @@ public class EM_StatusManager
 				}
 			}
 			
-			if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			if(livingProps != null && entityLiving.canEntityBeSeen(mob))
+			{
+				if(sanityRate >= livingProps.ambSanity && livingProps.ambSanity < 0 && sanityRate <= 0)
+				{
+					sanityRate = livingProps.ambSanity;
+				} else if(sanityRate <= livingProps.ambSanity && livingProps.ambSanity > 0F)
+				{
+					if(sBoost < livingProps.ambSanity)
+					{
+						sBoost = livingProps.ambSanity;
+					}
+				}
+			} else if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.05F)
 				{
 					sanityRate = -0.01F;
 				}
-			}
-			
-			if(mob instanceof EntityEnderman && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			} else if(mob instanceof EntityEnderman && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.1F)
 				{
