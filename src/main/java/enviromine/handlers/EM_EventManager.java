@@ -7,6 +7,7 @@ import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
+import enviromine.trackers.EntityProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.Hallucination;
 import enviromine.trackers.ItemProperties;
@@ -14,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeInstance;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -22,6 +24,9 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.passive.EntityChicken;
+import net.minecraft.entity.passive.EntitySheep;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -172,17 +177,30 @@ public class EM_EventManager
 			
 			if(tracker != null)
 			{
-				if(attacker instanceof EntityZombie)
+				EntityProperties livingProps = null;
+				
+				if(EntityList.getEntityString(attacker) != null)
+				{
+					if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(attacker).toLowerCase()))
+					{
+						livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(attacker).toLowerCase());
+					}
+				}
+				
+				if(livingProps != null)
+				{
+					tracker.sanity += livingProps.hitSanity;
+				} else if(attacker instanceof EntityZombie)
 				{
 					tracker.sanity -= 1F;
-				} else if(attacker instanceof EntityEnderman)
+				} else if(attacker instanceof EntityEnderman || attacker.getEntityName().toLowerCase().contains("ender"))
 				{
 					tracker.sanity -= 5F;
 				} else if(attacker instanceof EntityLivingBase)
 				{
 					if(((EntityLivingBase)attacker).isEntityUndead())
 					{
-						tracker.sanity -= 0.5F;
+						tracker.sanity -= 1F;
 					}
 				}
 			}
@@ -450,7 +468,14 @@ public class EM_EventManager
 						{
 							if(entityPlayer.getRNG().nextInt(1) == 0)
 							{
-								entityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600));
+								if(entityPlayer.getActivePotionEffect(EnviroPotion.dehydration) != null && entityPlayer.getRNG().nextInt(5) == 0)
+								{
+									int amp = entityPlayer.getActivePotionEffect(EnviroPotion.dehydration).getAmplifier();
+									entityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600, amp + 1));
+								} else
+								{
+									entityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600));
+								}
 							}
 							if(tracker.bodyTemp >= 37.05)
 							{

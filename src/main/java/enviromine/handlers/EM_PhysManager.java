@@ -132,18 +132,7 @@ public class EM_PhysManager
 					{
 						if(updateSelf)
 						{
-							if(!excluded.containsKey(position))
-							{
-								excluded.put(position, type);
-								callPhysUpdate(world, x + i, y + j, k + z, type);
-							} else if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
-							{
-								excluded.put(position, type);
-								callPhysUpdate(world, x + i, y + j, k + z, type);
-							} else
-							{
-								continue;
-							}
+							callPhysUpdate(world, x + i, y + j, k + z, type);
 						} else
 						{
 							excluded.put(position, type);
@@ -151,18 +140,7 @@ public class EM_PhysManager
 						}
 					} else
 					{
-						if(!excluded.containsKey(position))
-						{
-							excluded.put(position, type);
-							callPhysUpdate(world, x + i, y + j, k + z, type);
-						} else if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
-						{
-							excluded.put(position, type);
-							callPhysUpdate(world, x + i, y + j, k + z, type);
-						} else
-						{
-							continue;
-						}
+						callPhysUpdate(world, x + i, y + j, k + z, type);
 					}
 				}
 			}
@@ -181,6 +159,22 @@ public class EM_PhysManager
 	
 	public static void callPhysUpdate(World world, int x, int y, int z, Block block, int meta, String type)
 	{
+		String position = (new StringBuilder()).append(x).append(",").append(y).append(",").append(z).toString();
+		
+		if(excluded.containsKey(position))
+		{
+			if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
+			{
+				excluded.put(position, type);
+			} else
+			{
+				return;
+			}
+		} else
+		{
+			excluded.put(position, type);
+		}
+		
 		boolean locLoaded = false;
 		
 		if(world.getChunkProvider().chunkExists(x >> 4, z >> 4))
@@ -268,18 +262,19 @@ public class EM_PhysManager
 			{
 				if(!(block instanceof BlockSand) && !usedSlidePositions.contains("" + pos[0] + "," + pos[2]))
 				{
+					//usedSlidePositions.add("" + pos[0] + "," + pos[2]);
 					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
 					if(tile != null)
 					{
 						physBlock.fallingBlockTileEntityData = nbtTC;
 					}
 					world.spawnEntityInWorld(physBlock);
-					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Normal");
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
 				}
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
-				usedSlidePositions.add("" + npos[0] + "," + npos[2]);
+				//usedSlidePositions.add("" + npos[0] + "," + npos[2]);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				if(tile != null)
@@ -289,7 +284,7 @@ public class EM_PhysManager
 				world.setBlock(x, y, z, 0);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
-				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Normal");
+				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
 				return;
 			} else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
 			{

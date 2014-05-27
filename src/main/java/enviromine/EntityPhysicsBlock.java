@@ -110,6 +110,8 @@ public class EntityPhysicsBlock extends EntityFallingSand
 			}
 		}
 		
+		EM_PhysManager.usedSlidePositions.add("" + MathHelper.floor_double(this.posX) + "," + MathHelper.floor_double(this.posZ));
+		
 		if(update)
 		{
 			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, "Collapse");

@@ -13,6 +13,7 @@ import enviromine.core.EnviroMine;
 import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.EntityProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
@@ -20,6 +21,7 @@ import net.minecraft.block.BlockFlower;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityMob;
@@ -430,6 +432,12 @@ public class EM_StatusManager
 						{
 							sanityRate = -0.01F;
 						}
+					} else if(id == Block.dragonEgg.blockID)
+					{
+						if(sBoost < 1F)
+						{
+							sBoost = 1F;
+						}
 					}
 					
 					if((id == Block.lavaMoving.blockID || id == Block.lavaStill.blockID))
@@ -651,8 +659,17 @@ public class EM_StatusManager
 			}
 			
 			EnviroDataTracker mobTrack = lookupTracker((EntityLivingBase)mob);
+			EntityProperties livingProps = null;
 			
-			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			if(EntityList.getEntityString(mob) != null)
+			{
+				if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(mob).toLowerCase()))
+				{
+					livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(mob).toLowerCase());
+				}
+			}
+			
+			if(mob instanceof EntityVillager && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob) && EM_Settings.villageAssist)
 			{
 				EntityVillager villager = (EntityVillager)mob;
 				Village village = entityLiving.worldObj.villageCollectionObj.findNearestVillage(MathHelper.floor_double(villager.posX), MathHelper.floor_double(villager.posY), MathHelper.floor_double(villager.posZ), 32);
@@ -696,15 +713,25 @@ public class EM_StatusManager
 				}
 			}
 			
-			if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			if(livingProps != null && entityLiving.canEntityBeSeen(mob))
+			{
+				if(sanityRate >= livingProps.ambSanity && livingProps.ambSanity < 0 && sanityRate <= 0)
+				{
+					sanityRate = livingProps.ambSanity;
+				} else if(sanityRate <= livingProps.ambSanity && livingProps.ambSanity > 0F)
+				{
+					if(sBoost < livingProps.ambSanity)
+					{
+						sBoost = livingProps.ambSanity;
+					}
+				}
+			} else if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.05F)
 				{
 					sanityRate = -0.01F;
 				}
-			}
-			
-			if(mob instanceof EntityEnderman && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			} else if(mob instanceof EntityEnderman && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.1F)
 				{
