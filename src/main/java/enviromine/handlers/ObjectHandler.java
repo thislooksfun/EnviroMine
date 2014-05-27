@@ -1,5 +1,6 @@
 package enviromine.handlers;
 
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -9,6 +10,7 @@ import enviromine.blocks.BlockGas;
 import enviromine.blocks.TileEntityGas;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
+import enviromine.gases.RenderGasHandler;
 import enviromine.items.EnviroArmor;
 import enviromine.items.EnviroItemBadWaterBottle;
 import enviromine.items.EnviroItemColdWaterBottle;
@@ -42,6 +44,8 @@ public class ObjectHandler
 	public static Block elevator;
 	public static Block gasBlock;
 	
+	public static int renderGasID;
+	
 	public static void RegisterItems()
 	{
 		badWaterBottle = new EnviroItemBadWaterBottle(EM_Settings.dirtBottleID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.badwater").setCreativeTab(EnviroMine.enviroTab);
@@ -63,6 +67,8 @@ public class ObjectHandler
 		gasBlock = new BlockGas(EM_Settings.gasBlockID, Material.air).setUnlocalizedName("enviromine.block.gas").setTickRandomly(true).setCreativeTab(EnviroMine.enviroTab);
 		
 		GameRegistry.registerBlock(gasBlock, "enviromine.block.gas");
+		renderGasID = RenderingRegistry.getNextAvailableRenderId();
+		//RenderingRegistry.registerBlockHandler(new RenderGasHandler());
 	}
 	
 	public static void RegisterGases()

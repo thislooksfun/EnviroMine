@@ -8,8 +8,8 @@ public class EnviroGasDictionary
 {
 	public static EnviroGas[] gasList = new EnviroGas[128];
 	
-	public static EnviroGas gasFire = (new EnviroGas("Gas Fire", 0)).setColor(Color.ORANGE).setDensity(-1F);
-	public static EnviroGas carbonMonoxide = (new EnviroGas("Carbon Monoxide", 0)).setColor(Color.ORANGE).setDensity(-1F);
+	public static EnviroGas gasFire = (new GasFire("Gas Fire", 0)).setColor(Color.ORANGE).setDensity(-1F);
+	public static EnviroGas carbonMonoxide = (new GasCarbonMonoxide("Carbon Monoxide", 1)).setColor(Color.BLACK).setDensity(-1F);
 	
 	public static void addNewGas(EnviroGas newGas, int id)
 	{

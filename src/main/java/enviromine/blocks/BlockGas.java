@@ -1,8 +1,11 @@
 package enviromine.blocks;
 
+import java.awt.Color;
 import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import enviromine.EnviroDamageSource;
+import enviromine.gases.EnviroGasDictionary;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -55,7 +58,7 @@ public class BlockGas extends Block implements ITileEntityProvider
     
     public int getRenderBlockPass()
     {
-        return 1;
+        return 0;
     }
     
     public void updateTick(World world, int x, int y, int z, Random rand)
@@ -77,7 +80,8 @@ public class BlockGas extends Block implements ITileEntityProvider
 	@Override
 	public TileEntity createNewTileEntity(World world)
 	{
-		return new TileEntityGas();
+		TileEntityGas tile = new TileEntityGas();
+		return tile;
 	}
 	
 	public Icon getIcon(int par1, int par2)
