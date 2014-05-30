@@ -43,6 +43,7 @@ public class ObjectHandler
 	
 	public static Block elevator;
 	public static Block gasBlock;
+	public static Block fireGasBlock;
 	
 	public static int renderGasID;
 	
@@ -64,11 +65,13 @@ public class ObjectHandler
 	public static void RegisterBlocks()
 	{
 		//elevator = new BlockElevator(EM_Settings.blockElevatorID, Material.iron);
-		gasBlock = new BlockGas(EM_Settings.gasBlockID, Material.air).setUnlocalizedName("enviromine.block.gas").setTickRandomly(true).setCreativeTab(EnviroMine.enviroTab);
+		gasBlock = new BlockGas(EM_Settings.gasBlockID, Material.air).setUnlocalizedName("enviromine.block.gas").setCreativeTab(EnviroMine.enviroTab);
+		fireGasBlock = new BlockGas(EM_Settings.fireGasBlockID, Material.air).setUnlocalizedName("enviromine.block.firegas").setCreativeTab(EnviroMine.enviroTab).setLightValue(1.0F);
 		
 		GameRegistry.registerBlock(gasBlock, "enviromine.block.gas");
+		GameRegistry.registerBlock(fireGasBlock, "enviromine.block.firegas");
 		renderGasID = RenderingRegistry.getNextAvailableRenderId();
-		//RenderingRegistry.registerBlockHandler(new RenderGasHandler());
+		RenderingRegistry.registerBlockHandler(new RenderGasHandler());
 	}
 	
 	public static void RegisterGases()

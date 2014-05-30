@@ -72,6 +72,7 @@ public class EnviroMine
 		ObjectHandler.RegisterItems();
 		ObjectHandler.RegisterBlocks();
 		ObjectHandler.RegisterGases();
+		ObjectHandler.RegisterEntities();
 		
 		if(EM_Settings.shaftGen == true)
 		{
@@ -93,8 +94,6 @@ public class EnviroMine
 		EnviroPotion.RegisterPotions();
 		
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
-		
-		GameRegistry.registerWorldGenerator(new EM_EventManager());
 		
 		caves = (new BiomeGenCaves(23)).setColor(16711680).setBiomeName("Caves").setDisableRain().setTemperatureRainfall(1.0F, 0.0F);
 		GameRegistry.addBiome(caves);

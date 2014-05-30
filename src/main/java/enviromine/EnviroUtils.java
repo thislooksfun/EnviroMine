@@ -1,9 +1,11 @@
 package enviromine;
 
+import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
 import net.minecraft.potion.Potion;
+import net.minecraftforge.common.ForgeDirection;
 import enviromine.core.EM_Settings;
 
 public class EnviroUtils
@@ -69,6 +71,36 @@ public class EnviroUtils
 		}
 	}
 	
+	public static Color blendColors(int a, int b, float ratio)
+	{
+		if(ratio > 1f)
+		{
+			ratio = 1f;
+		} else if(ratio < 0f)
+		{
+			ratio = 0f;
+		}
+		float iRatio = 1.0f - ratio;
+		
+		int aA = (a >> 24 & 0xff);
+		int aR = ((a & 0xff0000) >> 16);
+		int aG = ((a & 0xff00) >> 8);
+		int aB = (a & 0xff);
+		
+		int bA = (b >> 24 & 0xff);
+		int bR = ((b & 0xff0000) >> 16);
+		int bG = ((b & 0xff00) >> 8);
+		int bB = (b & 0xff);
+		
+		int A = (int)((aA * iRatio) + (bA * ratio));
+		int R = (int)((aR * iRatio) + (bR * ratio));
+		int G = (int)((aG * iRatio) + (bG * ratio));
+		int B = (int)((aB * iRatio) + (bB * ratio));
+		
+		return new Color(R, G, B);
+		//return A << 24 | R << 16 | G << 8 | B;
+	}
+	
 	public static void extendPotionList()
 	{
 		int maxID = 32;
@@ -103,32 +135,79 @@ public class EnviroUtils
 			return;
 		}
 		
-		
 		Potion[] potionTypes = null;
-
-		for (Field f : Potion.class.getDeclaredFields())
+		
+		for(Field f : Potion.class.getDeclaredFields())
 		{
 			f.setAccessible(true);
 			
 			try
 			{
-				if (f.getName().equals("potionTypes") || f.getName().equals("field_76425_a"))
+				if(f.getName().equals("potionTypes") || f.getName().equals("field_76425_a"))
 				{
 					Field modfield = Field.class.getDeclaredField("modifiers");
 					modfield.setAccessible(true);
 					modfield.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-
+					
 					potionTypes = (Potion[])f.get(null);
 					final Potion[] newPotionTypes = new Potion[maxID];
 					System.arraycopy(potionTypes, 0, newPotionTypes, 0, potionTypes.length);
 					f.set(null, newPotionTypes);
 				}
-			}
-			catch (Exception e)
+			} catch(Exception e)
 			{
 				System.err.println("[ERROR] Failed to extend potion list for EnviroMine");
 				System.err.println(e);
 			}
 		}
+	}
+	
+	public static int[] getAdjacentBlockCoordsFromSide(int x, int y, int z, int side)
+	{
+		int[] coords = new int[3];
+		coords[0] = x;
+		coords[1] = y;
+		coords[2] = z;
+		
+		ForgeDirection dir = ForgeDirection.getOrientation(side);
+		switch(dir)
+		{
+			case NORTH:
+			{
+				coords[2] -= 1;
+				break;
+			}
+			case SOUTH:
+			{
+				coords[2] += 1;
+				break;
+			}
+			case WEST:
+			{
+				coords[0] -= 1;
+				break;
+			}
+			case EAST:
+			{
+				coords[0] += 1;
+				break;
+			}
+			case UP:
+			{
+				coords[1] += 1;
+				break;
+			}
+			case DOWN:
+			{
+				coords[1] -= 1;
+				break;
+			}
+			case UNKNOWN:
+			{
+				break;
+			}
+		}
+		
+		return coords;
 	}
 }

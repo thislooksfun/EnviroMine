@@ -40,12 +40,17 @@ public class EnviroGas
 		return this;
 	}
 	
-	public void applyEffects(EntityLivingBase entityLiving)
+	public void applyEffects(EntityLivingBase entityLiving, int amplifier)
 	{
 	}
 	
-	public EnviroGas getGasOnDeath()
+	public float getOpacity()
 	{
-		return null;
+		return this.color.getAlpha()/255F;
+	}
+	
+	public int getGasOnDeath()
+	{
+		return -1;
 	}
 }

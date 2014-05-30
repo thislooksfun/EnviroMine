@@ -30,6 +30,8 @@ public class EnviroDataTracker
 	public float prevAirQuality = 100;
 	public float prevSanity = 100F;
 	
+	public float gasAirDiff = 0F;
+	
 	public float airQuality;
 	
 	public float bodyTemp;
@@ -132,6 +134,8 @@ public class EnviroDataTracker
 		}
 		
 		// Air checks
+		enviroData[0] += gasAirDiff;
+		gasAirDiff = 0F;
 		ItemStack helmet = trackedEntity.getCurrentItemOrArmor(4);
 		if(helmet != null && !isCreative)
 		{

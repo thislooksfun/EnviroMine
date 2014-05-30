@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
+import enviromine.EnviroUtils;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.trackers.EntityProperties;
@@ -215,7 +216,7 @@ public class EM_EventManager
 		{
 			if(item.getItem() instanceof ItemBlock && !event.entityPlayer.worldObj.isRemote)
 			{
-				int adjCoords[] = getAdjacentBlockCoordsFromSide(event.x, event.y, event.z, event.face);
+				int adjCoords[] = EnviroUtils.getAdjacentBlockCoordsFromSide(event.x, event.y, event.z, event.face);
 				EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, adjCoords[0], adjCoords[1], adjCoords[2], true, "Normal");
 			} else if(item.itemID == Item.glassBottle.itemID && !event.entityPlayer.worldObj.isRemote)
 			{
@@ -403,7 +404,7 @@ public class EM_EventManager
 				int j = mop.blockY;
 				int k = mop.blockZ;
 				
-				int[] hitBlock = getAdjacentBlockCoordsFromSide(i, j, k, mop.sideHit);
+				int[] hitBlock = EnviroUtils.getAdjacentBlockCoordsFromSide(i, j, k, mop.sideHit);
 				
 				int x = hitBlock[0];
 				int y = hitBlock[1];
@@ -541,55 +542,6 @@ public class EM_EventManager
 		{
 			return 0;
 		}
-	}
-	
-	public static int[] getAdjacentBlockCoordsFromSide(int x, int y, int z, int side)
-	{
-		int[] coords = new int[3];
-		coords[0] = x;
-		coords[1] = y;
-		coords[2] = z;
-		
-		ForgeDirection dir = ForgeDirection.getOrientation(side);
-		switch(dir)
-		{
-			case NORTH:
-			{
-				coords[2] -= 1;
-				break;
-			}
-			case SOUTH:
-			{
-				coords[2] += 1;
-				break;
-			}
-			case WEST:
-			{
-				coords[0] -= 1;
-				break;
-			}
-			case EAST:
-			{
-				coords[0] += 1;
-				break;
-			}
-			case UP:
-			{
-				coords[1] += 1;
-				break;
-			}
-			case DOWN:
-			{
-				coords[1] -= 1;
-				break;
-			}
-			case UNKNOWN:
-			{
-				break;
-			}
-		}
-		
-		return coords;
 	}
 	
 	@ForgeSubscribe
