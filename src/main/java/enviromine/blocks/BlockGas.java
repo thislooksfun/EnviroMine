@@ -230,7 +230,7 @@ public class BlockGas extends Block implements ITileEntityProvider
 			
 			if(gasTile.gases.size() == 0)
 			{
-				//world.setBlockToAir(x, y, z);
+				world.setBlockToAir(x, y, z);
 			}
 		}
 	}

@@ -421,13 +421,13 @@ public class TileEntityGas extends TileEntity
 			}
 		}
 		
-		if(changed)
+		/*if(changed)
 		{
 			this.updateColor();
 			this.updateAmount();
 			this.updateOpacity();
 			this.updateSize();
-		}
+		}*/
 		return changed;
 	}
 	
@@ -445,8 +445,11 @@ public class TileEntityGas extends TileEntity
 			if(this.worldObj.getBlockId(i, j, k) == 0)
 			{
 				this.worldObj.setBlock(i, j, k, ObjectHandler.gasBlock.blockID);
+				return this.offLoadGas(i, j, k);
+			} else
+			{
+				return false;
 			}
-			return this.offLoadGas(i, j, k);
 		} else if(!(tile instanceof TileEntityGas))
 		{
 			return false;
@@ -469,7 +472,7 @@ public class TileEntityGas extends TileEntity
 					selGas = gases.get(gases.size() -1);
 				} else
 				{
-					for(int index = 0; index < gases.size(); i++)
+					for(int index = 0; index < gases.size(); index++)
 					{
 						EnviroGas gasType = EnviroGasDictionary.gasList[gases.get(index)[0]];
 						
