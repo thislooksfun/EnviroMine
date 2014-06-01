@@ -97,6 +97,7 @@ public class EnviroMine
 		proxy.init(event);
 		
 		EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID);
+		EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID, instance, 64, 1, true);
 		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
