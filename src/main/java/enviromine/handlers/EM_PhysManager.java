@@ -268,6 +268,8 @@ public class EM_PhysManager
 					{
 						physBlock.fallingBlockTileEntityData = nbtTC;
 					}
+					world.setBlock(x, y, z, 0);
+					physBlock.isLandSlide = true;
 					world.spawnEntityInWorld(physBlock);
 					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
 				}

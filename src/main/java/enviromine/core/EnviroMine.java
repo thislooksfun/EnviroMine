@@ -58,7 +58,7 @@ public class EnviroMine
 	public static EnumArmorMaterial camelPackMaterial;
 	public static ItemArmor camelPack;
 	
-	@Instance("EM_Instance")
+	@Instance(EM_Settings.ID)
 	public static EnviroMine instance;
 	
 	@SidedProxy(clientSide = EM_Settings.Proxy + ".EM_ClientProxy", serverSide = EM_Settings.Proxy + ".EM_CommonProxy")
@@ -96,8 +96,8 @@ public class EnviroMine
 	{
 		proxy.init(event);
 		
-		EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID);
-		EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID, instance, 64, 1, true);
+		//EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID);
+		//EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID, instance, 64, 1, true);
 		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
