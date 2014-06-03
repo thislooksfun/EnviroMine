@@ -5,6 +5,7 @@ import enviromine.gases.EnviroGas;
 import enviromine.gases.EnviroGasDictionary;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 
 public class GasFire extends EnviroGas
 {
@@ -13,6 +14,7 @@ public class GasFire extends EnviroGas
 		super(name, ID);
 		this.setColor(new Color(255, 128, 0, 192));
 		this.setDensity(-1F);
+		this.setDecayRates(1, 1);
 	}
 	
 	@Override
@@ -22,8 +24,14 @@ public class GasFire extends EnviroGas
 		entityLiving.setFire(10);
 	}
 	
-	public int gasOnDeath()
+	public int gasOnDeath(World world, int i, int j, int k)
 	{
-		return EnviroGasDictionary.carbonMonoxide.gasID;
+		if(j >= 48)
+		{
+			return EnviroGasDictionary.carbonDioxide.gasID;
+		} else
+		{
+			return EnviroGasDictionary.carbonMonoxide.gasID;
+		}
 	}
 }

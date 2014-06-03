@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
@@ -41,6 +42,19 @@ public class BlockGas extends Block implements ITileEntityProvider
 		if(par1World.getBlockId(par2, par3, par4) == this.blockID)
 		{
 			par1World.scheduleBlockUpdate(par2, par3, par4, this.blockID, this.tickRate(par1World));
+		}
+	}
+	
+	public void onBlockPlacedBy(World world, int i, int j, int k, EntityLivingBase entityLiving, ItemStack itemStack)
+	{
+		TileEntity tile = world.getBlockTileEntity(i, j, k);
+		
+		if(tile != null && tile instanceof TileEntityGas)
+		{
+			TileEntityGas gasTile = (TileEntityGas)tile;
+			
+			gasTile.addGas(4, 9);
+			gasTile.addGas(0, 1);
 		}
 	}
 	
@@ -98,7 +112,7 @@ public class BlockGas extends Block implements ITileEntityProvider
 			return 5;
 		} else
 		{
-			return 10;
+			return 15;
 		}
 	}
 	
@@ -140,7 +154,7 @@ public class BlockGas extends Block implements ITileEntityProvider
 		double yMin = this.getMinY(blockAccess, i, j, k);
 		float opacity = this.getOpacity(blockAccess, i, j, k);
 		
-		if(opacity <= 0.1F)
+		if(opacity <= 0.01F)
 		{
 			return false;
 		}
@@ -151,7 +165,7 @@ public class BlockGas extends Block implements ITileEntityProvider
 			double sideYMax = this.getMaxY(blockAccess, sideCoord[0], sideCoord[1], sideCoord[2]);
 			double sideYMin = this.getMinY(blockAccess, sideCoord[0], sideCoord[1], sideCoord[2]);
 			
-			if(this.getOpacity(blockAccess, sideCoord[0], sideCoord[1], sideCoord[2]) <= 0.1F)
+			if(this.getOpacity(blockAccess, sideCoord[0], sideCoord[1], sideCoord[2]) <= 0.01F)
 			{
 				return true;
 			} else if(side > 1) // Sides
@@ -214,30 +228,53 @@ public class BlockGas extends Block implements ITileEntityProvider
 	
 	public void updateTick(World world, int x, int y, int z, Random rand)
 	{
+		if(world.isRemote)
+		{
+			return;
+		}
+		
 		TileEntity tile = world.getBlockTileEntity(x, y, z);
 		
 		if(tile == null || !(tile instanceof TileEntityGas))
 		{
+			world.setBlockToAir(x, y, z);
 			return;
 		} else
 		{
 			TileEntityGas gasTile = (TileEntityGas)tile;
 			
-			if(gasTile.spreadGas())
+			if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
+			{
+				world.setBlockToAir(x, y, z);
+				return;
+			} else if(gasTile.spreadGas() || gasTile.amount > 10)
 			{
 				world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
 			}
 			
-			if(gasTile.gases.size() == 0)
+			if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
 			{
 				world.setBlockToAir(x, y, z);
+			} else if(gasTile.getGasQuantity(0) >= 1 && this.blockID == ObjectHandler.gasBlock.blockID)
+			{
+				gasTile.burnGases();
+				this.swtichIgnitionState(world, x, y, z);
+			} else if(gasTile.getGasQuantity(0) <= 0 && this.blockID == ObjectHandler.fireGasBlock.blockID)
+			{
+				this.swtichIgnitionState(world, x, y, z);
 			}
 		}
 	}
 	
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID)
 	{
-		world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
+		if(blockID == Block.torchWood.blockID || blockID == ObjectHandler.fireGasBlock.blockID)
+		{
+			world.scheduleBlockUpdate(x, y, z, this.blockID, 5);
+		} else
+		{
+			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
+		}
 	}
 	
 	@Override

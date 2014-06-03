@@ -2,6 +2,7 @@ package enviromine.gases;
 
 import java.awt.Color;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.World;
 
 public class EnviroGas
 {
@@ -10,14 +11,18 @@ public class EnviroGas
 	public float density;
 	public String name;
 	public Color color;
+	public int airDecay;
+	public int normDecay;
 	
 	public EnviroGas(String name, int ID)
 	{
 		this.gasID = ID;
 		this.density = 0F;
 		this.name = name;
-		volitility = 0F;
-		color = Color.WHITE;
+		this.volitility = 0F;
+		this.color = Color.WHITE;
+		this.airDecay = 0;
+		this.normDecay = 0;
 		
 		EnviroGasDictionary.addNewGas(this, gasID);
 	}
@@ -40,6 +45,13 @@ public class EnviroGas
 		return this;
 	}
 	
+	public EnviroGas setDecayRates(int airDecay, int normDecay)
+	{
+		this.airDecay = airDecay;
+		this.normDecay = normDecay;
+		return this;
+	}
+	
 	public void applyEffects(EntityLivingBase entityLiving, int amplifier)
 	{
 	}
@@ -49,7 +61,7 @@ public class EnviroGas
 		return this.color.getAlpha()/255F;
 	}
 	
-	public int getGasOnDeath()
+	public int getGasOnDeath(World world, int i, int j, int k)
 	{
 		return -1;
 	}

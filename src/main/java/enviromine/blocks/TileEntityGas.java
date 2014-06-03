@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 
 public class TileEntityGas extends TileEntity
 {
-	public ArrayList<int[]> gases = new ArrayList<int[]>();;
+	public ArrayList<int[]> gases = new ArrayList<int[]>();
 	Color color = Color.WHITE;
 	float opacity = 1.0F;
 	float yMax = 1.0F;
@@ -30,7 +30,6 @@ public class TileEntityGas extends TileEntity
 	
 	public TileEntityGas()
 	{
-		//this.addGas(1, 9);
 	}
 	
 	public TileEntityGas(World world)
@@ -83,9 +82,9 @@ public class TileEntityGas extends TileEntity
 
 	public void updateOpacity()
 	{
-		if(gases.size() <= 0)
+		if(gases.size() <= 0 || this.amount == 0)
 		{
-			this.opacity = 0F;
+			this.opacity = 1F;
 			return;
 		}
 		
@@ -228,6 +227,7 @@ public class TileEntityGas extends TileEntity
 	{
 		if(this.worldObj == null)
 		{
+			Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 			return;
 		}
 		if(!this.worldObj.isRemote)
@@ -247,9 +247,9 @@ public class TileEntityGas extends TileEntity
         return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 0, nbttagcompound);
     }
 	
-	public void addGas(int id, int amount)
+	public void addGas(int id, int addNum)
 	{
-		if(amount <= 0)
+		if(addNum <= 0)
 		{
 			return;
 		}
@@ -259,7 +259,7 @@ public class TileEntityGas extends TileEntity
 			int[] gasArray = gases.get(i);
 			if(gasArray[0] == id)
 			{
-				gases.set(i, new int[]{id, gasArray[1] + amount});
+				gases.set(i, new int[]{id, gasArray[1] + addNum});
 				this.updateAmount();
 				this.updateColor();
 				this.updateOpacity();
@@ -269,7 +269,7 @@ public class TileEntityGas extends TileEntity
 				return;
 			}
 		}
-		gases.add(new int[]{id, amount});
+		gases.add(new int[]{id, addNum});
 		this.updateAmount();
 		this.updateColor();
 		this.updateOpacity();
@@ -278,9 +278,9 @@ public class TileEntityGas extends TileEntity
 		this.sortGasesByDensity();
 	}
 
-	public void subtractGas(int id, int amount)
+	public void subtractGas(int id, int takeNum)
 	{
-		if(amount <= 0)
+		if(takeNum <= 0)
 		{
 			return;
 		}
@@ -290,13 +290,13 @@ public class TileEntityGas extends TileEntity
 			int[] gasArray = gases.get(i);
 			if(gasArray[0] == id)
 			{
-				if(gasArray[1] <= amount)
+				if(gasArray[1] <= takeNum)
 				{
 					gases.remove(i);
 					break;
 				} else
 				{
-					gases.set(i, new int[]{i, gasArray[1] - amount});
+					gases.set(i, new int[]{id, gasArray[1] - takeNum});
 					break;
 				}
 			}
@@ -351,7 +351,7 @@ public class TileEntityGas extends TileEntity
 				for(int j = i - 1; j >= 0; j--)
 				{
 					EnviroGas gasC = EnviroGasDictionary.gasList[gases.get(j)[0]];
-					EnviroGas gasD = EnviroGasDictionary.gasList[gases.get(j-1)[0]];
+					EnviroGas gasD = j == 0? gasA : EnviroGasDictionary.gasList[gases.get(j-1)[0]];
 					if(j == 0 || (gasA.density < gasC.density && gasA.density >= gasD.density))
 					{
 						int[] tmpGas = gases.get(i);
@@ -366,85 +366,84 @@ public class TileEntityGas extends TileEntity
 	
 	public boolean spreadGas()
 	{
-		if(this.gases.size() <= 0)
+		if(this.gases.size() <= 0 || this.amount == 0)
 		{
 			return false;
 		}
 		
 		boolean changed = false;
 		
-		if(this.worldObj.getBlockId(this.xCoord - 1, this.yCoord, this.zCoord) == ObjectHandler.gasBlock.blockID || this.worldObj.getBlockId(this.xCoord - 1, this.yCoord, this.zCoord) == 0)
+		ArrayList<int[]> gDir = new ArrayList<int[]>();
+		
+		gDir.add(new int[]{-1,0,0});
+		gDir.add(new int[]{1,0,0});
+		gDir.add(new int[]{0,-1,0});
+		gDir.add(new int[]{0,1,0});
+		gDir.add(new int[]{0,0,-1});
+		gDir.add(new int[]{0,0,1});
+		
+		for(int i = gDir.size(); i > 0; i--)
 		{
-			if(this.offLoadGas(this.xCoord - 1, this.yCoord, this.zCoord))
+			int index = this.worldObj.rand.nextInt(gDir.size());
+			int[] rDir = gDir.get(index);
+			
+			if(rDir[1] == 0 && this.amount <= 1)
 			{
-				changed = true;
+				gDir.remove(index);
+				continue;
 			}
-		}
-
-		if(this.worldObj.getBlockId(this.xCoord + 1, this.yCoord, this.zCoord) == ObjectHandler.gasBlock.blockID || this.worldObj.getBlockId(this.xCoord + 1, this.yCoord, this.zCoord) == 0)
-		{
-			if(this.offLoadGas(this.xCoord + 1, this.yCoord, this.zCoord))
+			
+			TileEntity tile = this.worldObj.getBlockTileEntity(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]);
+			
+			if((tile != null && tile instanceof TileEntityGas) || this.worldObj.getBlockId(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]) == 0)
 			{
-				changed = true;
+				if(this.offLoadGas(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]))
+				{
+					changed = true;
+				}
 			}
-		}
-
-		if(this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord - 1) == ObjectHandler.gasBlock.blockID || this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord - 1) == 0)
-		{
-			if(this.offLoadGas(this.xCoord, this.yCoord, this.zCoord - 1))
+			
+			tile = this.worldObj.getBlockTileEntity(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]);
+			
+			if(tile != null && tile instanceof TileEntityGas)
 			{
-				changed = true;
+				TileEntityGas gasTile = (TileEntityGas)tile;
+				
+				if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
+				{
+					this.worldObj.setBlockToAir(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]);
+				}
 			}
-		}
-
-		if(this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord + 1) == ObjectHandler.gasBlock.blockID || this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord + 1) == 0)
-		{
-			if(this.offLoadGas(this.xCoord, this.yCoord, this.zCoord + 1))
-			{
-				changed = true;
-			}
-		}
-
-		if(this.worldObj.getBlockId(this.xCoord, this.yCoord - 1, this.zCoord) == ObjectHandler.gasBlock.blockID || this.worldObj.getBlockId(this.xCoord, this.yCoord - 1, this.zCoord) == 0)
-		{
-			if(this.offLoadGas(this.xCoord, this.yCoord - 1, this.zCoord))
-			{
-				changed = true;
-			}
-		}
-
-		if(this.worldObj.getBlockId(this.xCoord, this.yCoord + 1, this.zCoord) == ObjectHandler.gasBlock.blockID || this.worldObj.getBlockId(this.xCoord, this.yCoord + 1, this.zCoord) == 0)
-		{
-			if(this.offLoadGas(this.xCoord, this.yCoord + 1, this.zCoord))
-			{
-				changed = true;
-			}
+			
+			gDir.remove(index);
 		}
 		
-		/*if(changed)
+		if(changed)
 		{
-			this.updateColor();
+			/*this.updateColor();
 			this.updateAmount();
 			this.updateOpacity();
-			this.updateSize();
-		}*/
+			this.updateSize();*/
+			this.worldObj.notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord));
+		}
 		return changed;
 	}
 	
 	public boolean offLoadGas(int i, int j, int k)
 	{
-		if(gases.size() <= 0)
+		if(gases.size() <= 0 || this.amount <= 0 || j < 0 || j > 255)
 		{
 			return false;
 		}
 		
 		int vDir = j - this.yCoord;
+		
 		TileEntity tile = this.worldObj.getBlockTileEntity(i, j, k);
 		if(tile == null)
 		{
 			if(this.worldObj.getBlockId(i, j, k) == 0)
 			{
-				this.worldObj.setBlock(i, j, k, ObjectHandler.gasBlock.blockID);
+				this.worldObj.setBlock(i, j, k, this.getBlockType().blockID);
 				return this.offLoadGas(i, j, k);
 			} else
 			{
@@ -457,47 +456,52 @@ public class TileEntityGas extends TileEntity
 		{
 			TileEntityGas gasTile = (TileEntityGas)tile;
 			
-			if(gasTile.amount > this.amount)
+			if(gasTile.amount >= this.amount && this.amount <= 10 && vDir == 0)
 			{
 				return false;
+			} else if(vDir != 0 && this.amount <= 10 && gasTile.amount >= 10)
+			{
+				return false;
+			}
+			
+			int[] selGas = null;
+			
+			if(EnviroGasDictionary.gasList[gases.get(0)[0]].density > 0F && vDir == -1 && (gasTile.amount < 10 || this.amount > 10))
+			{
+				selGas = gases.get(0);
+			} else if(EnviroGasDictionary.gasList[gases.get(gases.size()-1)[0]].density < 0F && vDir == 1 && (gasTile.amount < 10 || this.amount > 10))
+			{
+				selGas = gases.get(gases.size() -1);
 			} else
 			{
-				int[] selGas = null;
-				
-				if(EnviroGasDictionary.gasList[gases.get(0)[0]].density <= -1 && vDir == -1)
+				for(int index = 0; index < gases.size(); index++)
 				{
-					selGas = gases.get(0);
-				} else if(EnviroGasDictionary.gasList[gases.get(gases.size()-1)[0]].density >= 1 && vDir == 1)
-				{
-					selGas = gases.get(gases.size() -1);
-				} else
-				{
-					for(int index = 0; index < gases.size(); index++)
-					{
-						EnviroGas gasType = EnviroGasDictionary.gasList[gases.get(index)[0]];
-						
-						if(gasType.density <= -1F && vDir == 1)
-						{
-							continue;
-						} else if(gasType.density >= 1 && vDir == -1)
-						{
-							continue;
-						} else
-						{
-							selGas = gases.get(index);
-							break;
-						}
-					}
+					EnviroGas gasType = EnviroGasDictionary.gasList[gases.get(index)[0]];
 					
-					if(selGas == null)
+					if(gasType.density < 0F && vDir == -1 && this.amount <= 10)
 					{
-						return false;
+						continue;
+					} else if(gasType.density > 0F && vDir == 1 && this.amount <= 10)
+					{
+						continue;
+					} else
+					{
+						selGas = gases.get(index);
+						break;
 					}
 				}
-				gasTile.addGas(selGas[0], 1);
-				this.subtractGas(selGas[0], 1);
-				return true;
 			}
+			
+			//selGas = gases.get(this.worldObj.rand.nextInt(gases.size()));
+			
+			if(selGas == null)
+			{
+				return false;
+			}
+			
+			gasTile.addGas(selGas[0], 1);
+			this.subtractGas(selGas[0], 1);
+			return true;
 		}
 	}
 	

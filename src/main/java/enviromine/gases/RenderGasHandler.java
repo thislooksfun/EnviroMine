@@ -105,12 +105,12 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		tessellator.setColorRGBA_F(red * 0.9F, green * 0.9F, blue * 0.9F, alpha * 0.9F);
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 2))
 		{
-			sideBlockID = 0;//blockAccess.getBlockId(i, j, k - 1);
+			sideBlockID = blockAccess.getBlockId(i, j, k - 1);
 			if(sideBlockID == block.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i, j, k - 1);
-				sideMinY = 0D;//((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i, j, k - 1, sideBlockMetadata);
-				sideMaxY = 1.0D;//((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i, j, k - 1, sideBlockMetadata);
+				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i, j, k - 1);
+				sideMaxY = ((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i, j, k - 1);
 				
 				if((minY <= sideMinY & minY <= sideMaxY & maxY <= sideMinY & maxY <= sideMinY) | (minY >= sideMinY & minY >= sideMaxY & maxY >= sideMinY & maxY >= sideMinY))
 				{
@@ -148,12 +148,12 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 3))
 		{
-			sideBlockID = 0;//blockAccess.getBlockId(i, j, k + 1);
+			sideBlockID = blockAccess.getBlockId(i, j, k + 1);
 			if(sideBlockID == block.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i, j, k + 1);
-				sideMinY = 0D;//((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i, j, k + 1, sideBlockMetadata);
-				sideMaxY = 1.0D;//((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i, j, k + 1, sideBlockMetadata);
+				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i, j, k + 1);
+				sideMaxY = ((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i, j, k + 1);
 				
 				if((minY <= sideMinY & minY <= sideMaxY & maxY <= sideMinY & maxY <= sideMinY) | (minY >= sideMinY & minY >= sideMaxY & maxY >= sideMinY & maxY >= sideMinY))
 				{
@@ -190,12 +190,12 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 4))
 		{
-			sideBlockID = 0;//blockAccess.getBlockId(i - 1, j, k);
+			sideBlockID = blockAccess.getBlockId(i - 1, j, k);
 			if(sideBlockID == block.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i - 1, j, k);
-				sideMinY = 0D;//((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i - 1, j, k, sideBlockMetadata);
-				sideMaxY = 1.0D;//((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i - 1, j, k, sideBlockMetadata);
+				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i - 1, j, k);
+				sideMaxY = ((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i - 1, j, k);
 				
 				if((minY <= sideMinY & minY <= sideMaxY & maxY <= sideMinY & maxY <= sideMinY) | (minY >= sideMinY & minY >= sideMaxY & maxY >= sideMinY & maxY >= sideMinY))
 				{
@@ -232,12 +232,12 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 5))
 		{
-			sideBlockID = 0;//blockAccess.getBlockId(i + 1, j, k);
+			sideBlockID = blockAccess.getBlockId(i + 1, j, k);
 			if(sideBlockID == block.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i + 1, j, k);
-				sideMinY = 0D;//((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i + 1, j, k, sideBlockMetadata);
-				sideMaxY = 1.0D;//((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i + 1, j, k, sideBlockMetadata);
+				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i + 1, j, k);
+				sideMaxY = ((BlockGas)Block.blocksList[sideBlockID]).getMaxY(blockAccess, i + 1, j, k);
 				
 				if((minY <= sideMinY & minY <= sideMaxY & maxY <= sideMinY & maxY <= sideMinY) | (minY >= sideMinY & minY >= sideMaxY & maxY >= sideMinY & maxY >= sideMinY))
 				{
