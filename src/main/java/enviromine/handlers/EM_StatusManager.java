@@ -18,6 +18,7 @@ import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.ItemProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
+import net.minecraft.block.BlockLeavesBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
@@ -360,7 +361,7 @@ public class EM_StatusManager
 							temp = getTempFalloff(75, dist, range);
 
 						}
-					} else if(id == Block.leaves.blockID || Block.blocksList[id] instanceof BlockFlower || id == Block.waterlily.blockID || id == Block.grass.blockID)
+					} else if(Block.blocksList[id] instanceof BlockLeavesBase || Block.blocksList[id] instanceof BlockFlower || id == Block.waterlily.blockID || id == Block.grass.blockID)
 					{
 						boolean isPlant = true;
 						

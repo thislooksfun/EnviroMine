@@ -294,7 +294,7 @@ public class EM_PhysManager
 			}
 		}
 		
-		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z, false))
+		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z, false) && blockData[4] <= 0)
 		{
 			int dropBlock = block.blockID;
 			int dropMeta = -1;
@@ -666,7 +666,13 @@ public class EM_PhysManager
 						}
 					}
 					
-					if(stabNum == 3)
+					if(blockProps != null)
+					{
+						if(blockProps.holdsOthers)
+						{
+							data[4] = 1;
+						}
+					} else if(stabNum == 3)
 					{
 						StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
 						if(strongType != null && strongType.holdOther)
@@ -696,7 +702,7 @@ public class EM_PhysManager
 						}
 					}
 					
-					if((blockProps == null && blockID == Block.glowStone.blockID) || (blockProps != null && blockProps.holdsOthers))
+					if(blockProps == null && blockID == Block.glowStone.blockID)
 					{
 						data[4] = 1;
 					}
@@ -906,7 +912,7 @@ public class EM_PhysManager
 		int id = world.getBlockId(x, y, z);
 		int meta = world.getBlockMetadata(x, y, z);
 		
-		if(id == 0)
+		if(id == 0 || Block.blocksList[id] == null)
 		{
 			return false;
 		} else if(EM_Settings.blockProperties.containsKey("" + id + "," + meta) || EM_Settings.blockProperties.containsKey("" + id))
@@ -924,7 +930,49 @@ public class EM_PhysManager
 		{
 			if(!(Block.blocksList[id] instanceof BlockMobSpawner) && !(Block.blocksList[id] instanceof BlockLadder) && !(Block.blocksList[id] instanceof BlockWeb) && !(Block.blocksList[id] instanceof BlockGlowStone) && !(Block.blocksList[id] instanceof BlockSign) && !(Block.blocksList[id] instanceof BlockBed) && !(Block.blocksList[id] instanceof BlockDoor) && !(Block.blocksList[id] instanceof BlockAnvil) && !(Block.blocksList[id] instanceof BlockGravel) && !(Block.blocksList[id] instanceof BlockSand) && !(Block.blocksList[id] instanceof BlockPortal) && !(Block.blocksList[id] instanceof BlockEndPortal) && !(Block.blocksList[id] == Block.whiteStone) && !(Block.blocksList[id] instanceof BlockEndPortalFrame) && !(Block.blocksList[id].blockMaterial == Material.vine) && !blockNotSolid(world, x, y, z, false) && Block.blocksList[id].blockHardness != -1F)
 			{
-				return true;
+				int stabNum = getDefaultStabilityType(Block.blocksList[id]);
+				
+				if(stabNum == 3)
+				{
+					StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
+					if(strongType != null && strongType.enablePhysics)
+					{
+						return true;
+					} else
+					{
+						return false;
+					}
+				} else if(stabNum == 2)
+				{
+					StabilityType avgType = EM_Settings.stabilityTypes.get("average");
+					if(avgType != null && avgType.enablePhysics)
+					{
+						return true;
+					} else
+					{
+						return false;
+					}
+				} else if(stabNum == 1)
+				{
+					StabilityType looseType;
+					if(id > 175 && EM_Settings.stabilityTypes.containsKey(EM_Settings.defaultStability))
+					{
+						looseType = EM_Settings.stabilityTypes.get(EM_Settings.defaultStability);
+					} else
+					{
+						looseType = EM_Settings.stabilityTypes.get("loose");
+					}
+					if(looseType != null && looseType.enablePhysics)
+					{
+						return true;
+					} else
+					{
+						return false;
+					}
+				} else
+				{
+					return false;
+				}
 			} else
 			{
 				return false;
