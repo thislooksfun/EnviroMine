@@ -2,8 +2,6 @@ package enviromine.blocks;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.logging.Level;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroUtils;
 import enviromine.gases.EnviroGas;
@@ -15,9 +13,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class TileEntityGas extends TileEntity
 {
@@ -28,6 +28,8 @@ public class TileEntityGas extends TileEntity
 	float yMin = 0.0F;
 	int amount = 0;
 	
+	int firePressure = 0;
+	
 	public TileEntityGas()
 	{
 	}
@@ -35,7 +37,6 @@ public class TileEntityGas extends TileEntity
 	public TileEntityGas(World world)
 	{
 		this.worldObj = world;
-		//this.addGas(1, 9);
 	}
 	
 	public void doAllEffects(EntityLivingBase entityLiving)
@@ -227,7 +228,6 @@ public class TileEntityGas extends TileEntity
 	{
 		if(this.worldObj == null)
 		{
-			Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 			return;
 		}
 		if(!this.worldObj.isRemote)
@@ -264,7 +264,6 @@ public class TileEntityGas extends TileEntity
 				this.updateColor();
 				this.updateOpacity();
 				this.updateSize();
-				this.updateRender();
 				this.sortGasesByDensity();
 				return;
 			}
@@ -274,7 +273,6 @@ public class TileEntityGas extends TileEntity
 		this.updateColor();
 		this.updateOpacity();
 		this.updateSize();
-		this.updateRender();
 		this.sortGasesByDensity();
 	}
 
@@ -306,12 +304,13 @@ public class TileEntityGas extends TileEntity
 		this.updateColor();
 		this.updateOpacity();
 		this.updateSize();
-		this.updateRender();
 	}
 	
-	public void burnGases()
+	public boolean burnGases()
 	{
-		boolean burnt = false;
+		boolean didBurn = false;
+		int fireSize = 0;
+		ArrayList<int[]> burntGases = new ArrayList<int[]>();
 		
 		for(int i = 0; i < gases.size(); i ++)
 		{
@@ -319,20 +318,27 @@ public class TileEntityGas extends TileEntity
 			float vol = EnviroGasDictionary.gasList[gasArray[0]].volitility;
 			if(vol > 0)
 			{
-				gases.set(i, new int[]{EnviroGasDictionary.gasFire.gasID, (int)(gasArray[1] * vol)});
-				burnt = true;
+				burntGases.add(gasArray);
+				fireSize += (int)(gasArray[1] * vol);
+				didBurn = true;
 			}
 		}
 		
-		if(burnt)
+		if(burntGases.size() >= 1)
 		{
-			this.updateAmount();
-			this.updateColor();
-			this.updateOpacity();
-			this.updateSize();
-			this.updateRender();
-			this.sortGasesByDensity();
+			for(int i = 0; i < burntGases.size(); i++)
+			{
+				int[] burntArray = burntGases.get(i);
+				this.subtractGas(burntArray[0], burntArray[1]);
+			}
 		}
+		
+		if(fireSize >= 1)
+		{
+			this.addGas(EnviroGasDictionary.gasFire.gasID, fireSize);
+		}
+		
+		return didBurn;
 	}
 	
 	public void sortGasesByDensity()
@@ -374,17 +380,24 @@ public class TileEntityGas extends TileEntity
 		boolean changed = false;
 		
 		ArrayList<int[]> gDir = new ArrayList<int[]>();
+		int[] dArray = this.getGasDistribution();
 		
-		gDir.add(new int[]{-1,0,0});
-		gDir.add(new int[]{1,0,0});
-		gDir.add(new int[]{0,-1,0});
-		gDir.add(new int[]{0,1,0});
-		gDir.add(new int[]{0,0,-1});
-		gDir.add(new int[]{0,0,1});
+		gDir.add(new int[]{-1,0,0,dArray[0]});
+		gDir.add(new int[]{1,0,0,dArray[1]});
+		gDir.add(new int[]{0,-1,0,dArray[2]});
+		gDir.add(new int[]{0,1,0,dArray[3]});
+		gDir.add(new int[]{0,0,-1,dArray[4]});
+		gDir.add(new int[]{0,0,1,dArray[5]});
+		
+		if(doDecay())
+		{
+			changed = true;
+		}
 		
 		for(int i = gDir.size(); i > 0; i--)
 		{
 			int index = this.worldObj.rand.nextInt(gDir.size());
+			
 			int[] rDir = gDir.get(index);
 			
 			if(rDir[1] == 0 && this.amount <= 1)
@@ -397,7 +410,7 @@ public class TileEntityGas extends TileEntity
 			
 			if((tile != null && tile instanceof TileEntityGas) || this.worldObj.getBlockId(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]) == 0)
 			{
-				if(this.offLoadGas(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]))
+				if(this.offLoadGas(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2], rDir[3]))
 				{
 					changed = true;
 				}
@@ -424,14 +437,13 @@ public class TileEntityGas extends TileEntity
 			this.updateAmount();
 			this.updateOpacity();
 			this.updateSize();*/
-			this.worldObj.notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord));
 		}
 		return changed;
 	}
-	
-	public boolean offLoadGas(int i, int j, int k)
+
+	public boolean offLoadGas(int i, int j, int k, int offLoadNum)
 	{
-		if(gases.size() <= 0 || this.amount <= 0 || j < 0 || j > 255)
+		if(gases.size() <= 0 || this.amount <= 0 || j < 0 || j > 255 || offLoadNum <= 0)
 		{
 			return false;
 		}
@@ -444,7 +456,7 @@ public class TileEntityGas extends TileEntity
 			if(this.worldObj.getBlockId(i, j, k) == 0)
 			{
 				this.worldObj.setBlock(i, j, k, this.getBlockType().blockID);
-				return this.offLoadGas(i, j, k);
+				return this.offLoadGas(i, j, k, offLoadNum);
 			} else
 			{
 				return false;
@@ -456,17 +468,20 @@ public class TileEntityGas extends TileEntity
 		{
 			TileEntityGas gasTile = (TileEntityGas)tile;
 			
-			if(gasTile.amount >= this.amount && this.amount <= 10 && vDir == 0)
+			if(gasTile.amount + 1 >= this.amount && this.amount <= 10 && vDir == 0 && this.getBlockType() != ObjectHandler.fireGasBlock)
 			{
 				return false;
-			} else if(vDir != 0 && this.amount <= 10 && gasTile.amount >= 10)
+			} else if(vDir != 0 && this.amount <= 10 && gasTile.amount >= 10 && this.getBlockType() != ObjectHandler.fireGasBlock)
 			{
 				return false;
 			}
 			
 			int[] selGas = null;
 			
-			if(EnviroGasDictionary.gasList[gases.get(0)[0]].density > 0F && vDir == -1 && (gasTile.amount < 10 || this.amount > 10))
+			if(this.getBlockType() == ObjectHandler.fireGasBlock && this.getGasQuantity(0) > 0)
+			{
+				selGas = new int[]{0, this.getGasQuantity(0)};
+			} else if(EnviroGasDictionary.gasList[gases.get(0)[0]].density > 0F && vDir == -1 && (gasTile.amount < 10 || this.amount > 10))
 			{
 				selGas = gases.get(0);
 			} else if(EnviroGasDictionary.gasList[gases.get(gases.size()-1)[0]].density < 0F && vDir == 1 && (gasTile.amount < 10 || this.amount > 10))
@@ -499,10 +514,150 @@ public class TileEntityGas extends TileEntity
 				return false;
 			}
 			
-			gasTile.addGas(selGas[0], 1);
-			this.subtractGas(selGas[0], 1);
+			int gasDiff = selGas[1] < offLoadNum? selGas[1] : offLoadNum;
+			gasTile.addGas(selGas[0], gasDiff);
+			this.subtractGas(selGas[0], gasDiff);
+			gasTile.updateRender();
 			return true;
 		}
+	}
+	
+	public boolean doDecay()
+	{
+		boolean decayed = false;
+		
+		int skyLight = 0;
+		
+		Chunk chunk = this.worldObj.getChunkFromBlockCoords(this.xCoord, this.zCoord);
+		
+		if(this.yCoord > 0 && chunk != null)
+		{
+			if(this.yCoord >= 256)
+			{
+				skyLight = 15;
+			} else
+			{
+				skyLight = chunk.getSavedLightValue(EnumSkyBlock.Sky, this.xCoord & 0xf, this.yCoord, this.zCoord & 0xf);
+			}
+		}
+		
+		for(int i = gases.size() - 1; i >= 0; i--)
+		{
+			int[] gasArray = gases.get(i);
+			EnviroGas gasType = EnviroGasDictionary.gasList[gasArray[0]];
+			int decayGasID = gasType.getGasOnDeath(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+			
+			if(gasType.normDecay > 0 && gasType.normDecayThresh >= gasArray[1])
+			{
+				decayed = true;
+				this.subtractGas(gasArray[0], gasType.normDecay);
+				
+				if(decayGasID >= 0)
+				{
+					int decayNum = gasArray[1] < gasType.normDecay? gasArray[1] : gasType.normDecay;
+					
+					this.addGas(decayGasID, decayNum);
+				}
+			} else if(skyLight >= 5 && gasType.airDecay > 0 && gasType.airDecayThresh >= gasArray[1])
+			{
+				decayed = true;
+				this.subtractGas(gasArray[0], gasType.airDecay);
+				
+				if(decayGasID >= 0)
+				{
+					int decayNum = gasArray[1] < gasType.airDecay? gasArray[1] : gasType.airDecay;
+					
+					this.addGas(decayGasID, decayNum);
+				}
+			}
+		}
+		return decayed;
+	}
+	
+	public int[] getGasDistribution()
+	{
+		int[] dArray = new int[]{0,0,0,0,0,0};
+
+		ArrayList<int[]> gDir = new ArrayList<int[]>();
+		
+		gDir.add(new int[]{-1,0,0});
+		gDir.add(new int[]{1,0,0});
+		gDir.add(new int[]{0,-1,0});
+		gDir.add(new int[]{0,1,0});
+		gDir.add(new int[]{0,0,-1});
+		gDir.add(new int[]{0,0,1});
+		
+		for(int i = 0; i < gDir.size(); i++)
+		{
+			int[] rDir = gDir.get(i);
+			dArray[i] = this.getGasCapactiy(this.xCoord + rDir[0], this.yCoord + rDir[1], this.zCoord + rDir[2]);
+		}
+		
+		int totalSpace = 0;
+		int largestSpace = 0;
+		
+		for(int i = 0; i < 6; i++)
+		{
+			if(dArray[i] > 0)
+			{
+				totalSpace += dArray[i];
+				
+				if(dArray[i] > largestSpace)
+				{
+					largestSpace = dArray[i];
+				}
+			}
+		}
+		
+		float gasFactor;
+		if(this.getBlockType() == ObjectHandler.fireGasBlock)
+		{
+			gasFactor = this.amount/(float)(totalSpace + 1F);
+		} else
+		{
+			gasFactor = this.amount/(float)(totalSpace + 10F);
+		}
+		
+		for(int i = 0; i < 6; i++)
+		{
+			if(dArray[i] > 0)
+			{
+				dArray[i] = MathHelper.ceiling_float_int(dArray[i] * gasFactor);
+			}
+		}
+		
+		return dArray;
+	}
+	
+	public int getGasCapactiy(int i, int j, int k)
+	{
+		TileEntity tile = this.worldObj.getBlockTileEntity(i, j, k);
+		
+		if(tile != null && tile instanceof TileEntityGas)
+		{
+			TileEntityGas gasTile = (TileEntityGas)tile;
+			
+			int gasSpace = 10 - gasTile.amount;
+			gasSpace = gasSpace < 0? (this.amount > 10? 10 : 0) : gasSpace;
+			
+			if(this.getBlockType() == ObjectHandler.fireGasBlock)
+			{
+				if(gasTile.getGasQuantity(0) > this.getGasQuantity(0))
+				{
+					return 1;
+				} else
+				{
+					return 10;
+				}
+			} else
+			{
+				return gasSpace;
+			}
+		} else if(this.worldObj.getBlockId(i, j, k) == 0)
+		{
+			return 10;
+		}
+		return 0;
 	}
 	
 	@Override

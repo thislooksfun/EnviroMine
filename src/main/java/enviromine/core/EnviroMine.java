@@ -96,7 +96,6 @@ public class EnviroMine
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
 		caves = (new BiomeGenCaves(23)).setColor(16711680).setBiomeName("Caves").setDisableRain().setTemperatureRainfall(1.0F, 0.0F);
-		GameRegistry.addBiome(caves);
 		DimensionManager.registerProviderType(EM_Settings.caveDimID, WorldProviderCaves.class, false);
 		DimensionManager.registerDimension(EM_Settings.caveDimID, EM_Settings.caveDimID);
 		

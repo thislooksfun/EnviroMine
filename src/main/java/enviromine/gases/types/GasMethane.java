@@ -8,7 +8,7 @@ public class GasMethane extends EnviroGas
 	public GasMethane(String name, int ID)
 	{
 		super(name, ID);
-		this.setColor(new Color(0, 255, 0, 8));
+		this.setColor(new Color(0, 255, 0, 64));
 		this.setDensity(1F);
 		this.setVolitility(10F);
 	}

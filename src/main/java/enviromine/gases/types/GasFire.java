@@ -14,7 +14,7 @@ public class GasFire extends EnviroGas
 		super(name, ID);
 		this.setColor(new Color(255, 128, 0, 192));
 		this.setDensity(-1F);
-		this.setDecayRates(1, 1);
+		this.setDecayRates(1, 1, 100, 100);
 	}
 	
 	@Override
@@ -24,14 +24,9 @@ public class GasFire extends EnviroGas
 		entityLiving.setFire(10);
 	}
 	
-	public int gasOnDeath(World world, int i, int j, int k)
+	@Override
+	public int getGasOnDeath(World world, int i, int j, int k)
 	{
-		if(j >= 48)
-		{
-			return EnviroGasDictionary.carbonDioxide.gasID;
-		} else
-		{
-			return EnviroGasDictionary.carbonMonoxide.gasID;
-		}
+		return EnviroGasDictionary.carbonMonoxide.gasID;
 	}
 }

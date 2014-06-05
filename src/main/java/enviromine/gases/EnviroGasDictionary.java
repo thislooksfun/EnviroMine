@@ -1,6 +1,5 @@
 package enviromine.gases;
 
-import java.awt.Color;
 import java.util.logging.Level;
 import enviromine.core.EnviroMine;
 import enviromine.gases.types.GasCarbonDioxide;

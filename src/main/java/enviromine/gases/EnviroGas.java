@@ -13,6 +13,8 @@ public class EnviroGas
 	public Color color;
 	public int airDecay;
 	public int normDecay;
+	public int normDecayThresh;
+	public int airDecayThresh;
 	
 	public EnviroGas(String name, int ID)
 	{
@@ -23,6 +25,8 @@ public class EnviroGas
 		this.color = Color.WHITE;
 		this.airDecay = 0;
 		this.normDecay = 0;
+		this.normDecayThresh = 1;
+		this.airDecayThresh = 1;
 		
 		EnviroGasDictionary.addNewGas(this, gasID);
 	}
@@ -45,10 +49,12 @@ public class EnviroGas
 		return this;
 	}
 	
-	public EnviroGas setDecayRates(int airDecay, int normDecay)
+	public EnviroGas setDecayRates(int airDecay, int normDecay, int adt, int ndt)
 	{
 		this.airDecay = airDecay;
 		this.normDecay = normDecay;
+		this.airDecayThresh = adt;
+		this.normDecayThresh = ndt;
 		return this;
 	}
 	

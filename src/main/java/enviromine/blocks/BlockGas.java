@@ -1,15 +1,16 @@
 package enviromine.blocks;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EnviroUtils;
+import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -24,10 +25,16 @@ import net.minecraft.world.World;
 public class BlockGas extends Block implements ITileEntityProvider
 {
 	public Icon gasIcon;
+	public ArrayList<String> igniteList = new ArrayList<String>();
 	
 	public BlockGas(int par1, Material par2Material)
 	{
 		super(par1, par2Material);
+		igniteList.add("" + Block.lavaMoving.blockID);
+		igniteList.add("" + Block.lavaStill.blockID);
+		igniteList.add("" + Block.torchWood.blockID);
+		igniteList.add("" + Block.furnaceBurning.blockID);
+		igniteList.add("" + Block.fire.blockID);
 	}
 	
 	public boolean isOpaqueCube()
@@ -53,8 +60,14 @@ public class BlockGas extends Block implements ITileEntityProvider
 		{
 			TileEntityGas gasTile = (TileEntityGas)tile;
 			
-			gasTile.addGas(4, 9);
-			gasTile.addGas(0, 1);
+			//EnviroGasDictionary.gasFire.setDecayRates(1, 1, 100).setDensity(-1F);
+			//EnviroGasDictionary.methane.setVolitility(10F);
+			//EnviroGasDictionary.carbonDioxide.setDecayRates(1, 1, 100, 5);
+			//EnviroGasDictionary.carbonMonoxide.setDecayRates(1, 0, 100, 1);
+			
+			//gasTile.addGas(1, 10);
+			gasTile.addGas(4, 100);
+			//gasTile.addGas(0, 2000);
 		}
 	}
 	
@@ -102,6 +115,12 @@ public class BlockGas extends Block implements ITileEntityProvider
         {
             tile.validate();
             world.setBlockTileEntity(i, j, k, tile);
+            tile.blockType = Block.blocksList[world.getBlockId(i, j, k)];
+            
+            if(tile instanceof TileEntityGas)
+            {
+            	((TileEntityGas)tile).updateRender();
+            }
         }
 	}
 	
@@ -243,18 +262,19 @@ public class BlockGas extends Block implements ITileEntityProvider
 		{
 			TileEntityGas gasTile = (TileEntityGas)tile;
 			
-			if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
+			/*if(gasTile.amount > 2048)
 			{
+				EnviroMine.logger.log(Level.SEVERE, "Too many gases inside one block! (amount > 1024)");
 				world.setBlockToAir(x, y, z);
 				return;
-			} else if(gasTile.spreadGas() || gasTile.amount > 10)
-			{
-				world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
-			}
+			}*/
 			
-			if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
+			if(isTouchingIgnition(world, x, y, z) && this.blockID == ObjectHandler.gasBlock.blockID)
 			{
-				world.setBlockToAir(x, y, z);
+				if(gasTile.burnGases())
+				{
+					this.swtichIgnitionState(world, x, y, z);
+				}
 			} else if(gasTile.getGasQuantity(0) >= 1 && this.blockID == ObjectHandler.gasBlock.blockID)
 			{
 				gasTile.burnGases();
@@ -263,14 +283,94 @@ public class BlockGas extends Block implements ITileEntityProvider
 			{
 				this.swtichIgnitionState(world, x, y, z);
 			}
+			
+			if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
+			{
+				world.setBlockToAir(x, y, z);
+				return;
+			} else if(gasTile.spreadGas())
+			{
+				world.notifyBlocksOfNeighborChange(x, y, z, this.blockID);
+			} else if(gasTile.getGasQuantity(0) > 20)
+			{
+				if(gasTile.firePressure >= 10)
+				{
+					world.setBlockToAir(x, y, z);
+					if(gasTile.getGasQuantity(0) > 40)
+					{
+						world.newExplosion(null, x, y, z, 8F, true, true);
+					} else
+					{
+						world.newExplosion(null, x, y, z, gasTile.getGasQuantity(0)/5F, true, true);
+					}
+				} else
+				{
+					gasTile.firePressure += 1;
+				}
+			} else
+			{
+				gasTile.firePressure = 0;
+			}
+			
+			if(gasTile.gases.size() <= 0 || gasTile.amount <= 0)
+			{
+				world.setBlockToAir(x, y, z);
+			} else
+			{
+				gasTile.updateRender();
+			}
 		}
 	}
 	
+	public boolean isTouchingIgnition(World world, int x, int y, int z)
+	{
+		ArrayList<int[]> dir = new ArrayList<int[]>();
+		
+		dir.add(new int[]{-1,0,0});
+		dir.add(new int[]{1,0,0});
+		dir.add(new int[]{0,-1,0});
+		dir.add(new int[]{0,1,0});
+		dir.add(new int[]{0,0,-1});
+		dir.add(new int[]{0,0,1});
+		
+		for(int i = 0; i < dir.size(); i++)
+		{
+			int[] pos = dir.get(i);
+			if(igniteList.contains("" + world.getBlockId(x + pos[0], y + pos[1], z + pos[2])))
+			{
+				return true;
+			} else
+			{
+				TileEntity tile = world.getBlockTileEntity(x + pos[0], y + pos[1], z + pos[2]);
+				
+				if(tile != null && tile instanceof TileEntityGas)
+				{
+					TileEntityGas gasTile = (TileEntityGas)tile;
+					
+					if(gasTile.getGasQuantity(EnviroGasDictionary.gasFire.gasID) > 0)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID)
 	{
-		if(blockID == Block.torchWood.blockID || blockID == ObjectHandler.fireGasBlock.blockID)
+		if(this.blockID == ObjectHandler.gasBlock.blockID && this.igniteList.contains("" + blockID))
 		{
-			world.scheduleBlockUpdate(x, y, z, this.blockID, 5);
+			TileEntity tile = world.getBlockTileEntity(x, y, z);
+			
+			if(tile != null && tile instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile = (TileEntityGas)tile;
+				gasTile.burnGases();
+				this.swtichIgnitionState(world, x, y, z);
+				world.scheduleBlockUpdate(x, y, z, ObjectHandler.fireGasBlock.blockID, ObjectHandler.fireGasBlock.tickRate(world));
+			}
 		} else
 		{
 			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
@@ -314,6 +414,24 @@ public class BlockGas extends Block implements ITileEntityProvider
 		return false;
 	}
 	
+    public int idDropped(int par1, Random par2Random, int par3)
+    {
+        return 0;
+    }
+    
+    public int quantityDropped(Random par1Random)
+    {
+        return 0;
+    }
+    
+    public void onBlockDestroyedByExplosion(World world, int i, int j, int k, Explosion explosion)
+    {
+    	if(world.isBlockNormalCubeDefault(i, j - 1, k, false) && this.blockID == ObjectHandler.fireGasBlock.blockID)
+    	{
+    		world.setBlock(i, j, k, Block.fire.blockID);
+    	}
+    }
+	
 	public double getMinY(IBlockAccess blockAccess, int i, int j, int k)
 	{
 		TileEntity tile = blockAccess.getBlockTileEntity(i, j, k);
@@ -340,6 +458,6 @@ public class BlockGas extends Block implements ITileEntityProvider
 		{
 			return 1D;
 		}
-	}
 	
+	}
 }
