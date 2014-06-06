@@ -13,7 +13,7 @@ public class GasFire extends EnviroGas
 	{
 		super(name, ID);
 		this.setColor(new Color(255, 128, 0, 192));
-		this.setDensity(-1F);
+		this.setDensity(-10F);
 		this.setDecayRates(1, 1, 100, 100);
 	}
 	

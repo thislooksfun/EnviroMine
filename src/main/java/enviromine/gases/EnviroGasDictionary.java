@@ -17,6 +17,8 @@ public class EnviroGasDictionary
 	public static EnviroGas carbonDioxide = new GasCarbonDioxide("Carbon Dioxide", 2);
 	public static EnviroGas hydrogenSulfide = new GasHydrogenSulfide("Hydrogen Sulfide", 3);
 	public static EnviroGas methane = new GasMethane("Methane", 4);
+	public static EnviroGas sulfurDioxide = new GasMethane("Sulfur Dioxide", 5);
+	public static EnviroGas nitrogenDioxide = new GasMethane("Nitrogen Dioxide", 6);
 	
 	public static void addNewGas(EnviroGas newGas, int id)
 	{

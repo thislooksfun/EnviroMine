@@ -30,6 +30,9 @@ public class TileEntityGas extends TileEntity
 	
 	int firePressure = 0;
 	
+	boolean preReqRender = true;
+	boolean curReqRender = true;
+	
 	public TileEntityGas()
 	{
 	}
@@ -104,6 +107,71 @@ public class TileEntityGas extends TileEntity
 		{
 			this.opacity = alpha;
 		}
+		
+		if(this.worldObj != null)
+		{
+			TileEntity tile1 = this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord + 1, this.zCoord);
+			TileEntity tile2 = this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord - 1, this.zCoord);
+			TileEntity tile3 = this.worldObj.getBlockTileEntity(this.xCoord + 1, this.yCoord, this.zCoord);
+			TileEntity tile4 = this.worldObj.getBlockTileEntity(this.xCoord - 1, this.yCoord, this.zCoord);
+			TileEntity tile5 = this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord, this.zCoord + 1);
+			TileEntity tile6 = this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord, this.zCoord - 1);
+			
+			if(tile1 != null && tile1 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile1 = (TileEntityGas)tile1;
+				
+				if(gasTile1.opacity > 0.1F && this.opacity > 0.1F && gasTile1.opacity > this.opacity)
+				{
+					this.opacity = gasTile1.opacity;
+				}
+			}
+			if(tile2 != null && tile2 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile2 = (TileEntityGas)tile2;
+				
+				if(gasTile2.opacity > 0.1F && this.opacity > 0.1F && gasTile2.opacity > this.opacity)
+				{
+					this.opacity = gasTile2.opacity;
+				}
+			}
+			if(tile3 != null && tile3 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile3 = (TileEntityGas)tile3;
+				
+				if(gasTile3.opacity > 0.1F && this.opacity > 0.1F && gasTile3.opacity > this.opacity)
+				{
+					this.opacity = gasTile3.opacity;
+				}
+			}
+			if(tile4 != null && tile4 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile4 = (TileEntityGas)tile4;
+				
+				if(gasTile4.opacity > 0.1F && this.opacity > 0.1F && gasTile4.opacity > this.opacity)
+				{
+					this.opacity = gasTile4.opacity;
+				}
+			}
+			if(tile5 != null && tile5 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile5 = (TileEntityGas)tile5;
+				
+				if(gasTile5.opacity > 0.1F && this.opacity > 0.1F && gasTile5.opacity > this.opacity)
+				{
+					this.opacity = gasTile5.opacity;
+				}
+			}
+			if(tile6 != null && tile6 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile6 = (TileEntityGas)tile6;
+				
+				if(gasTile6.opacity > 0.1F && this.opacity > 0.1F && gasTile6.opacity > this.opacity)
+				{
+					this.opacity = gasTile6.opacity;
+				}
+			}
+		}
 	}
 	
 	public void updateSize()
@@ -161,6 +229,31 @@ public class TileEntityGas extends TileEntity
 		{
 			yMax = 0.5F + (this.amount/20F);
 			yMin = 0.5F - (this.amount/20F);
+		}
+		
+		if(this.worldObj != null)
+		{
+			TileEntity tile1 = this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord + 1, this.zCoord);
+			TileEntity tile2 = this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord - 1, this.zCoord);
+			
+			if(tile1 != null && tile1 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile1 = (TileEntityGas)tile1;
+				
+				if(gasTile1.opacity > 0.1F)
+				{
+					yMax = 1F;
+				}
+			}
+			if(tile2 != null && tile2 instanceof TileEntityGas)
+			{
+				TileEntityGas gasTile2 = (TileEntityGas)tile2;
+				
+				if(gasTile2.opacity > 0.1F)
+				{
+					yMin = 0F;
+				}
+			}
 		}
 	}
 	
@@ -230,17 +323,42 @@ public class TileEntityGas extends TileEntity
 		{
 			return;
 		}
+		
 		if(!this.worldObj.isRemote)
 		{
-			Packet packet = this.getDescriptionPacket();
-			PacketDispatcher.sendPacketToAllAround(this.xCoord, this.yCoord, this.zCoord, 128, this.worldObj.provider.dimensionId, packet);
+			this.checkNeedsReRender();
+			
+			if(!preReqRender && !curReqRender)
+			{
+				return;
+			} else
+			{
+				Packet packet = this.getDescriptionPacket();
+				PacketDispatcher.sendPacketToAllAround(this.xCoord, this.yCoord, this.zCoord, 128, this.worldObj.provider.dimensionId, packet);
+			}
 		} else
 		{
 			Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
 	}
 	
-    public Packet getDescriptionPacket()
+    public void checkNeedsReRender()
+	{
+    	boolean shouldRender = false;
+    	
+		for(int i = 0; i < 6; i++)
+		{
+			if(((BlockGas)this.getBlockType()).shouldSideBeRendered(this.worldObj, this.xCoord, this.yCoord, this.zCoord, i))
+			{
+				shouldRender = true;
+			}
+		}
+		
+		preReqRender = curReqRender;
+		curReqRender = shouldRender;
+	}
+
+	public Packet getDescriptionPacket()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         this.writeToNBT(nbttagcompound);
@@ -478,31 +596,34 @@ public class TileEntityGas extends TileEntity
 			
 			int[] selGas = null;
 			
-			if(this.getBlockType() == ObjectHandler.fireGasBlock && this.getGasQuantity(0) > 0)
-			{
-				selGas = new int[]{0, this.getGasQuantity(0)};
-			} else if(EnviroGasDictionary.gasList[gases.get(0)[0]].density > 0F && vDir == -1 && (gasTile.amount < 10 || this.amount > 10))
+			if(EnviroGasDictionary.gasList[gases.get(0)[0]].density < 0F && vDir == 1 && (gasTile.amount < 10 || this.amount > 10))
 			{
 				selGas = gases.get(0);
-			} else if(EnviroGasDictionary.gasList[gases.get(gases.size()-1)[0]].density < 0F && vDir == 1 && (gasTile.amount < 10 || this.amount > 10))
+			} else if(EnviroGasDictionary.gasList[gases.get(gases.size()-1)[0]].density > 0F && vDir == -1 && (gasTile.amount < 10 || this.amount > 10))
 			{
 				selGas = gases.get(gases.size() -1);
 			} else
 			{
-				for(int index = 0; index < gases.size(); index++)
+				if(this.getBlockType() == ObjectHandler.fireGasBlock && this.getGasQuantity(0) > 0)
 				{
-					EnviroGas gasType = EnviroGasDictionary.gasList[gases.get(index)[0]];
-					
-					if(gasType.density < 0F && vDir == -1 && this.amount <= 10)
+					selGas = new int[]{0, this.getGasQuantity(0)};
+				} else
+				{
+					for(int index = 0; index < gases.size(); index++)
 					{
-						continue;
-					} else if(gasType.density > 0F && vDir == 1 && this.amount <= 10)
-					{
-						continue;
-					} else
-					{
-						selGas = gases.get(index);
-						break;
+						EnviroGas gasType = EnviroGasDictionary.gasList[gases.get(index)[0]];
+						
+						if(gasType.density < 0F && vDir == -1 && this.amount <= 10)
+						{
+							continue;
+						} else if(gasType.density > 0F && vDir == 1 && this.amount <= 10)
+						{
+							continue;
+						} else
+						{
+							selGas = gases.get(index);
+							break;
+						}
 					}
 				}
 			}
@@ -642,9 +763,12 @@ public class TileEntityGas extends TileEntity
 			
 			if(this.getBlockType() == ObjectHandler.fireGasBlock)
 			{
-				if(gasTile.getGasQuantity(0) > this.getGasQuantity(0))
+				if(j < this.yCoord)
 				{
 					return 1;
+				} else if(gasTile.getGasQuantity(0) > this.getGasQuantity(0))
+				{
+					return 5;
 				} else
 				{
 					return 10;

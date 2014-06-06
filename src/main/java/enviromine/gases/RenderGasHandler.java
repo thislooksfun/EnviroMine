@@ -87,6 +87,11 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		float blue = (float)(color & 0xFF) / 255.0F;
 		float alpha = block.getOpacity(blockAccess, i, j, k);
 		
+		if(alpha <= 0.1F)
+		{
+			return true;
+		}
+		
 		double minX = 0D;
 		double maxX = 1.0D;
 		
@@ -106,7 +111,7 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 2))
 		{
 			sideBlockID = blockAccess.getBlockId(i, j, k - 1);
-			if(sideBlockID == block.blockID)
+			if(sideBlockID == ObjectHandler.gasBlock.blockID || sideBlockID == ObjectHandler.fireGasBlock.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i, j, k - 1);
 				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i, j, k - 1);
@@ -149,7 +154,7 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 3))
 		{
 			sideBlockID = blockAccess.getBlockId(i, j, k + 1);
-			if(sideBlockID == block.blockID)
+			if(sideBlockID == ObjectHandler.gasBlock.blockID || sideBlockID == ObjectHandler.fireGasBlock.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i, j, k + 1);
 				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i, j, k + 1);
@@ -191,7 +196,7 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 4))
 		{
 			sideBlockID = blockAccess.getBlockId(i - 1, j, k);
-			if(sideBlockID == block.blockID)
+			if(sideBlockID == ObjectHandler.gasBlock.blockID || sideBlockID == ObjectHandler.fireGasBlock.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i - 1, j, k);
 				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i - 1, j, k);
@@ -233,7 +238,7 @@ public class RenderGasHandler implements ISimpleBlockRenderingHandler
 		if(block.shouldSideBeRendered(blockAccess, i, j, k, 5))
 		{
 			sideBlockID = blockAccess.getBlockId(i + 1, j, k);
-			if(sideBlockID == block.blockID)
+			if(sideBlockID == ObjectHandler.gasBlock.blockID || sideBlockID == ObjectHandler.fireGasBlock.blockID)
 			{
 				sideBlockMetadata = blockAccess.getBlockMetadata(i + 1, j, k);
 				sideMinY = ((BlockGas)Block.blocksList[sideBlockID]).getMinY(blockAccess, i + 1, j, k);
