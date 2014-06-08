@@ -2,7 +2,6 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 import enviromine.EnviroDamageSource;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -18,6 +17,7 @@ import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MathHelper;
 
@@ -39,7 +39,7 @@ public class EnviroDataTracker
 	
 	public float sanity;
 	
-	public int attackDelay = 1;
+	public int attackDelay = 0;
 	public int curAttackTime = 0;
 	public boolean isDisabled = false;
 	public int itemUse = 0;
@@ -89,7 +89,8 @@ public class EnviroDataTracker
 				
 				if(player == null)
 				{
-					EM_StatusManager.saveAndRemoveTracker(this);
+					//EM_StatusManager.saveAndRemoveTracker(this);
+					return;
 				} else
 				{
 					trackedEntity = player;
@@ -289,7 +290,17 @@ public class EnviroDataTracker
 		{
 			if(airQuality <= 0)
 			{
-				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 2.0F);
+				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 4.0F);
+			}
+
+			if(airQuality <= 10F)
+			{
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 20, 1));
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20, 1));
+			} else if(airQuality <= 25F)
+			{
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 20, 0));
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20, 0));
 			}
 			
 			if(bodyTemp >= 39F && enableHeat && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
@@ -348,7 +359,7 @@ public class EnviroDataTracker
 			
 			if(hydration <= 0F)
 			{
-				trackedEntity.attackEntityFrom(EnviroDamageSource.dehydrate, 2.0F);
+				trackedEntity.attackEntityFrom(EnviroDamageSource.dehydrate, 4.0F);
 			}
 			
 			if(sanity <= 10F)

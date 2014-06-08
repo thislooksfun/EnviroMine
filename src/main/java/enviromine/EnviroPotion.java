@@ -50,7 +50,7 @@ public class EnviroPotion extends Potion
 			
 			if(effect.getAmplifier() >= 2 && entityLiving.getRNG().nextInt(2) == 0)
 			{
-				entityLiving.attackEntityFrom(EnviroDamageSource.heatstroke, 2.0F);
+				entityLiving.attackEntityFrom(EnviroDamageSource.heatstroke, 4.0F);
 			}
 			
 			if(effect.getAmplifier() >= 1)
@@ -77,7 +77,7 @@ public class EnviroPotion extends Potion
 			
 			if(effect.getAmplifier() >= 2 && entityLiving.getRNG().nextInt(2) == 0)
 			{
-				entityLiving.attackEntityFrom(EnviroDamageSource.organfailure, 2.0F);
+				entityLiving.attackEntityFrom(EnviroDamageSource.organfailure, 4.0F);
 			}
 			
 			if(effect.getAmplifier() >= 1)
@@ -95,7 +95,7 @@ public class EnviroPotion extends Potion
 			
 			if(entityLiving.getRNG().nextInt(2) == 0 && entityLiving.getActivePotionEffect(frostbite).getAmplifier() >= 2)
 			{
-				entityLiving.attackEntityFrom(EnviroDamageSource.frostbite, 2.0F);
+				entityLiving.attackEntityFrom(EnviroDamageSource.frostbite, 4.0F);
 			}
 			
 			if(entityLiving.getHeldItem() != null)

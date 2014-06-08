@@ -96,6 +96,16 @@ public class EM_EventManager
 					return;
 				}
 				
+				if(event.entity instanceof EntityPlayer)
+				{
+					EnviroDataTracker oldTrack = EM_StatusManager.lookupTrackerFromUsername(((EntityPlayer)event.entity).username);
+					if(oldTrack != null)
+					{
+						oldTrack.trackedEntity = (EntityLivingBase)event.entity;
+						return;
+					}
+				}
+				
 				EnviroDataTracker emTrack = new EnviroDataTracker((EntityLivingBase)event.entity);
 				EM_StatusManager.addToManager(emTrack);
 				emTrack.loadNBTTags();
@@ -130,9 +140,9 @@ public class EM_EventManager
 		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
 		if(tracker != null)
 		{
-			if(event.entityLiving instanceof EntityPlayer)
+			if(event.entityLiving instanceof EntityPlayer && event.source == null)
 			{
-				EntityPlayer player = EM_StatusManager.findPlayer(((EntityPlayer)event.entityLiving).username);
+				/*EntityPlayer player = EM_StatusManager.findPlayer(((EntityPlayer)event.entityLiving).username);
 				
 				if(player != null)
 				{
@@ -142,7 +152,8 @@ public class EM_EventManager
 				{
 					tracker.resetData();
 					EM_StatusManager.saveAndRemoveTracker(tracker);
-				}
+				}*/
+				return;
 			} else
 			{
 				tracker.resetData();
