@@ -13,7 +13,7 @@ public class GasHydrogenSulfide extends EnviroGas
 		super(name, ID);
 		this.setColor(new Color(255, 255, 0, 64));
 		this.setDensity(1F);
-		this.setVolitility(50F);
+		this.setVolitility(100F);
 	}
 	
 	public void applyEffects(EntityLivingBase entityLiving, int amplifier)

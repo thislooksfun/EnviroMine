@@ -63,14 +63,15 @@ public class BlockGas extends Block implements ITileEntityProvider
 			
 			//EnviroGasDictionary.gasFire.setDecayRates(1, 1, 100).setDensity(-1F);
 			//EnviroGasDictionary.methane.setVolitility(10F);
-			EnviroGasDictionary.hydrogenSulfide.setVolitility(100F);
+			//EnviroGasDictionary.hydrogenSulfide.setVolitility(100F);
 			//EnviroGasDictionary.carbonDioxide.setDecayRates(1, 1, 100, 5);
 			//EnviroGasDictionary.carbonMonoxide.setDecayRates(1, 0, 100, 1);
 			
 			//gasTile.addGas(1, 10);
-			gasTile.addGas(3, 50);
-			//gasTile.addGas(4, 100);
+			//gasTile.addGas(3, 50);
+			gasTile.addGas(4, 100);
 			//gasTile.addGas(0, 2000);
+			//gasTile.addGas(7, 100);
 		}
 	}
 	
@@ -295,16 +296,19 @@ public class BlockGas extends Block implements ITileEntityProvider
 			} else if(gasTile.spreadGas())
 			{
 				world.notifyBlocksOfNeighborChange(x, y, z, this.blockID);
+			} else if(gasTile.amount > 10)
+			{
+				world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
 			}
 			
 			if(gasTile.getGasQuantity(0) > 20)
 			{
-				if(gasTile.firePressure >= 20)
+				if(gasTile.firePressure >= 10)
 				{
 					world.setBlockToAir(x, y, z);
-					if(gasTile.getGasQuantity(0) > 40)
+					if(gasTile.getGasQuantity(0) > 80)
 					{
-						world.newExplosion(null, x, y, z, 8F, true, true);
+						world.newExplosion(null, x, y, z, 16F, true, true);
 					} else
 					{
 						world.newExplosion(null, x, y, z, gasTile.getGasQuantity(0)/5F, true, true);

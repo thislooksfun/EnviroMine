@@ -7,6 +7,7 @@ import enviromine.gases.types.GasCarbonMonoxide;
 import enviromine.gases.types.GasFire;
 import enviromine.gases.types.GasHydrogenSulfide;
 import enviromine.gases.types.GasMethane;
+import enviromine.gases.types.GasNUKE;
 
 public class EnviroGasDictionary
 {
@@ -19,6 +20,7 @@ public class EnviroGasDictionary
 	public static EnviroGas methane = new GasMethane("Methane", 4);
 	public static EnviroGas sulfurDioxide = new GasMethane("Sulfur Dioxide", 5);
 	public static EnviroGas nitrogenDioxide = new GasMethane("Nitrogen Dioxide", 6);
+	public static EnviroGas NUKE = new GasNUKE("Nuclear Gas", 7);
 	
 	public static void addNewGas(EnviroGas newGas, int id)
 	{
