@@ -8,6 +8,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import enviromine.core.EnviroMine;
+import enviromine.core.sounds.HeavyBreathing;
 import enviromine.gui.EM_GuiEnviroMeters;
 import enviromine.handlers.EM_ClientScheduledTickHandler;
 
@@ -45,6 +46,7 @@ public class EM_ClientProxy extends EM_CommonProxy
 	{
 		super.registerEventHandlers();
 		MinecraftForge.EVENT_BUS.register(new EM_GuiEnviroMeters(Minecraft.getMinecraft()));
+		MinecraftForge.EVENT_BUS.register(new HeavyBreathing());
 	}
 	
 	public void preInit(FMLPreInitializationEvent event)
