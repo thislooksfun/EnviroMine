@@ -272,6 +272,7 @@ public class EM_PhysManager
 					physBlock.isLandSlide = true;
 					world.spawnEntityInWorld(physBlock);
 					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
+					return;
 				}
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{

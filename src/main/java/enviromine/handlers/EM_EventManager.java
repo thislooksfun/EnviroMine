@@ -50,6 +50,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
@@ -201,9 +202,6 @@ public class EM_EventManager
 				if(livingProps != null)
 				{
 					tracker.sanity += livingProps.hitSanity;
-				} else if(attacker instanceof EntityZombie)
-				{
-					tracker.sanity -= 1F;
 				} else if(attacker instanceof EntityEnderman || attacker.getEntityName().toLowerCase().contains("ender"))
 				{
 					tracker.sanity -= 5F;
@@ -215,6 +213,16 @@ public class EM_EventManager
 					}
 				}
 			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onEntitySoundPlay(PlaySoundAtEntityEvent event)
+	{
+		if(event.entity.getEntityData().getBoolean("EM_Hallucination"))
+		{
+			Minecraft.getMinecraft().sndManager.playSound(event.name, (float)event.entity.posX, (float)event.entity.posY, (float)event.entity.posZ, 1.0F, 1.0F);
+			event.setCanceled(true);
 		}
 	}
 	
@@ -641,7 +649,7 @@ public class EM_EventManager
 				EM_StatusManager.createFX(event.entityLiving);
 			}
 			
-			if(event.entityLiving instanceof EntityPlayer && EnviroMine.proxy.isClient())
+			if(event.entityLiving instanceof EntityPlayer && event.entityLiving.worldObj.isRemote)
 			{
 				if(Minecraft.getMinecraft().thePlayer.isPotionActive(EnviroPotion.insanity))
 				{

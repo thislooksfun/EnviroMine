@@ -24,6 +24,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityBat;
@@ -373,6 +374,9 @@ public class EM_StatusManager
 								{
 									sBoost = 0.1F;
 								}
+								
+								isPlant = false;
+								leaves += 0.1;
 							} else
 							{
 								isPlant = false;
@@ -728,15 +732,21 @@ public class EM_StatusManager
 				}
 			} else if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
-				if(sanityRate <= sanityStartRate && sanityRate > -0.05F)
+				if(sanityRate <= sanityStartRate && sanityRate > -0.01F)
 				{
 					sanityRate = -0.01F;
 				}
-			} else if(mob instanceof EntityEnderman && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
+			} else if(mob.getEntityName().toLowerCase().contains("ender") && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.1F)
 				{
 					sanityRate = -0.1F;
+				}
+			} else if(((EntityLivingBase)mob).getCreatureAttribute() == EnumCreatureAttribute.UNDEAD)
+			{
+				if(sanityRate <= sanityStartRate && sanityRate > -0.01F)
+				{
+					sanityRate = -0.01F;
 				}
 			}
 			
