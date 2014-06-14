@@ -365,117 +365,151 @@ public class EM_ConfigHandler
 	
 	private static void LoadItemProperty(Configuration config, String category)
 	{
+
+			config.addCustomCategoryComment(category, "");
+			//  
+			String idString = config.get(category, IPName[0], "0").getString(); 
+			
+			List<Integer> ids = getIDS(idString);
 		
-		config.addCustomCategoryComment(category, "");
-		int id = 					config.get(category, IPName[0], 0).getInt(0);
-		int meta = 					config.get(category, IPName[1], 0).getInt(0);
-		boolean enableTemp = 		config.get(category, IPName[2], false).getBoolean(false);
-		float ambTemp = (float)		config.get(category, IPName[3], 0.00).getDouble(0.00);
-		float ambAir = (float)		config.get(category, IPName[4], 0.00).getDouble(0.00);
-		float ambSanity = (float)	config.get(category, IPName[5], 0.00).getDouble(0.00);
-		float effTemp = (float)		config.get(category, IPName[6], 0.00).getDouble(0.00);
-		float effAir = (float)		config.get(category, IPName[7], 0.00).getDouble(0.00);
-		float effSanity = (float)	config.get(category, IPName[8], 0.00).getDouble(0.00);
-		float effHydration = (float)config.get(category, IPName[9], 0.00).getDouble(0.00);
-		float effTempCap = (float)	config.get(category, IPName[10], 37.00).getDouble(37.00);
+			Iterator<Integer> iterator = ids.iterator();
 		
-		ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, effTemp, effAir, effSanity, effHydration, effTempCap);
 		
-		if(meta < 0)
-		{
-			EM_Settings.itemProperties.put("" + id, entry);
-		} else
-		{
-			EM_Settings.itemProperties.put("" + id + "," + meta, entry);
-		}
+			while (iterator.hasNext()) 
+			{
+				int id = iterator.next();
+				
+				//int id = 					config.get(category, IPName[0], 0).getInt(0);
+				int meta = 					config.get(category, IPName[1], 0).getInt(0);
+				boolean enableTemp = 		config.get(category, IPName[2], false).getBoolean(false);
+				float ambTemp = (float)		config.get(category, IPName[3], 0.00).getDouble(0.00);
+				float ambAir = (float)		config.get(category, IPName[4], 0.00).getDouble(0.00);
+				float ambSanity = (float)	config.get(category, IPName[5], 0.00).getDouble(0.00);
+				float effTemp = (float)		config.get(category, IPName[6], 0.00).getDouble(0.00);
+				float effAir = (float)		config.get(category, IPName[7], 0.00).getDouble(0.00);
+				float effSanity = (float)	config.get(category, IPName[8], 0.00).getDouble(0.00);
+				float effHydration = (float)config.get(category, IPName[9], 0.00).getDouble(0.00);
+				float effTempCap = (float)	config.get(category, IPName[10], 37.00).getDouble(37.00);
+		
+				ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, effTemp, effAir, effSanity, effHydration, effTempCap);
+		
+				if(meta < 0)
+				{
+					EM_Settings.itemProperties.put("" + id, entry);
+				} else
+				{
+					EM_Settings.itemProperties.put("" + id + "," + meta, entry);
+				}
+			}
 	}
+
+			
+	
 	
 	private static void LoadBlockProperty(Configuration config, String category)
 	{
-		config.addCustomCategoryComment(category, "");
-		//  
-		String idString = 				config.get(category, BPName[0], "0").getString(); 
 		
-		List<Integer> ids = getIDS(idString);
-		
-		Iterator<Integer> iterator = ids.iterator();
-		
-		System.out.println("Loading Blocks in Ram After GetRangedIDS Called");
-		while (iterator.hasNext()) 
-		{
-			int id = iterator.next();
-			System.out.println(id);
+
+			config.addCustomCategoryComment(category, "");
+			//  
+			String idString = config.get(category, BPName[0], "0").getString(); 
 			
-		//	int id = 					config.get(category, BPName[0], 0).getInt(0);
-			int metaData = 				config.get(category, BPName[1], 0).getInt(0);
-			int dropID = 				config.get(category, BPName[2], 0).getInt(0);
-			int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
-			int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
-			boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
-			float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
-			float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
-			float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
-			String stability = 			config.get(category, BPName[9], "loose").getString();
-			boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
-			boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
+			List<Integer> ids = getIDS(idString);
 		
-		// Get Stability Options
-			int minFall = 99;
-			int maxFall = 99;
-			int supportDist = 5;
-			boolean holdOther = false;
-			boolean canHang = true;
-			boolean hasPhys = false;
-			
-			if(EM_Settings.stabilityTypes.containsKey(stability))
+			Iterator<Integer> iterator = ids.iterator();
+		
+		
+			while (iterator.hasNext()) 
 			{
-				StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
+				int id = iterator.next();
 				
-				minFall = stabType.minFall;
-				maxFall = stabType.maxFall;
-				supportDist = stabType.supportDist;
-				hasPhys = stabType.enablePhysics;
-				holdOther = stabType.holdOther;
-				canHang = stabType.canHang;
-			} else
-			{
-				EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
-				minFall = 99;
-				maxFall = 99;
-				supportDist = 9;
-				hasPhys = false;
-				holdOther = false;
-				canHang = true;
-			}
+				//	int id = 					config.get(category, BPName[0], 0).getInt(0);
+				int metaData = 				config.get(category, BPName[1], 0).getInt(0);
+				int dropID = 				config.get(category, BPName[2], 0).getInt(0);
+				int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
+				int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
+				boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
+				float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
+				float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
+				float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
+				String stability = 			config.get(category, BPName[9], "loose").getString();
+				boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
+				boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
+		
+				// 	Get Stability Options
+				int minFall = 99;
+				int maxFall = 99;
+				int supportDist = 5;
+				boolean holdOther = false;
+				boolean canHang = true;
+				boolean hasPhys = false;
 			
-			BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
+				if(EM_Settings.stabilityTypes.containsKey(stability))
+				{
+					StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
+					
+					minFall = stabType.minFall;
+					maxFall = stabType.maxFall;
+					supportDist = stabType.supportDist;
+					hasPhys = stabType.enablePhysics;
+					holdOther = stabType.holdOther;
+					canHang = stabType.canHang;
+				} else
+				{
+					EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
+					minFall = 99;
+					maxFall = 99;
+					supportDist = 9;
+					hasPhys = false;
+					holdOther = false;
+					canHang = true;
+				}
 			
-			if(metaData < 0)
-			{
-				EM_Settings.blockProperties.put("" + id, entry);
-			} else
-			{
-				EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
-			}
+				BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
+				
+				if(metaData < 0)
+				{
+					EM_Settings.blockProperties.put("" + id, entry);
+				} else
+				{
+					EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+				}
 			
-		}//While iterator
+				//EnviroMine.logger.log(Level.INFO, "Loaded Custom Block: " + id + ":" + metaData);
+				
+			}//While iterator
+			
 	}
 	
 	private static void LoadArmorProperty(Configuration config, String catagory)
 	{
 		config.addCustomCategoryComment(catagory, "");
-		int id = 					config.get(catagory, APName[0], 0).getInt(0);
-		float nightTemp = (float)	config.get(catagory, APName[1], 0.00).getDouble(0.00);
-		float shadeTemp = (float)	config.get(catagory, APName[2], 0.00).getDouble(0.00);
-		float sunTemp = (float)		config.get(catagory, APName[3], 0.00).getDouble(0.00);
-		float nightMult = (float)	config.get(catagory, APName[4], 1.00).getDouble(1.00);
-		float shadeMult = (float)	config.get(catagory, APName[5], 1.00).getDouble(1.00);
-		float sunMult = (float)		config.get(catagory, APName[6], 1.00).getDouble(1.00);
-		float sanity = (float)		config.get(catagory, APName[7], 0.00).getDouble(0.00);
-		float air = (float)			config.get(catagory, APName[8], 0.00).getDouble(0.00);
+	
+		String idString = config.get(catagory, APName[0], "0").getString(); 
 		
-		ArmorProperties entry = new ArmorProperties(id, nightTemp, shadeTemp, sunTemp, nightMult, shadeMult, sunMult, sanity, air);
-		EM_Settings.armorProperties.put(id, entry);
+		List<Integer> ids = getIDS(idString);
+	
+		Iterator<Integer> iterator = ids.iterator();
+	
+	
+		while (iterator.hasNext()) 
+		{
+			int id = iterator.next();
+			
+			//int id = 					config.get(catagory, APName[0], 0).getInt(0);
+			float nightTemp = (float)	config.get(catagory, APName[1], 0.00).getDouble(0.00);
+			float shadeTemp = (float)	config.get(catagory, APName[2], 0.00).getDouble(0.00);
+			float sunTemp = (float)		config.get(catagory, APName[3], 0.00).getDouble(0.00);
+			float nightMult = (float)	config.get(catagory, APName[4], 1.00).getDouble(1.00);
+			float shadeMult = (float)	config.get(catagory, APName[5], 1.00).getDouble(1.00);
+			float sunMult = (float)		config.get(catagory, APName[6], 1.00).getDouble(1.00);
+			float sanity = (float)		config.get(catagory, APName[7], 0.00).getDouble(0.00);
+			float air = (float)			config.get(catagory, APName[8], 0.00).getDouble(0.00);
+		
+			ArmorProperties entry = new ArmorProperties(id, nightTemp, shadeTemp, sunTemp, nightMult, shadeMult, sunMult, sanity, air);
+			EM_Settings.armorProperties.put(id, entry);
+		}
+		
 	}
 	
 	private static void LoadLivingProperty(Configuration config, String catagory)
@@ -520,12 +554,15 @@ public class EM_ConfigHandler
 		
 		custom.load();
 		
+		
+		
 		// Load Default Categories
 		custom.addCustomCategoryComment(armorCat, "Custom armor properties");
 		custom.addCustomCategoryComment(blockCat, "Custom block properties");
 		custom.addCustomCategoryComment(entityCat, "Custom entity properties");
 		custom.addCustomCategoryComment(itemsCat, "Custom item properties");
 		
+			
 		ArmorDefaultSave(custom, armorCat + ".helmetLeather", 	ItemArmor.helmetLeather.itemID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
 		ArmorDefaultSave(custom, armorCat + ".plateLeather", 	ItemArmor.plateLeather.itemID, 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
 		ArmorDefaultSave(custom, armorCat + ".legsLeather", 	ItemArmor.legsLeather.itemID, 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
@@ -570,7 +607,8 @@ public class EM_ConfigHandler
 	
 	private static void ArmorDefaultSave(Configuration config, String catName, int id, double nightTemp, double shadeTemp, double sunTemp, double nightMult, double shadeMult, double sunMult, double sanity, double air)
 	{
-		config.get(catName, APName[0], id).getInt(id);
+		//config.get(catName, APName[0], id).getInt(id);
+		config.get(catName, APName[0], id).getString(); 
 		config.get(catName, APName[1], nightTemp).getDouble(nightTemp);
 		config.get(catName, APName[2], shadeTemp).getDouble(shadeTemp);
 		config.get(catName, APName[3], sunTemp).getDouble(sunTemp);
@@ -888,7 +926,7 @@ public static List<Integer> getIDS(String idString)
 	String[] idSplitColon = null;
 	
 	
-	System.out.println("checking number");
+	//System.out.println("checking number");
 	if(!((String)idString).isEmpty() && ((String)idString).contains(","))
 	{
 		idSplitComma = idString.split(",");
@@ -897,7 +935,7 @@ public static List<Integer> getIDS(String idString)
 		
 		for(int o = 0; o <= (idSplitComma.length - 1); ++o)
 		{
-			System.out.println("Found ID "+ idSplitComma[o]);
+			//System.out.println("Found ID "+ idSplitComma[o]);
 			idSplitComma[o] = idSplitComma[o].trim();
 			
 			if(idSplitComma[o].contains(":"))
@@ -937,71 +975,46 @@ public static List<Integer> getIDS(String idString)
 			}
 		}
 		
-		/*
-		if(CommaSplit == true)
-		{
-			System.out.println("Checking for Colons");
 
-			Iterator<String> iterator = ColonList.iterator();
-			while (iterator.hasNext()) 
-			{
-
-					System.out.println("Found Colon");
-					idSplitColon = iterator.next().split(":");
-					
-					int Min = Integer.parseInt(idSplitColon[0]);  
-					int Max = Integer.parseInt(idSplitColon[1]);
-					
-					if(Max <= Min)
-					{
-						Min = Integer.parseInt(idSplitColon[1]);  
-						Max = Integer.parseInt(idSplitColon[0]);
-					}
-
-					for(int j = Min; j <= Max ; ++j)
-					{
-						ids.add(j);
-						System.out.println("Found ID "+ j);
-						
-					}
-
-			}	
-				
-
-			
-		}
-		else 
-		{	
-			idSplitColon = idString.split(":");
-			
-			int Min = Integer.parseInt(idSplitColon[0]);  
-			int Max = Integer.parseInt(idSplitColon[1]);
-			
-			if(Max <= Min)
-			{
-				Min = Integer.parseInt(idSplitColon[1]);  
-				Max = Integer.parseInt(idSplitColon[0]);
-			}
-
-			for(int j = 0; j <= (idSplitComma.length - 1); ++j)
-			{
-				
-			}
-		}*/
-		
 		ColonSplit = true;
 	}
 	
 	if(CommaSplit == false && ColonSplit == false)
-	{	ids.add(Integer.parseInt(idString)); 	}
+	{	
+		try
+		{
+			ids.add(Integer.parseInt(idString));
+		}
+		catch(NullPointerException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: "+ idString);
+		} catch(StringIndexOutOfBoundsException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: "+ idString);
+		}
+		catch(NumberFormatException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: "+ idString);
+		}
+	}
 	
 	return ids;
 }
 
+// This arranges a range of IDS from small to large numbers 
 private static List<Integer> getRangeIDS(String[] idSplitColon, List<Integer> ids) 
 {
-	System.out.println("Found Colon");
-	
+	//System.out.println("Found Colon");
+
+	try
+	{
+
+		
+		
+
 	int Min = Integer.parseInt(idSplitColon[0]);  
 	int Max = Integer.parseInt(idSplitColon[1]);
 	
@@ -1014,12 +1027,80 @@ private static List<Integer> getRangeIDS(String[] idSplitColon, List<Integer> id
 	for(int j = Min; j <= Max ; ++j)
 	{
 		ids.add(j);
-		System.out.println("Found ID "+ j);
-		
 	}
 	
+
+	}
+	catch(NullPointerException e)
+	{
+		e.printStackTrace();
+		EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \""+ idSplitColon[0]+":"+ idSplitColon[1] +"\"");
+	} 
+	catch(StringIndexOutOfBoundsException e)
+	{
+		e.printStackTrace();
+		EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \""+ idSplitColon[0] +":"+ idSplitColon[1] +"\"");
+	}
+	catch(NumberFormatException e)
+	{
+		e.printStackTrace();
+		EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs:\""+ idSplitColon[0] +":"+ idSplitColon[1]+"\"");
+	}
 	return ids;
+}
+
+
+
+/* from get IDS
+if(CommaSplit == true)
+{
+	System.out.println("Checking for Colons");
+
+	Iterator<String> iterator = ColonList.iterator();
+	while (iterator.hasNext()) 
+	{
+
+			System.out.println("Found Colon");
+			idSplitColon = iterator.next().split(":");
+			
+			int Min = Integer.parseInt(idSplitColon[0]);  
+			int Max = Integer.parseInt(idSplitColon[1]);
+			
+			if(Max <= Min)
+			{
+				Min = Integer.parseInt(idSplitColon[1]);  
+				Max = Integer.parseInt(idSplitColon[0]);
+			}
+
+			for(int j = Min; j <= Max ; ++j)
+			{
+				ids.add(j);
+				System.out.println("Found ID "+ j);
+				
+			}
+
+	}	
+		
+
 	
 }
+else 
+{	
+	idSplitColon = idString.split(":");
+	
+	int Min = Integer.parseInt(idSplitColon[0]);  
+	int Max = Integer.parseInt(idSplitColon[1]);
+	
+	if(Max <= Min)
+	{
+		Min = Integer.parseInt(idSplitColon[1]);  
+		Max = Integer.parseInt(idSplitColon[0]);
+	}
+
+	for(int j = 0; j <= (idSplitComma.length - 1); ++j)
+	{
+		
+	}
+}*/
 
 } // End of Page
