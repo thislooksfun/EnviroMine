@@ -13,6 +13,7 @@ public class EnviroDamageSource extends DamageSource
 	public static EnviroDamageSource frostbite = (EnviroDamageSource)(new EnviroDamageSource("frostbite")).setDamageBypassesArmor();
 	public static EnviroDamageSource dehydrate = (EnviroDamageSource)(new EnviroDamageSource("dehydrate")).setDamageBypassesArmor();
 	public static EnviroDamageSource landslide = (EnviroDamageSource)(new EnviroDamageSource("landslide"));
+	public static EnviroDamageSource gasfire = (EnviroDamageSource)(new EnviroDamageSource("gasfire"));
 	
 	protected EnviroDamageSource(String par1Str)
 	{
@@ -43,6 +44,9 @@ public class EnviroDamageSource extends DamageSource
 		} else if(this.damageType == "bleedout")
 		{
 			return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" blead out").toString());
+		} else if(this.damageType == "gasfire")
+		{
+			return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" died in a gas fire").toString());
 		} else
 		{
 			return ChatMessageComponent.createFromText(new StringBuilder().append(par1EntityLivingBase.getTranslatedEntityName()).append(" died from enviromental causes").toString());

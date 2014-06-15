@@ -42,9 +42,16 @@ public class EnviroItemSaltWaterBottle extends Item
 		{
 			EnviroDataTracker tracker = EM_StatusManager.lookupTracker(par3EntityPlayer);
 			
-			if(tracker != null && par3EntityPlayer.getRNG().nextInt(2) == 0)
+			if(tracker != null && par3EntityPlayer.getRNG().nextInt(1) == 0)
 			{
-				par3EntityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600));
+				if(par3EntityPlayer.getActivePotionEffect(EnviroPotion.dehydration) != null && par3EntityPlayer.getRNG().nextInt(5) == 0)
+				{
+					int amp = par3EntityPlayer.getActivePotionEffect(EnviroPotion.dehydration).getAmplifier();
+					par3EntityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600, amp + 1));
+				} else
+				{
+					par3EntityPlayer.addPotionEffect(new PotionEffect(EnviroPotion.dehydration.id, 600));
+				}
 			}
 			
 			if(tracker != null)

@@ -2,12 +2,12 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 import enviromine.EnviroDamageSource;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_StatusManager;
+import enviromine.handlers.ObjectHandler;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -18,6 +18,7 @@ import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MathHelper;
 
@@ -30,6 +31,8 @@ public class EnviroDataTracker
 	public float prevAirQuality = 100;
 	public float prevSanity = 100F;
 	
+	public float gasAirDiff = 0F;
+	
 	public float airQuality;
 	
 	public float bodyTemp;
@@ -39,7 +42,7 @@ public class EnviroDataTracker
 	
 	public float sanity;
 	
-	public int attackDelay = 1;
+	public int attackDelay = 0;
 	public int curAttackTime = 0;
 	public boolean isDisabled = false;
 	public int itemUse = 0;
@@ -89,7 +92,8 @@ public class EnviroDataTracker
 				
 				if(player == null)
 				{
-					EM_StatusManager.saveAndRemoveTracker(this);
+					//EM_StatusManager.saveAndRemoveTracker(this);
+					return;
 				} else
 				{
 					trackedEntity = player;
@@ -116,6 +120,15 @@ public class EnviroDataTracker
 		}
 		
 		float[] enviroData = EM_StatusManager.getSurroundingData(trackedEntity, 5);
+		boolean isCreative = false;
+		
+		if(trackedEntity instanceof EntityPlayer)
+		{
+			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
+			{
+				isCreative = true;
+			}
+		}
 		
 		if((trackedEntity.getHealth() <= 2F || bodyTemp >= 41F) && enviroData[7] > (float)(-1F * EM_Settings.sanityMult))
 		{
@@ -123,6 +136,31 @@ public class EnviroDataTracker
 		}
 		
 		// Air checks
+		enviroData[0] += gasAirDiff;
+		gasAirDiff = 0F;
+		ItemStack helmet = trackedEntity.getCurrentItemOrArmor(4);
+		if(helmet != null && !isCreative)
+		{
+			if(helmet.itemID == ObjectHandler.gasMask.itemID)
+			{
+				if(helmet.getItemDamage() < helmet.getMaxDamage() && airQuality <= 99F)
+				{
+					int airDrop = MathHelper.floor_float(enviroData[0]);
+					
+					enviroData[0] -= helmet.getMaxDamage() - helmet.getItemDamage();
+					
+					if(enviroData[0] <= 0)
+					{
+						enviroData[0] = 0;
+						helmet.setItemDamage(helmet.getItemDamage() - airDrop);
+					} else
+					{
+						helmet.setItemDamage(helmet.getMaxDamage());
+					}
+				}
+			}
+		}
+		
 		airQuality += enviroData[0];
 		
 		if(airQuality <= 0F)
@@ -142,19 +180,20 @@ public class EnviroDataTracker
 		
 		if(bodyTemp - airTemp > 0)
 		{
-			if(bodyTemp - airTemp >= tnm)
+			float spAmp = Math.abs(bodyTemp - airTemp) > 10F? Math.abs(bodyTemp - airTemp)/10F : 1F;
+			if(bodyTemp - airTemp >= tnm * spAmp)
 			{
-				bodyTemp -= tnm;
+				bodyTemp -= tnm * spAmp;
 			} else
 			{
 				bodyTemp = airTemp;
 			}
 		} else if(bodyTemp - airTemp < 0)
 		{
-			
-			if(bodyTemp - airTemp <= -tpm)
+			float spAmp = Math.abs(bodyTemp - airTemp) > 10F? Math.abs(bodyTemp - airTemp)/10F : 1F;
+			if(bodyTemp - airTemp <= -tpm * spAmp)
 			{
-				bodyTemp += tpm;
+				bodyTemp += tpm * spAmp;
 			} else
 			{
 				bodyTemp = airTemp;
@@ -263,9 +302,9 @@ public class EnviroDataTracker
 		// Camel Pack Stuff
 		ItemStack plate = trackedEntity.getCurrentItemOrArmor(3);
 		
-		if(plate != null)
+		if(plate != null && !isCreative)
 		{
-			if(plate.itemID == EnviroMine.camelPack.itemID)
+			if(plate.itemID == ObjectHandler.camelPack.itemID)
 			{
 				if(plate.getItemDamage() < plate.getMaxDamage() && hydration <= 99F)
 				{
@@ -288,7 +327,17 @@ public class EnviroDataTracker
 		{
 			if(airQuality <= 0)
 			{
-				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 2.0F);
+				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 4.0F);
+			}
+
+			if(airQuality <= 10F)
+			{
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 20, 1));
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20, 1));
+			} else if(airQuality <= 25F)
+			{
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 20, 0));
+				trackedEntity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 20, 0));
 			}
 			
 			if(bodyTemp >= 39F && enableHeat && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
@@ -347,7 +396,7 @@ public class EnviroDataTracker
 			
 			if(hydration <= 0F)
 			{
-				trackedEntity.attackEntityFrom(EnviroDamageSource.dehydrate, 2.0F);
+				trackedEntity.attackEntityFrom(EnviroDamageSource.dehydrate, 4.0F);
 			}
 			
 			if(sanity <= 10F)
@@ -369,15 +418,12 @@ public class EnviroDataTracker
 		
 		EnviroPotion.checkAndApplyEffects(trackedEntity);
 		
-		if(trackedEntity instanceof EntityPlayer)
+		if(isCreative)
 		{
-			if(((EntityPlayer)trackedEntity).capabilities.isCreativeMode)
-			{
-				bodyTemp = prevBodyTemp;
-				airQuality = prevAirQuality;
-				hydration = prevHydration;
-				sanity = prevSanity;
-			}
+			bodyTemp = prevBodyTemp;
+			airQuality = prevAirQuality;
+			hydration = prevHydration;
+			sanity = prevSanity;
 		}
 		
 		this.fixFloatinfPointErrors();

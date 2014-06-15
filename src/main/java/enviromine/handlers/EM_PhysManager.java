@@ -28,6 +28,7 @@ import net.minecraft.block.BlockSign;
 import net.minecraft.block.BlockWeb;
 import net.minecraft.block.BlockObsidian;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -57,26 +58,12 @@ public class EM_PhysManager
 	
 	public static void schedulePhysUpdate(World world, int x, int y, int z, boolean updateSelf, String type)
 	{
-		long time = 0;
-		MinecraftServer mc = MinecraftServer.getServer();
-		
-		if(!world.isRemote)
-		{
-			if(mc != null && mc.isServerRunning())
-			{
-				time = mc.worldServers[0].getWorldTime();
-			}
-		}
-		
-		if(world.isRemote || time < worldStartTime + EM_Settings.worldDelay)
+		if(world.isRemote || world.getTotalWorldTime() < worldStartTime + EM_Settings.worldDelay)
 		{
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) + EM_Settings.chunkDelay < time)
-			{
-				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
-			} else
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) > world.getTotalWorldTime())
 			{
 				return;
 			}
@@ -95,29 +82,20 @@ public class EM_PhysManager
 	
 	public static void scheduleSlideUpdate(World world, int x, int y, int z)
 	{
-		long time = 0;
-		MinecraftServer mc = MinecraftServer.getServer();
-		
-		if(!world.isRemote)
-		{
-			if(mc != null && mc.isServerRunning())
-			{
-				time = mc.worldServers[0].getWorldTime();
-			}
-		}
-		
-		if(world.isRemote || time < EM_Settings.worldDelay)
+		if(world.isRemote || world.getTotalWorldTime() < worldStartTime + EM_Settings.worldDelay)
 		{
 			return;
 		} else if(chunkDelay.containsKey("" + (x >> 4) + "," + (z >> 4)))
 		{
-			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) < time - EM_Settings.chunkDelay)
-			{
-				chunkDelay.remove("" + (x >> 4) + "," + (z >> 4));
-			} else
+			if(chunkDelay.get("" + (x >> 4) + "," + (z >> 4)) > world.getTotalWorldTime())
 			{
 				return;
 			}
+		}
+		
+		if(world.isAirBlock(x, y, z))
+		{
+			return;
 		}
 		
 		Object[] entry = new Object[6];
@@ -154,18 +132,7 @@ public class EM_PhysManager
 					{
 						if(updateSelf)
 						{
-							if(!excluded.containsKey(position))
-							{
-								excluded.put(position, type);
-								callPhysUpdate(world, x + i, y + j, k + z, type);
-							} else if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
-							{
-								excluded.put(position, type);
-								callPhysUpdate(world, x + i, y + j, k + z, type);
-							} else
-							{
-								continue;
-							}
+							callPhysUpdate(world, x + i, y + j, k + z, type);
 						} else
 						{
 							excluded.put(position, type);
@@ -173,18 +140,7 @@ public class EM_PhysManager
 						}
 					} else
 					{
-						if(!excluded.containsKey(position))
-						{
-							excluded.put(position, type);
-							callPhysUpdate(world, x + i, y + j, k + z, type);
-						} else if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
-						{
-							excluded.put(position, type);
-							callPhysUpdate(world, x + i, y + j, k + z, type);
-						} else
-						{
-							continue;
-						}
+						callPhysUpdate(world, x + i, y + j, k + z, type);
 					}
 				}
 			}
@@ -203,7 +159,33 @@ public class EM_PhysManager
 	
 	public static void callPhysUpdate(World world, int x, int y, int z, Block block, int meta, String type)
 	{
-		if(world.isRemote || block == null)
+		String position = (new StringBuilder()).append(x).append(",").append(y).append(",").append(z).toString();
+		
+		if(excluded.containsKey(position))
+		{
+			if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
+			{
+				excluded.put(position, type);
+			} else
+			{
+				return;
+			}
+		} else
+		{
+			excluded.put(position, type);
+		}
+		
+		boolean locLoaded = false;
+		
+		if(world.getChunkProvider().chunkExists(x >> 4, z >> 4))
+		{
+			locLoaded = world.getChunkFromChunkCoords(x >> 4, z >> 4).isChunkLoaded;
+		} else
+		{
+			locLoaded = false;
+		}
+		
+		if(world.isRemote || block == null || !locLoaded)
 		{
 			return;
 		}
@@ -278,20 +260,24 @@ public class EM_PhysManager
 			
 			if(emptyBelow)
 			{
-				if(!(block instanceof BlockSand))
+				if(!(block instanceof BlockSand) && !usedSlidePositions.contains("" + pos[0] + "," + pos[2]))
 				{
+					//usedSlidePositions.add("" + pos[0] + "," + pos[2]);
 					EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, pos[0] + 0.5, pos[1] + 0.5, pos[2] + 0.5, slideID, slideMeta, false);
 					if(tile != null)
 					{
 						physBlock.fallingBlockTileEntityData = nbtTC;
 					}
+					world.setBlock(x, y, z, 0);
+					physBlock.isLandSlide = true;
 					world.spawnEntityInWorld(physBlock);
-					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Normal");
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
+					return;
 				}
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
 			{
 				//world.setBlock(npos[0], npos[1], npos[2], slideID, slideMeta, 2);
-				usedSlidePositions.add("" + npos[0] + "," + npos[2]);
+				//usedSlidePositions.add("" + npos[0] + "," + npos[2]);
 				
 				EntityPhysicsBlock physBlock = new EntityPhysicsBlock(world, npos[0] + 0.5, npos[1] + 0.5, npos[2] + 0.5, slideID, slideMeta, false);
 				if(tile != null)
@@ -301,7 +287,7 @@ public class EM_PhysManager
 				world.setBlock(x, y, z, 0);
 				physBlock.isLandSlide = true;
 				world.spawnEntityInWorld(physBlock);
-				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Normal");
+				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
 				return;
 			} else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
 			{
@@ -309,7 +295,7 @@ public class EM_PhysManager
 			}
 		}
 		
-		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z, false))
+		if(isLegalType(world, x, y, z) && blockNotSolid(world, x, y - 1, z, false) && blockData[4] <= 0)
 		{
 			int dropBlock = block.blockID;
 			int dropMeta = -1;
@@ -681,7 +667,13 @@ public class EM_PhysManager
 						}
 					}
 					
-					if(stabNum == 3)
+					if(blockProps != null)
+					{
+						if(blockProps.holdsOthers)
+						{
+							data[4] = 1;
+						}
+					} else if(stabNum == 3)
 					{
 						StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
 						if(strongType != null && strongType.holdOther)
@@ -711,7 +703,7 @@ public class EM_PhysManager
 						}
 					}
 					
-					if((blockProps == null && blockID == Block.glowStone.blockID) || (blockProps != null && blockProps.holdsOthers))
+					if(blockProps == null && blockID == Block.glowStone.blockID)
 					{
 						data[4] = 1;
 					}
@@ -921,7 +913,7 @@ public class EM_PhysManager
 		int id = world.getBlockId(x, y, z);
 		int meta = world.getBlockMetadata(x, y, z);
 		
-		if(id == 0)
+		if(id == 0 || Block.blocksList[id] == null)
 		{
 			return false;
 		} else if(EM_Settings.blockProperties.containsKey("" + id + "," + meta) || EM_Settings.blockProperties.containsKey("" + id))
@@ -939,7 +931,49 @@ public class EM_PhysManager
 		{
 			if(!(Block.blocksList[id] instanceof BlockMobSpawner) && !(Block.blocksList[id] instanceof BlockLadder) && !(Block.blocksList[id] instanceof BlockWeb) && !(Block.blocksList[id] instanceof BlockGlowStone) && !(Block.blocksList[id] instanceof BlockSign) && !(Block.blocksList[id] instanceof BlockBed) && !(Block.blocksList[id] instanceof BlockDoor) && !(Block.blocksList[id] instanceof BlockAnvil) && !(Block.blocksList[id] instanceof BlockGravel) && !(Block.blocksList[id] instanceof BlockSand) && !(Block.blocksList[id] instanceof BlockPortal) && !(Block.blocksList[id] instanceof BlockEndPortal) && !(Block.blocksList[id] == Block.whiteStone) && !(Block.blocksList[id] instanceof BlockEndPortalFrame) && !(Block.blocksList[id].blockMaterial == Material.vine) && !blockNotSolid(world, x, y, z, false) && Block.blocksList[id].blockHardness != -1F)
 			{
-				return true;
+				int stabNum = getDefaultStabilityType(Block.blocksList[id]);
+				
+				if(stabNum == 3)
+				{
+					StabilityType strongType = EM_Settings.stabilityTypes.get("strong");
+					if(strongType != null && strongType.enablePhysics)
+					{
+						return true;
+					} else
+					{
+						return false;
+					}
+				} else if(stabNum == 2)
+				{
+					StabilityType avgType = EM_Settings.stabilityTypes.get("average");
+					if(avgType != null && avgType.enablePhysics)
+					{
+						return true;
+					} else
+					{
+						return false;
+					}
+				} else if(stabNum == 1)
+				{
+					StabilityType looseType;
+					if(id > 175 && EM_Settings.stabilityTypes.containsKey(EM_Settings.defaultStability))
+					{
+						looseType = EM_Settings.stabilityTypes.get(EM_Settings.defaultStability);
+					} else
+					{
+						looseType = EM_Settings.stabilityTypes.get("loose");
+					}
+					if(looseType != null && looseType.enablePhysics)
+					{
+						return true;
+					} else
+					{
+						return false;
+					}
+				} else
+				{
+					return false;
+				}
 			} else
 			{
 				return false;
@@ -981,7 +1015,7 @@ public class EM_PhysManager
 		
 		if(physSchedule.size() >= 4096 && EM_Settings.updateCap <= -1)
 		{
-			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 4096/tick! Dumping update schedule, things may break.");
+			EnviroMine.logger.log(Level.SEVERE, "Physics updates exeeded 4096! Dumping update schedule");
 			physSchedule.clear();
 			return;
 		}
@@ -992,6 +1026,7 @@ public class EM_PhysManager
 			{
 				if(!timer.isRunning())
 				{
+					timer.reset();
 					timer.start();
 				}
 				debugUpdatesCaptured = 0;
@@ -1019,6 +1054,25 @@ public class EM_PhysManager
 					physSchedule = new ArrayList<Object[]>();
 					canClear = true;
 					break;
+				}
+				
+				if(EnviroMine.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning())
+				{
+					if(Minecraft.getMinecraft().getIntegratedServer().getServerListeningThread().isGamePaused() && !EnviroMine.proxy.isOpenToLAN())
+					{
+						if(timer.isRunning())
+						{
+							timer.stop();
+							debugTime = 0;
+						}
+						break;
+					} else
+					{
+						if(!timer.isRunning())
+						{
+							timer.start();
+						}
+					}
 				}
 				
 				if(timer.elapsed(TimeUnit.SECONDS) > 2)
@@ -1058,7 +1112,10 @@ public class EM_PhysManager
 						updateSurroundingWithExclusions((World)entry[0], (Integer)entry[1], (Integer)entry[2], (Integer)entry[3], (Boolean)entry[4], (String)entry[5]);
 					}
 				}
-				physSchedule.remove(i);
+				if(physSchedule.size() - 1 >= i)
+				{
+					physSchedule.remove(i);
+				}
 			}
 			currentTime = 0;
 		} else
@@ -1069,9 +1126,8 @@ public class EM_PhysManager
 		if(canClear)
 		{
 			excluded.clear();
+			usedSlidePositions.clear();
 		}
-		
-		usedSlidePositions.clear();
 		
 		if(EnviroMine.proxy.isClient() && debugTime >= debugInterval && timer.isRunning())
 		{
@@ -1081,7 +1137,7 @@ public class EM_PhysManager
 			EM_GuiEnviroMeters.DB_physBuffer = physSchedule.size();
 			timer.reset();
 			debugTime = 0;
-		} else if(EnviroMine.proxy.isClient() && timer.isRunning())
+		} else if(EnviroMine.proxy.isClient())
 		{
 			debugTime += 1;
 		}

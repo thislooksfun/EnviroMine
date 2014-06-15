@@ -55,7 +55,13 @@ public class EM_Settings
 	public static int coldBottleID = 5003;
 	public static int camelPackID = 5004;
 
+
+	public static int gasMaskID = 5005;
 	public static int airFilterID = 5006;
+	public static int hardHatID = 5007;
+	public static int blockElevatorID = 501;
+	public static int gasBlockID = 502;
+	public static int fireGasBlockID = 503;
 	
 	public static int hypothermiaPotionID = 27;
 	public static int heatstrokePotionID = 28;
@@ -89,6 +95,10 @@ public class EM_Settings
 	public static int worldDelay;
 	public static int chunkDelay;
 	public static int physBlockID;
+	public static int entityFailsafe;
+	public static boolean villageAssist;
+	
+	public static int caveDimID = -3;
 	
 	public static float convertToFarenheit(float num)
 	{

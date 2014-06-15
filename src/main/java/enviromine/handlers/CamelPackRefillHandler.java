@@ -42,7 +42,7 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 			if(item == null)
 			{
 				continue;
-			} else if(item.itemID == EnviroMine.camelPack.itemID)
+			} else if(item.itemID == ObjectHandler.camelPack.itemID)
 			{
 				if(hasPack)
 				{
@@ -117,12 +117,12 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 		{
 			if(packDamage > (bottles.size() * 25))
 			{
-				ItemStack newItem = new ItemStack(EnviroMine.camelPack);
+				ItemStack newItem = new ItemStack(ObjectHandler.camelPack);
 				newItem.setItemDamage(packDamage - (bottles.size() * 25));
 				return newItem;
 			} else
 			{
-				return new ItemStack(EnviroMine.camelPack);
+				return new ItemStack(ObjectHandler.camelPack);
 			}
 		}
 	}
@@ -142,7 +142,7 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 				if(slot == null)
 				{
 					continue;
-				} else if(slot.itemID == EnviroMine.camelPack.itemID)
+				} else if(slot.itemID == ObjectHandler.camelPack.itemID)
 				{
 					slot.stackSize += 1;
 					slot.setItemDamage(slot.getItemDamage() + 25);
