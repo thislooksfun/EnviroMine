@@ -45,7 +45,6 @@ import enviromine.handlers.EM_EventManager;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.items.AirFilter;
-import enviromine.items.AirMask;
 import enviromine.items.EnviroArmor;
 import enviromine.items.EnviroItemBadWaterBottle;
 import enviromine.items.EnviroItemColdWaterBottle;
@@ -93,8 +92,6 @@ public class EnviroMine
 		
 		camelPack = (ItemArmor)new EnviroArmor(EM_Settings.camelPackID, camelPackMaterial, 4, 1).setTextureName("camel_pack").setUnlocalizedName("camelPack").setCreativeTab(CreativeTabs.tabTools);
 
-		airMaskMaterial = EnumHelper.addArmorMaterial("airMask", 100, new int[]{0, 0, 0, 0}, 0);
-		airMask = (ItemArmor)new AirMask(EM_Settings.airMaskID, airMaskMaterial, 4, 0).setTextureName("air_mask").setUnlocalizedName("airMask").setCreativeTab(CreativeTabs.tabTools);
 		airFilter = (Item) new AirFilter(EM_Settings.airFilterID).setMaxStackSize(4).setUnlocalizedName("airFilter").setCreativeTab(CreativeTabs.tabMaterials);;
 		
 		if(EM_Settings.shaftGen == true)
@@ -115,7 +112,7 @@ public class EnviroMine
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
 		LanguageRegistry.addName(camelPack, "Camel Pack");
-		LanguageRegistry.addName(airMask, "Air Filter Mask");
+
 		LanguageRegistry.addName(airFilter, "Filter Replacements");
 		
 		extendPotionList();

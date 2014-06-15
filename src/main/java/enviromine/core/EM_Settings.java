@@ -54,7 +54,7 @@ public class EM_Settings
 	public static int saltBottleID = 5002;
 	public static int coldBottleID = 5003;
 	public static int camelPackID = 5004;
-	public static int airMaskID = 5005;
+
 	public static int airFilterID = 5006;
 	
 	public static int hypothermiaPotionID = 27;
