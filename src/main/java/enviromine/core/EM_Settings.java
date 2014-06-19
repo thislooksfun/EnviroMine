@@ -33,7 +33,7 @@ public class EM_Settings
 	
 	public static boolean ShowGuiIcons;
 	
-	public static float guiScale;
+	public static float guiScale = 1f;
 	
 	public static boolean spreadIce = false;
 	

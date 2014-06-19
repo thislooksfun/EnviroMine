@@ -3,10 +3,12 @@ package enviromine.gui;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -20,13 +22,18 @@ import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EnviroUtils;
 import enviromine.core.EM_Settings;
 import enviromine.handlers.EM_StatusManager;
+import enviromine.handlers.ObjectHandler;
 import enviromine.trackers.EnviroDataTracker;
 
 public class EM_GuiEnviroMeters extends Gui
 {
 	public Minecraft mc;
-	
+
 	public static final String guiResource = "textures/gui/status_Gui.png";
+	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur2.png");
+	public static final ResourceLocation frostMaskResource = new ResourceLocation("enviromine", "textures/misc/frost_mask.png");
+	public static final ResourceLocation insaneMaskResource = new ResourceLocation("enviromine", "textures/misc/insane.png");
+	public static final ResourceLocation breathMaskResource = new ResourceLocation("enviromine", "textures/misc/breath.png");
 	
 	public static final int meterWidth = 96;
 	public static final int meterHeight = 8;
@@ -46,8 +53,9 @@ public class EM_GuiEnviroMeters extends Gui
 	
 	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
-	public void onGuiRender(RenderGameOverlayEvent event)
+	public void onGuiRender(RenderGameOverlayEvent.Post event)
 	{
+		
 		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
 		{
 			return;
@@ -63,26 +71,27 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		int xPos = 4;
 		int yPos = 4;
+		
 
+		
 		// GUI Scaling Code 
-		GL11.glPushMatrix();
+		GL11.glPushMatrix(); // Isolate this GUI from the vanilla GUI
 		float scale = EM_Settings.guiScale; 
 		double translate = new BigDecimal(String.valueOf(1/scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
 		GL11.glScalef((float) scale,(float) scale,(float) scale);
 
 		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+
 		
 		int width = MathHelper.ceiling_float_int((float) (scaleRes.getScaledWidth() * translate));
 		int height = MathHelper.ceiling_float_int((float) (scaleRes.getScaledHeight() * translate));
 		// End of scaling Code
 		
-		//OLD
-		//int width = scaleRes.getScaledWidth();
-		//int height = scaleRes.getScaledHeight();
-
-		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_LIGHTING);
+		
+		// Rend Mask Overlays
+		RenderMask(scaleRes);
 		
 		
 		if(tracker == null)
@@ -525,39 +534,114 @@ public class EM_GuiEnviroMeters extends Gui
 	}
 	
 	
-    public void drawTexturedModalRectScale(int par1, int par2, int par3, int par4, int par5, int par6 ,float par7)
+    
+
+    public void RenderMask(ScaledResolution scaleRes)
+    {
+        int k = scaleRes.getScaledWidth();
+        int l = scaleRes.getScaledHeight();
+        
+        ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
+        if (this.mc.gameSettings.thirdPersonView == 0 && itemstack != null && itemstack.getItem() != null)
+        {
+            if (itemstack.itemID == ObjectHandler.gasMask.itemID)
+            {
+            	
+    			//float temp = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(1, RoundingMode.HALF_UP).floatValue();
+    			//float sanity =  new BigDecimal(String.valueOf(tracker.sanity )).setScale(1, RoundingMode.HALF_UP).floatValue();
+    			// air = new BigDecimal(String.valueOf(tracker.airQuality )).setScale(1, RoundingMode.HALF_UP).floatValue();
+    			
+    			//System.out.println(itemstack.getItemDamage());
+    			
+    			if(itemstack.getItemDamage() >= 80) Renderbreath(k,l);
+
+            	if(tracker.sanity  <= 20)
+            	{
+            			//float sanTemp = (20 - sanity) *5;
+            			// Draw (Mask) Sanity overlay
+            			enviromine.EnviroUtils.drawScreenBlur(k, l, insaneMaskResource, sanTemp);
+            	}
+    			
+
+            	
+            	if(tracker.bodyTemp <= 35)
+            	{
+            		//float coldTemp = (20 - sanity) *5;
+            		// 	Draw (Mask) Frozen overlay
+            		enviromine.EnviroUtils.drawScreenBlur(k, l, frostMaskResource, coldTemp);
+            	}
+            	
+            	
+            	//Draw gasMask Overlay
+            	enviromine.EnviroUtils.drawScreenBlur(k, l, gasMaskResource, 1f);
+
+
+            }
+        }
+
+    }
+
+   
+    float breathtimer = 0f;
+    Boolean Exhale = false;
+    int bTick = 0; // Cnt
+    int breathSpeed = 10; // GUI Tick for Breaths (This will change how many ticks between alpha change)
+    float AplhaSpeed = .1f; // changes how much of a change per breathspeed tick
+    float alpha = 0;
+    boolean pause = false;
+    int pauseTime = 30;
+    int pauseCnt = 0;
+    
+    public void Renderbreath(int k,int l)
     {
     	
-		
-    	//par6 = par6 *2;
-    	//par5 = par5 *2;
-
-        //GL11.glEnable(GL11.GL_BLEND);
-       	float Scale = par7;
-       	//double translate = 1/Scale;
-       	
-       	double translation = new BigDecimal(String.valueOf(1/Scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
-       	System.out.println( "1 divided by "+ Scale +" = "+ translation);
-       	
-    	//((double)this.zLevel + par7)
-   
-       	float f = 0.00390625F;
-        float f1 = 0.00390625F;
-        Tessellator tessellator = Tessellator.instance;
-        double par1Tran = (double) (par1/translation);
-        
-        
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV((double)(par1Tran + 0), (double)(par2 + (par6*Scale)),(double) this.zLevel  , (double)((float)(par3 + 0) * f), (double)((float)(par4 + par6) * f1));
-        tessellator.addVertexWithUV((double)(par1Tran + (par5*Scale)), (double)(par2 + (par6*Scale)), (double) this.zLevel, (double)((float)(par3 + par5) * f), (double)((float)(par4 + par6) * f1));
-        tessellator.addVertexWithUV((double)(par1Tran + (par5*Scale)), (double)(par2 + 0), (double) this.zLevel, (double)((float)(par3 + par5) * f), (double)((float)(par4 + 0) * f1));
-        tessellator.addVertexWithUV((double)(par1Tran + 0), (double)(par2 + 0), (double) this.zLevel, (double)((float)(par3 + 0) * f), (double)((float)(par4 + 0) * f1));
-        tessellator.draw();
-
-		//GL11.glPopMatrix();
-
-        //GL11.glDisable(GL11.GL_LIGHTING);
-        //GL11.glEnable(GL11.GL_ALPHA_TEST);
+    	
+    	if(pause  == true && pauseCnt <= pauseTime)
+    	{
+    		pauseCnt++;
+    	
+    	    if (pauseCnt >= pauseTime) 
+    		{
+    			pauseCnt = 0;
+    			pause = !pause;  //end pause
+    		}	
+    		return;
+    	}
+    	//Inhale
+    	else if(bTick >= breathSpeed && Exhale == false) 
+    	{
+    		alpha+= AplhaSpeed; 
+    		bTick = 0; 
+    		System.out.println(alpha);
+    		if (alpha >= 1f) 
+    		{
+    			alpha = 1f; 
+    			Exhale = !Exhale;
+    		}
+    	}
+    	//Exhale
+    	else if (bTick >= breathSpeed && Exhale == true) 
+    	{
+    			alpha-= AplhaSpeed; 
+    			bTick = 0; 
+    			if (alpha <= 0f) 
+    			{
+    				alpha = 0f; 
+    				Exhale = !Exhale;
+    				pause = !pause; //Start pause
+    			}
+    	} 
+    	//Breath Out
+    	
+    	
+    	
+    	bTick++;
+    	
+    	//Switch
+    	
+    	enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource,alpha);
     }
+	
+
     
 }

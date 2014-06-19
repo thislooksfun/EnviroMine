@@ -2,13 +2,19 @@ package enviromine.core;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.command.ICommandManager;
+import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.DimensionManager;
+
 import org.lwjgl.input.Keyboard;
+
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -18,6 +24,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -27,9 +34,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.EnviroUtils;
+import enviromine.core.commands.CommandPhysics;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
-import enviromine.handlers.EM_EventManager;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.handlers.ObjectHandler;
@@ -133,4 +140,15 @@ public class EnviroMine
 		KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.keybinds.ReloadCustomObjects(key1, repeat1));
 	
 	}
+	
+    @EventHandler
+    public void serverStart(FMLServerStartingEvent event)
+    {
+    	MinecraftServer server = MinecraftServer.getServer();
+    	ICommandManager command = server.getCommandManager();
+    	ServerCommandManager manager = (ServerCommandManager) command;
+
+    	manager.registerCommand(new CommandPhysics());
+
+    }
 }
