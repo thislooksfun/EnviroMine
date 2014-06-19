@@ -7,7 +7,7 @@
     "url": "",
     "updateUrl": "",
     "authors": ["Funwayguy", "TimbuckTato", "GenDeathrow"],
-    "credits": "BETA tested by ninja_assin23 and jcant26",
+    "credits": "BETA tested by ninja_assin23 and jcant26. Big thanks to the IronArmy and EpicNation for all the hard work debugging this mod",
     "logoFile": "title.png",
     "screenshots": [],
     "dependencies": ["mod_MinecraftForge"]
