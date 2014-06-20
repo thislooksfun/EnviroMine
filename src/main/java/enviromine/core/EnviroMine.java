@@ -2,7 +2,6 @@ package enviromine.core;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
@@ -12,9 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.DimensionManager;
-
 import org.lwjgl.input.Keyboard;
-
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -35,6 +32,7 @@ import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.EnviroUtils;
 import enviromine.core.commands.CommandPhysics;
+import enviromine.core.commands.EnviroCommand;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
 import enviromine.handlers.EnviroPacketHandler;
@@ -149,6 +147,6 @@ public class EnviroMine
     	ServerCommandManager manager = (ServerCommandManager) command;
 
     	manager.registerCommand(new CommandPhysics());
-
+    	manager.registerCommand(new EnviroCommand());
     }
 }

@@ -2,7 +2,6 @@ package enviromine.gui;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -14,9 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.ForgeSubscribe;
-
 import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EnviroUtils;
@@ -28,9 +25,9 @@ import enviromine.trackers.EnviroDataTracker;
 public class EM_GuiEnviroMeters extends Gui
 {
 	public Minecraft mc;
-
+	
 	public static final String guiResource = "textures/gui/status_Gui.png";
-	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur2.png");
+	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur3.png");
 	public static final ResourceLocation frostMaskResource = new ResourceLocation("enviromine", "textures/misc/frost_mask.png");
 	public static final ResourceLocation insaneMaskResource = new ResourceLocation("enviromine", "textures/misc/insane.png");
 	public static final ResourceLocation breathMaskResource = new ResourceLocation("enviromine", "textures/misc/breath.png");
@@ -56,7 +53,7 @@ public class EM_GuiEnviroMeters extends Gui
 	public void onGuiRender(RenderGameOverlayEvent.Post event)
 	{
 		
-		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
+		if(event.type != ElementType.HELMET || event.isCancelable())
 		{
 			return;
 		}
@@ -72,19 +69,16 @@ public class EM_GuiEnviroMeters extends Gui
 		int xPos = 4;
 		int yPos = 4;
 		
-
-		
 		// GUI Scaling Code 
 		GL11.glPushMatrix(); // Isolate this GUI from the vanilla GUI
-		float scale = EM_Settings.guiScale; 
-		double translate = new BigDecimal(String.valueOf(1/scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
-		GL11.glScalef((float) scale,(float) scale,(float) scale);
-
-		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-
+		float scale = EM_Settings.guiScale;
+		double translate = new BigDecimal(String.valueOf(1 / scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
+		GL11.glScalef((float)scale, (float)scale, (float)scale);
 		
-		int width = MathHelper.ceiling_float_int((float) (scaleRes.getScaledWidth() * translate));
-		int height = MathHelper.ceiling_float_int((float) (scaleRes.getScaledHeight() * translate));
+		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+		
+		int width = MathHelper.ceiling_float_int((float)(scaleRes.getScaledWidth() * translate));
+		int height = MathHelper.ceiling_float_int((float)(scaleRes.getScaledHeight() * translate));
 		// End of scaling Code
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -92,7 +86,6 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		// Rend Mask Overlays
 		RenderMask(scaleRes);
-		
 		
 		if(tracker == null)
 		{
@@ -113,7 +106,7 @@ public class EM_GuiEnviroMeters extends Gui
 			int airBar = MathHelper.ceiling_float_int((tracker.airQuality / 100) * barWidth);
 			
 			float dispHeat = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(2, RoundingMode.DOWN).floatValue();
-			float FdispHeat = new BigDecimal(String.valueOf((tracker.bodyTemp * 1.8)+32)).setScale(2, RoundingMode.DOWN).floatValue();
+			float FdispHeat = new BigDecimal(String.valueOf((tracker.bodyTemp * 1.8) + 32)).setScale(2, RoundingMode.DOWN).floatValue();
 			float dispSanity = new BigDecimal(String.valueOf(tracker.sanity)).setScale(2, RoundingMode.DOWN).floatValue();
 			
 			if(waterBar > barWidth)
@@ -183,7 +176,7 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			EM_Settings.waterBarPos = "top_left";
 			EM_Settings.heatBarPos = "top_right";
-			EM_Settings.oxygenBarPos= "top_center";
+			EM_Settings.oxygenBarPos = "top_center";
 			
 			EM_Settings.ShowText = true;
 			
@@ -396,7 +389,7 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(HTcurX, HTcurY, 64, meterHeight * 4, 32, meterHeight);
 					if(EM_Settings.useFarenheit == true)
 					{
-						Minecraft.getMinecraft().fontRenderer.drawString( FdispHeat + "F", HTcurX, HTcurY, 16777215);
+						Minecraft.getMinecraft().fontRenderer.drawString(FdispHeat + "F", HTcurX, HTcurY, 16777215);
 					} else
 					{
 						Minecraft.getMinecraft().fontRenderer.drawString(dispHeat + "C", HTcurX, HTcurY, 16777215);
@@ -413,7 +406,7 @@ public class EM_GuiEnviroMeters extends Gui
 				
 				if(EM_Settings.enableSanity)
 				{
-				
+					
 					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(SAcurX, SAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
@@ -458,8 +451,7 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		ShowDebugText(event);
 		GL11.glPopMatrix();
-
-
+		
 	}
 	
 	public static float DB_bodyTemp = 0;
@@ -482,7 +474,7 @@ public class EM_GuiEnviroMeters extends Gui
 	@SideOnly(Side.CLIENT)
 	private void ShowDebugText(RenderGameOverlayEvent event)
 	{
-		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
+		if(event.type != ElementType.HELMET || event.isCancelable())
 		{
 			return;
 		}
@@ -500,8 +492,6 @@ public class EM_GuiEnviroMeters extends Gui
 			DB_sanityrate = new BigDecimal(String.valueOf(tracker.sanity - tracker.prevSanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
 			DB_airquality = new BigDecimal(String.valueOf(tracker.airQuality - tracker.prevAirQuality)).setScale(3, RoundingMode.HALF_UP).floatValue();
 			DB_dehydrateRate = new BigDecimal(String.valueOf(tracker.hydration - tracker.prevHydration)).setScale(3, RoundingMode.HALF_UP).floatValue();
-	
-			
 			
 			if(EM_Settings.useFarenheit == true)
 			{
@@ -533,115 +523,108 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 	}
 	
+	public void RenderMask(ScaledResolution scaleRes)
+	{
+		int k = scaleRes.getScaledWidth();
+		int l = scaleRes.getScaledHeight();
+		
+		ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
+		if(this.mc.gameSettings.thirdPersonView == 0 && itemstack != null && itemstack.getItem() != null)
+		{
+			if(itemstack.itemID == ObjectHandler.gasMask.itemID)
+			{
+				if(tracker != null)
+				{
+					float temp = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(1, RoundingMode.HALF_UP).floatValue();
+					float sanity = new BigDecimal(String.valueOf(tracker.sanity)).setScale(1, RoundingMode.HALF_UP).floatValue();
+					// air = new BigDecimal(String.valueOf(tracker.airQuality )).setScale(1, RoundingMode.HALF_UP).floatValue();
+					
+					//System.out.println(itemstack.getItemDamage());
+					
+					if(itemstack.getItemDamage() >= 80)
+						Renderbreath(k, l);
+					
+					if(tracker.sanity <= 20)
+					{
+						float sanTemp = (20 - sanity) * 5;
+						// Draw (Mask) Sanity overlay
+						enviromine.EnviroUtils.drawScreenBlur(k, l, insaneMaskResource, sanTemp);
+					}
+					
+					if(tracker.bodyTemp <= 35)
+					{
+						float grad = 0;
+						if(tracker.bodyTemp <= 32F)
+						{
+							grad = 64F;
+						} else
+						{
+							grad = (((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
+						}
+						// 	Draw (Mask) Frozen overlay
+						enviromine.EnviroUtils.drawScreenBlur(k, l, frostMaskResource, grad/255);
+					}
+				}
+				
+				//Draw gasMask Overlay
+				enviromine.EnviroUtils.drawScreenBlur(k, l, gasMaskResource, 1f);
+			}
+		}
+	}
 	
-    
-
-    public void RenderMask(ScaledResolution scaleRes)
-    {
-        int k = scaleRes.getScaledWidth();
-        int l = scaleRes.getScaledHeight();
-        
-        ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
-        if (this.mc.gameSettings.thirdPersonView == 0 && itemstack != null && itemstack.getItem() != null)
-        {
-            if (itemstack.itemID == ObjectHandler.gasMask.itemID)
-            {
-            	
-    			//float temp = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(1, RoundingMode.HALF_UP).floatValue();
-    			//float sanity =  new BigDecimal(String.valueOf(tracker.sanity )).setScale(1, RoundingMode.HALF_UP).floatValue();
-    			// air = new BigDecimal(String.valueOf(tracker.airQuality )).setScale(1, RoundingMode.HALF_UP).floatValue();
-    			
-    			//System.out.println(itemstack.getItemDamage());
-    			
-    			if(itemstack.getItemDamage() >= 80) Renderbreath(k,l);
-
-            	if(tracker.sanity  <= 20)
-            	{
-            			//float sanTemp = (20 - sanity) *5;
-            			// Draw (Mask) Sanity overlay
-            			enviromine.EnviroUtils.drawScreenBlur(k, l, insaneMaskResource, sanTemp);
-            	}
-    			
-
-            	
-            	if(tracker.bodyTemp <= 35)
-            	{
-            		//float coldTemp = (20 - sanity) *5;
-            		// 	Draw (Mask) Frozen overlay
-            		enviromine.EnviroUtils.drawScreenBlur(k, l, frostMaskResource, coldTemp);
-            	}
-            	
-            	
-            	//Draw gasMask Overlay
-            	enviromine.EnviroUtils.drawScreenBlur(k, l, gasMaskResource, 1f);
-
-
-            }
-        }
-
-    }
-
-   
-    float breathtimer = 0f;
-    Boolean Exhale = false;
-    int bTick = 0; // Cnt
-    int breathSpeed = 10; // GUI Tick for Breaths (This will change how many ticks between alpha change)
-    float AplhaSpeed = .1f; // changes how much of a change per breathspeed tick
-    float alpha = 0;
-    boolean pause = false;
-    int pauseTime = 30;
-    int pauseCnt = 0;
-    
-    public void Renderbreath(int k,int l)
-    {
-    	
-    	
-    	if(pause  == true && pauseCnt <= pauseTime)
-    	{
-    		pauseCnt++;
-    	
-    	    if (pauseCnt >= pauseTime) 
-    		{
-    			pauseCnt = 0;
-    			pause = !pause;  //end pause
-    		}	
-    		return;
-    	}
-    	//Inhale
-    	else if(bTick >= breathSpeed && Exhale == false) 
-    	{
-    		alpha+= AplhaSpeed; 
-    		bTick = 0; 
-    		System.out.println(alpha);
-    		if (alpha >= 1f) 
-    		{
-    			alpha = 1f; 
-    			Exhale = !Exhale;
-    		}
-    	}
-    	//Exhale
-    	else if (bTick >= breathSpeed && Exhale == true) 
-    	{
-    			alpha-= AplhaSpeed; 
-    			bTick = 0; 
-    			if (alpha <= 0f) 
-    			{
-    				alpha = 0f; 
-    				Exhale = !Exhale;
-    				pause = !pause; //Start pause
-    			}
-    	} 
-    	//Breath Out
-    	
-    	
-    	
-    	bTick++;
-    	
-    	//Switch
-    	
-    	enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource,alpha);
-    }
+	float breathtimer = 0f;
+	Boolean Exhale = false;
+	int bTick = 0; // Cnt
+	int breathSpeed = 10; // GUI Tick for Breaths (This will change how many ticks between alpha change)
+	float AplhaSpeed = .1f; // changes how much of a change per breathspeed tick
+	float alpha = 0;
+	boolean pause = false;
+	int pauseTime = 30;
+	int pauseCnt = 0;
 	
-
-    
+	public void Renderbreath(int k, int l)
+	{
+		if(pause == true && pauseCnt <= pauseTime)
+		{
+			pauseCnt++;
+			
+			if(pauseCnt >= pauseTime)
+			{
+				pauseCnt = 0;
+				pause = !pause;  //end pause
+			}
+			return;
+		}
+		//Inhale
+		else if(bTick >= breathSpeed && Exhale == false)
+		{
+			alpha += AplhaSpeed;
+			bTick = 0;
+			System.out.println(alpha);
+			if(alpha >= 1f)
+			{
+				alpha = 1f;
+				Exhale = !Exhale;
+			}
+		}
+		//Exhale
+		else if(bTick >= breathSpeed && Exhale == true)
+		{
+			alpha -= AplhaSpeed;
+			bTick = 0;
+			if(alpha <= 0f)
+			{
+				alpha = 0f;
+				Exhale = !Exhale;
+				pause = !pause; //Start pause
+			}
+		}
+		//Breath Out
+		
+		bTick++;
+		
+		//Switch
+		
+		enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
+	}
 }
