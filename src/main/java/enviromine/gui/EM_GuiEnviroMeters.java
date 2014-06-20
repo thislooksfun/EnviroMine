@@ -27,7 +27,7 @@ public class EM_GuiEnviroMeters extends Gui
 	public Minecraft mc;
 	
 	public static final String guiResource = "textures/gui/status_Gui.png";
-	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur3.png");
+	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur4.png");
 	public static final ResourceLocation frostMaskResource = new ResourceLocation("enviromine", "textures/misc/frost_mask.png");
 	public static final ResourceLocation insaneMaskResource = new ResourceLocation("enviromine", "textures/misc/insane.png");
 	public static final ResourceLocation breathMaskResource = new ResourceLocation("enviromine", "textures/misc/breath.png");
@@ -541,8 +541,10 @@ public class EM_GuiEnviroMeters extends Gui
 					
 					//System.out.println(itemstack.getItemDamage());
 					
-					if(itemstack.getItemDamage() >= 80)
-						Renderbreath(k, l);
+					//if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1)
+					{
+						//Renderbreath(k, l);
+					}
 					
 					if(tracker.sanity <= 20)
 					{
@@ -573,10 +575,10 @@ public class EM_GuiEnviroMeters extends Gui
 	}
 	
 	float breathtimer = 0f;
-	Boolean Exhale = false;
+	boolean exhale = false;
 	int bTick = 0; // Cnt
 	int breathSpeed = 10; // GUI Tick for Breaths (This will change how many ticks between alpha change)
-	float AplhaSpeed = .1f; // changes how much of a change per breathspeed tick
+	float alphaSpeed = .01f; // changes how much of a change per breathspeed tick
 	float alpha = 0;
 	boolean pause = false;
 	int pauseTime = 30;
@@ -596,26 +598,26 @@ public class EM_GuiEnviroMeters extends Gui
 			return;
 		}
 		//Inhale
-		else if(bTick >= breathSpeed && Exhale == false)
+		else if(bTick >= breathSpeed && exhale == false)
 		{
-			alpha += AplhaSpeed;
+			alpha += alphaSpeed;
 			bTick = 0;
 			System.out.println(alpha);
 			if(alpha >= 1f)
 			{
 				alpha = 1f;
-				Exhale = !Exhale;
+				exhale = !exhale;
 			}
 		}
 		//Exhale
-		else if(bTick >= breathSpeed && Exhale == true)
+		else if(bTick >= breathSpeed && exhale == true)
 		{
-			alpha -= AplhaSpeed;
+			alpha -= alphaSpeed;
 			bTick = 0;
 			if(alpha <= 0f)
 			{
 				alpha = 0f;
-				Exhale = !Exhale;
+				exhale = !exhale;
 				pause = !pause; //Start pause
 			}
 		}
@@ -624,7 +626,31 @@ public class EM_GuiEnviroMeters extends Gui
 		bTick++;
 		
 		//Switch
-		
 		enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
+		
+		/*if(tracker == null)
+		{
+			return;
+		} else
+		{
+			if(exhale)
+			{
+				alpha += 0.01F;
+			} else
+			{
+				alpha -= 0.01F;
+			}
+			
+			if(alpha >= 0.5F)
+			{
+				exhale = false;
+				alpha = 0.5F;
+			} else if(alpha <= 0F)
+			{
+				exhale = true;
+				alpha = 0F;
+			}
+			enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
+		}*/
 	}
 }
