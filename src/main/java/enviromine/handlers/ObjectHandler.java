@@ -1,13 +1,19 @@
 package enviromine.handlers;
 
+import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import enviromine.EntityPhysicsBlock;
-import enviromine.blocks.BlockElevator;
+import enviromine.blocks.BlockElevatorBottom;
+import enviromine.blocks.BlockElevatorTop;
 import enviromine.blocks.BlockGas;
-import enviromine.blocks.TileEntityGas;
+import enviromine.blocks.renderers.TileEntityElevatorBottomRenderer;
+import enviromine.blocks.renderers.TileEntityElevatorTopRenderer;
+import enviromine.blocks.tiles.TileEntityElevatorBottom;
+import enviromine.blocks.tiles.TileEntityElevatorTop;
+import enviromine.blocks.tiles.TileEntityGas;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.gases.RenderGasHandler;
@@ -17,7 +23,6 @@ import enviromine.items.EnviroItemColdWaterBottle;
 import enviromine.items.EnviroItemSaltWaterBottle;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
@@ -41,7 +46,8 @@ public class ObjectHandler
 	public static ItemArmor gasMask;
 	public static ItemArmor hardHat;
 	
-	public static Block elevator;
+	public static Block elevatorTop;
+	public static Block elevatorBottom;
 	public static Block gasBlock;
 	public static Block fireGasBlock;
 	
@@ -72,6 +78,11 @@ public class ObjectHandler
 		GameRegistry.registerBlock(fireGasBlock, "enviromine.block.firegas");
 		renderGasID = RenderingRegistry.getNextAvailableRenderId();
 		RenderingRegistry.registerBlockHandler(new RenderGasHandler());
+		
+		elevatorTop = new BlockElevatorTop(EM_Settings.blockElevatorTopID, Material.iron).setUnlocalizedName("enviromine.block.elevator_top").setCreativeTab(EnviroMine.enviroTab);
+		GameRegistry.registerBlock(elevatorTop, "enviromine.block.elevator_top");
+		elevatorBottom = new BlockElevatorBottom(EM_Settings.blockElevatorBottomID, Material.iron).setUnlocalizedName("enviromine.block.elevator_bottom").setCreativeTab(EnviroMine.enviroTab);
+		GameRegistry.registerBlock(elevatorBottom, "enviromine.block.elevator_bottom");
 	}
 	
 	public static void RegisterGases()
@@ -82,6 +93,15 @@ public class ObjectHandler
 	{
 		EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID);
 		GameRegistry.registerTileEntity(TileEntityGas.class, "enviromine.tile.gas");
+		
+		GameRegistry.registerTileEntity(TileEntityElevatorTop.class, "enviromine.tile.elevator_top");
+		GameRegistry.registerTileEntity(TileEntityElevatorBottom.class, "enviromine.tile.elevator_bottom");
+		
+		if(EnviroMine.proxy.isClient())
+		{
+			ClientRegistry.bindTileEntitySpecialRenderer(TileEntityElevatorTop.class, new TileEntityElevatorTopRenderer());
+			ClientRegistry.bindTileEntitySpecialRenderer(TileEntityElevatorBottom.class, new TileEntityElevatorBottomRenderer());
+		}
 	}
 	
 	public static void RegisterRecipes()
@@ -101,7 +121,6 @@ public class ObjectHandler
 	
 	public static void RegisterNames()
 	{
-		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
 		LanguageRegistry.addName(coldWaterBottle, "Cold Water Bottle");
@@ -109,5 +128,7 @@ public class ObjectHandler
 		LanguageRegistry.addName(gasMask, "Gas Mask");
 		LanguageRegistry.addName(hardHat, "Hard Hat");
 		LanguageRegistry.addName(airFilter, "Air Filter");
+		LanguageRegistry.addName(elevatorTop, "Elevator Top");
+		LanguageRegistry.addName(elevatorBottom, "Elevator Bottom");
 	}
 }

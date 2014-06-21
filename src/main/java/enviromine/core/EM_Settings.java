@@ -55,7 +55,8 @@ public class EM_Settings
 	public static int gasMaskID = 5005;
 	public static int airFilterID = 5006;
 	public static int hardHatID = 5007;
-	public static int blockElevatorID = 252;
+	public static int blockElevatorTopID = 251;
+	public static int blockElevatorBottomID = 252;
 	public static int gasBlockID = 254;
 	public static int fireGasBlockID = 253;
 	

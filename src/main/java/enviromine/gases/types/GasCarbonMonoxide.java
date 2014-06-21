@@ -15,7 +15,7 @@ public class GasCarbonMonoxide extends EnviroGas
 		super(name, id);
 		this.setColor(new Color(64, 64, 64, 64));
 		this.setDensity(-1F);
-		this.setDecayRates(1, 0, 100, 1);
+		this.setDecayRates(1, 0, 1, 100, 1, 100);
 	}
 	
 	public void applyEffects(EntityLivingBase entityLiving, int amplifier)

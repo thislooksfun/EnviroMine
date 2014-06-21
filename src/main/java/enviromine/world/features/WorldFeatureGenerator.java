@@ -9,7 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.IWorldGenerator;
-import enviromine.blocks.TileEntityGas;
+import enviromine.blocks.tiles.TileEntityGas;
 import enviromine.core.EnviroMine;
 import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;

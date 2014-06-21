@@ -6,6 +6,7 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EnviroUtils;
+import enviromine.blocks.tiles.TileEntityGas;
 import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;
 import net.minecraft.block.Block;
@@ -31,6 +32,7 @@ public class BlockGas extends Block implements ITileEntityProvider
 	public BlockGas(int par1, Material par2Material)
 	{
 		super(par1, par2Material);
+		this.setTickRandomly(true);
 		igniteList.add("" + Block.lavaMoving.blockID);
 		igniteList.add("" + Block.lavaStill.blockID);
 		igniteList.add("" + Block.torchWood.blockID);
