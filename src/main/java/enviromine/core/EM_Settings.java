@@ -50,6 +50,10 @@ public class EM_Settings
 	public static boolean ShowText;
 	public static boolean ShowDebug;
 	
+	public static boolean breathSound;
+	public static int breathPause;
+	public static float breathVolume;
+	
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
 	public static int coldBottleID = 5003;

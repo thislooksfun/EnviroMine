@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -224,7 +223,16 @@ public class EM_ConfigHandler
 		EM_Settings.genArmorConfigs = config.get(ConSetCat, "Generate Armor Configs", true, "Will attempt to find and generate blank configs for any custom armors loaded before EnviroMine.").getBoolean(true);
 		EM_Settings.useDefaultConfig = config.get(ConSetCat, "Generate Defaults", true).getBoolean(true);
 		
+		// Sound
+		EM_Settings.breathSound = config.get("Sound Options", "Mask: Hear Breathing", true).getBoolean(true);
+		EM_Settings.breathPause = config.get("Sound Options", "Mask: Pause Between Breaths", 300).getInt();
+		EM_Settings.breathVolume = (float) config.get("Sound Options", "Mask: Breathing Volume", 0.75, "[Hear Breathing (Defalut: True)] - Turning on and Off Gas Mask Breathing. [Breathing Volume (Default: 0.75)]Change Volume 0.0(0%) to 1(100%). [Pause Between Breaths (Default: 300)]Change Pause between breaths. Affects Sound and Gui (In GuiRender Ticks)").getDouble(0);
+		
 		config.save();
+		
+		if(EM_Settings.breathVolume > 1.0) {EM_Settings.breathVolume = (float)1.0;}
+		else if(EM_Settings.breathVolume < 0.0) {EM_Settings.breathVolume = (float)0.0;}
+		if(EM_Settings.breathPause < 200) {EM_Settings.breathPause = 200;}
 	}
 	
 	//#######################################

@@ -220,7 +220,8 @@ public class EnviroUtils
 	}
 	
     /**
-     * Draws a rectangle with a vertical gradient between the specified colors.
+     * drawScreenBlur(Width, Height, Image, Alpha)
+     * Draws Full Screen Screen Overlay
      */
 	@SideOnly(Side.CLIENT)
 	public static void drawScreenBlur(int par1, int par2, ResourceLocation MaskResource , float Alpha)

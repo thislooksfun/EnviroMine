@@ -6,8 +6,8 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import enviromine.core.EnviroMine;
-import enviromine.core.sounds.SlowBreathing;
 import enviromine.gui.EM_GuiEnviroMeters;
+import enviromine.handlers.SoundHandler;
 
 public class EM_ClientProxy extends EM_CommonProxy
 {
@@ -42,7 +42,7 @@ public class EM_ClientProxy extends EM_CommonProxy
 	{
 		super.registerEventHandlers();
 		MinecraftForge.EVENT_BUS.register(new EM_GuiEnviroMeters(Minecraft.getMinecraft()));
-		MinecraftForge.EVENT_BUS.register(new SlowBreathing());
+		MinecraftForge.EVENT_BUS.register(new SoundHandler());
 	}
 	
 	public void preInit(FMLPreInitializationEvent event)

@@ -2,11 +2,10 @@ package enviromine.gui;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -27,7 +26,7 @@ public class EM_GuiEnviroMeters extends Gui
 	public Minecraft mc;
 	
 	public static final String guiResource = "textures/gui/status_Gui.png";
-	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur4.png");
+	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur3.png");
 	public static final ResourceLocation frostMaskResource = new ResourceLocation("enviromine", "textures/misc/frost_mask.png");
 	public static final ResourceLocation insaneMaskResource = new ResourceLocation("enviromine", "textures/misc/insane.png");
 	public static final ResourceLocation breathMaskResource = new ResourceLocation("enviromine", "textures/misc/breath.png");
@@ -69,23 +68,30 @@ public class EM_GuiEnviroMeters extends Gui
 		int xPos = 4;
 		int yPos = 4;
 		
+		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+		int scaledwidth = scaleRes.getScaledWidth();
+		int scaledheight = scaleRes.getScaledHeight();
+		
+		// Rend Mask Overlays
+		RenderOverlays(scaledwidth, scaledheight);
+		
 		// GUI Scaling Code 
 		GL11.glPushMatrix(); // Isolate this GUI from the vanilla GUI
 		float scale = EM_Settings.guiScale;
+		
 		double translate = new BigDecimal(String.valueOf(1 / scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
+		
 		GL11.glScalef((float)scale, (float)scale, (float)scale);
 		
-		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+		int width = MathHelper.ceiling_float_int((float)(scaledwidth * translate));
+		int height = MathHelper.ceiling_float_int((float)(scaledheight * translate));
 		
-		int width = MathHelper.ceiling_float_int((float)(scaleRes.getScaledWidth() * translate));
-		int height = MathHelper.ceiling_float_int((float)(scaleRes.getScaledHeight() * translate));
+		//		int width = MathHelper.ceiling_float_int((float)(scaleRes.getScaledWidth() * translate));
+		//		int height = MathHelper.ceiling_float_int((float)(scaleRes.getScaledHeight() * translate));
 		// End of scaling Code
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_LIGHTING);
-		
-		// Rend Mask Overlays
-		RenderMask(scaleRes);
 		
 		if(tracker == null)
 		{
@@ -414,6 +420,7 @@ public class EM_GuiEnviroMeters extends Gui
 				}
 			}
 			
+			/*
 			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 			
 			if(tracker.bodyTemp >= 39)
@@ -446,12 +453,12 @@ public class EM_GuiEnviroMeters extends Gui
 			{
 				int grad = (int)((50 - tracker.sanity) / 50 * 64);
 				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(200, 0, 249, grad), EnviroUtils.getColorFromRGBA(200, 0, 249, grad));
-			}
+			}*/
 		}
 		
-		ShowDebugText(event);
 		GL11.glPopMatrix();
 		
+		ShowDebugText(event);
 	}
 	
 	public static float DB_bodyTemp = 0;
@@ -523,10 +530,26 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 	}
 	
-	public void RenderMask(ScaledResolution scaleRes)
+	public void RenderOverlays(int width, int height)
 	{
-		int k = scaleRes.getScaledWidth();
-		int l = scaleRes.getScaledHeight();
+		if(tracker != null)
+		{
+			if(tracker.bodyTemp <= 35)
+			{
+				float grad = 0;
+				if(tracker.bodyTemp <= 32F)
+				{
+					grad = 64F;
+				} else
+				{
+					grad = (((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
+				}
+				//System.out.println(grad/100);
+				
+				// 	Draw (Mask) Frozen overlay
+				enviromine.EnviroUtils.drawScreenBlur(width, height, frostMaskResource, grad / 64);
+			}
+		}
 		
 		ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
 		if(this.mc.gameSettings.thirdPersonView == 0 && itemstack != null && itemstack.getItem() != null)
@@ -539,118 +562,78 @@ public class EM_GuiEnviroMeters extends Gui
 					float sanity = new BigDecimal(String.valueOf(tracker.sanity)).setScale(1, RoundingMode.HALF_UP).floatValue();
 					// air = new BigDecimal(String.valueOf(tracker.airQuality )).setScale(1, RoundingMode.HALF_UP).floatValue();
 					
-					//System.out.println(itemstack.getItemDamage());
-					
-					if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1)
-					{
-						Renderbreath(k, l);
-					}
+					Renderbreath(width, height, itemstack);
 					
 					if(tracker.sanity <= 20)
 					{
 						float sanTemp = (20 - sanity) * 5;
 						// Draw (Mask) Sanity overlay
-						enviromine.EnviroUtils.drawScreenBlur(k, l, insaneMaskResource, sanTemp);
+						enviromine.EnviroUtils.drawScreenBlur(width, height, insaneMaskResource, sanTemp);
 					}
 					
-					if(tracker.bodyTemp <= 35)
-					{
-						float grad = 0;
-						if(tracker.bodyTemp <= 32F)
-						{
-							grad = 64F;
-						} else
-						{
-							grad = (((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
-						}
-						// 	Draw (Mask) Frozen overlay
-						enviromine.EnviroUtils.drawScreenBlur(k, l, frostMaskResource, grad/255);
-					}
 				}
 				
 				//Draw gasMask Overlay
-				enviromine.EnviroUtils.drawScreenBlur(k, l, gasMaskResource, 1f);
+				enviromine.EnviroUtils.drawScreenBlur(width, height, gasMaskResource, 1f);
 			}
 		}
 	}
 	
-	float breathtimer = 0f;
 	boolean exhale = false;
-	int bTick = 0; // Cnt
-	int breathSpeed = 10; // GUI Tick for Breaths (This will change how many ticks between alpha change)
-	float alphaSpeed = .01f; // changes how much of a change per breathspeed tick
 	float alpha = 0;
 	boolean pause = false;
-	int pauseTime = 30;
 	int pauseCnt = 0;
+	int pauseLength = EM_Settings.breathPause;
 	
-	public void Renderbreath(int k, int l)
+	public void Renderbreath(int k, int l, ItemStack itemstack)
 	{
-		if(pause == true && pauseCnt <= pauseTime)
-		{
-			pauseCnt++;
-			
-			if(pauseCnt >= pauseTime)
-			{
-				pauseCnt = 0;
-				pause = !pause;  //end pause
-			}
-			return;
-		}
-		//Inhale
-		else if(bTick >= breathSpeed && exhale == false)
-		{
-			alpha += alphaSpeed;
-			bTick = 0;
-			System.out.println(alpha);
-			if(alpha >= 1f)
-			{
-				alpha = 1f;
-				exhale = !exhale;
-			}
-		}
-		//Exhale
-		else if(bTick >= breathSpeed && exhale == true)
-		{
-			alpha -= alphaSpeed;
-			bTick = 0;
-			if(alpha <= 0f)
-			{
-				alpha = 0f;
-				exhale = !exhale;
-				pause = !pause; //Start pause
-			}
-		}
-		//Breath Out
 		
-		bTick++;
-		
-		//Switch
-		enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
-		
-		/*if(tracker == null)
+		if(tracker == null)
 		{
 			return;
 		} else
 		{
-			if(exhale)
+			if(pause)
 			{
-				alpha += 0.01F;
+				pauseCnt++;
+				if(pauseCnt >= pauseLength)
+				{
+					pauseCnt = 0;
+					pause = false;
+					
+					if(EM_Settings.breathSound == true)
+					{
+						EntityPlayer player = mc.thePlayer;
+						mc.sndManager.playSound("enviromine:gasmask", (float)player.posX, (float)player.posY, (float)player.posZ, EM_Settings.breathVolume, 1.0F);
+					}
+				}
+				return;
+			} else if(exhale)
+			{
+				alpha += 0.0075F;
 			} else
+			//Exhale
 			{
 				alpha -= 0.01F;
 			}
 			
-			if(alpha >= 0.5F)
+			if(alpha >= 0.75F)
 			{
 				exhale = false;
 				alpha = 0.5F;
 			} else if(alpha <= 0F)
 			{
+				pause = true;
 				exhale = true;
 				alpha = 0F;
 			}
-			enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
-		}*/
+			
+			// If Item is Damaged Render Breath onscreen
+			if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1)
+			{
+				enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
+			}
+		}
 	}
+	
 }
