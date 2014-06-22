@@ -541,9 +541,9 @@ public class EM_GuiEnviroMeters extends Gui
 					
 					//System.out.println(itemstack.getItemDamage());
 					
-					//if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1)
+					if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1)
 					{
-						//Renderbreath(k, l);
+						Renderbreath(k, l);
 					}
 					
 					if(tracker.sanity <= 20)

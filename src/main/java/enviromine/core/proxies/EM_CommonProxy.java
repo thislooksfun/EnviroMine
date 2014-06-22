@@ -27,7 +27,6 @@ public class EM_CommonProxy
 	public void registerTickHandlers()
 	{
 		TickRegistry.registerTickHandler(new EM_ServerScheduledTickHandler(), Side.SERVER);
-		//TickRegistry.registerTickHandler(new guiHandler(), Side.CLIENT); For a Test
 	}
 	
 	public void registerEventHandlers()

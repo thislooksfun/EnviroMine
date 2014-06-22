@@ -11,6 +11,6 @@ public class SlowBreathing
 	{
 		// You add them the same way as you add blocks.
 		
-		event.manager.addSound("enviromine:SlowBreathing.ogg");
+		event.manager.addSound("enviromine:slowbreathing.ogg");
 	}
 }
