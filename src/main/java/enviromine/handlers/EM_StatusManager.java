@@ -730,6 +730,16 @@ public class EM_StatusManager
 						sBoost = livingProps.ambSanity;
 					}
 				}
+				
+				if(livingProps.ambAir > 0F)
+				{
+					leaves += (livingProps.ambAir/0.1F);
+				} else if(quality >= livingProps.ambAir && livingProps.ambAir < 0 && quality <= 0)
+				{
+					quality = livingProps.ambAir;
+				}
+				
+				dehydrateBonus -= livingProps.ambHydration;
 			} else if(mob instanceof EntityBat && entityLiving instanceof EntityPlayer && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.01F)
@@ -752,11 +762,35 @@ public class EM_StatusManager
 			
 			if(mobTrack != null)
 			{
-				avgEntityTemp += mobTrack.bodyTemp;
+				if(livingProps != null)
+				{
+					if(!livingProps.bodyTemp)
+					{
+						avgEntityTemp += livingProps.ambTemp;
+					} else
+					{
+						avgEntityTemp += mobTrack.bodyTemp;
+					}
+				} else
+				{
+					avgEntityTemp += mobTrack.bodyTemp;
+				}
 				validEntities += 1;
 			} else if(!(mob instanceof EntityMob))
 			{
-				avgEntityTemp += 37F;
+				if(livingProps != null)
+				{
+					if(!livingProps.bodyTemp)
+					{
+						avgEntityTemp += livingProps.ambTemp;
+					} else
+					{
+						avgEntityTemp += 37F;
+					}
+				} else
+				{
+					avgEntityTemp += 37F;
+				}
 				validEntities += 1;
 			} else
 			{

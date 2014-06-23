@@ -102,7 +102,7 @@ public class EM_ConfigHandler
 		BPName[10] = "11.Slides";
 		BPName[11] = "12.Slides When Wet";
 		
-		EPName = new String[9];
+		EPName = new String[15];
 		EPName[0] = "01.Entity Name";
 		EPName[1] = "02.Enable EnviroTracker";
 		EPName[2] = "03.Enable Dehydration";
@@ -112,6 +112,12 @@ public class EM_ConfigHandler
 		EPName[6] = "07.Immune To Heat";
 		EPName[7] = "08.Ambient Sanity";
 		EPName[8] = "09.Hit Sanity";
+		EPName[9] = "10.Ambient Temperature";
+		EPName[10] = "11.Hit Temperature";
+		EPName[11] = "12.Ambient Air";
+		EPName[12] = "13.Hit Air";
+		EPName[13] = "14.Ambient Hydration";
+		EPName[14] = "15.Hit Hydration";
 		
 		IPName = new String[11];
 		IPName[0] = "01.ID";
@@ -478,8 +484,14 @@ public class EM_ConfigHandler
 		boolean immuneToHeat = 	config.get(catagory, EPName[6], false).getBoolean(false);
 		float aSanity = (float)	config.get(catagory, EPName[7], 0.0D).getDouble(0.0D);
 		float hSanity = (float)	config.get(catagory, EPName[8], 0.0D).getDouble(0.0D);
+		float aTemp = (float)	config.get(catagory, EPName[9], 37.0D, "Overridden by body temp").getDouble(37.0D);
+		float hTemp = (float)	config.get(catagory, EPName[10], 0.0D).getDouble(0.0D);
+		float aAir = (float)	config.get(catagory, EPName[11], 0.0D).getDouble(0.0D);
+		float hAir = (float)	config.get(catagory, EPName[12], 0.0D).getDouble(0.0D);
+		float aHyd = (float)	config.get(catagory, EPName[13], 0.0D).getDouble(0.0D);
+		float hHyd = (float)	config.get(catagory, EPName[14], 0.0D).getDouble(0.0D);
 		
-		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat, aSanity, hSanity);
+		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat, aSanity, hSanity, aTemp, hTemp, aAir, hAir, aHyd, hHyd);
 		EM_Settings.livingProperties.put(name.toLowerCase(), entry);
 	}
 	
@@ -716,6 +728,12 @@ public class EM_ConfigHandler
 				config.get(nameEntityCat, EPName[6], false).getBoolean(false);
 				config.get(nameEntityCat, EPName[7], 0.0D).getDouble(0.0D);
 				config.get(nameEntityCat, EPName[8], 0.0D).getDouble(0.0D);
+				config.get(nameEntityCat, EPName[9], 37.0D, "Overridden by body temp").getDouble(37.0D);
+				config.get(nameEntityCat, EPName[10], 0.0D).getDouble(0.0D);
+				config.get(nameEntityCat, EPName[11], 0.0D).getDouble(0.0D);
+				config.get(nameEntityCat, EPName[12], 0.0D).getDouble(0.0D);
+				config.get(nameEntityCat, EPName[13], 0.0D).getDouble(0.0D);
+				config.get(nameEntityCat, EPName[14], 0.0D).getDouble(0.0D);
 				returnValue = "Saved";
 			}
 			
