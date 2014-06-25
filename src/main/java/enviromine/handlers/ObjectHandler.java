@@ -23,7 +23,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.event.sound.SoundLoadEvent;
 import net.minecraftforge.common.EnumHelper;
+import net.minecraftforge.event.ForgeSubscribe;
 
 public class ObjectHandler
 {
@@ -109,5 +111,30 @@ public class ObjectHandler
 		LanguageRegistry.addName(gasMask, "Gas Mask");
 		LanguageRegistry.addName(hardHat, "Hard Hat");
 		LanguageRegistry.addName(airFilter, "Air Filter");
+	}
+	
+	@ForgeSubscribe
+	public void onSound(SoundLoadEvent event)
+	{
+		// You add them the same way as you add blocks.
+		System.out.println("Loading Sounds");
+		
+		event.manager.addSound("enviromine:gasmask.ogg");
+		
+		event.manager.addSound("enviromine:thingdistant.ogg");
+		event.manager.addSound("enviromine:thingkill.ogg");
+		
+		event.manager.addSound("enviromine:CaveIn.ogg");
+		event.manager.addSound("enviromine:sizzle.ogg");
+		
+		//Random Breathing
+		event.manager.addSound("enviromine:breathing1.ogg");
+		event.manager.addSound("enviromine:breathing2.ogg");
+		event.manager.addSound("enviromine:breathing3.ogg");
+		
+		//Random Heavy(Panic) Breathing
+		event.manager.addSound("enviromine:HeavyBreathing1.ogg");
+		event.manager.addSound("enviromine:HeavyBreathing2.ogg");
+
 	}
 }

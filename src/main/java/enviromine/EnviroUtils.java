@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteOrder;
-
 import org.lwjgl.opengl.GL11;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
@@ -219,32 +217,38 @@ public class EnviroUtils
 		return coords;
 	}
 	
-    /**
-     * drawScreenBlur(Width, Height, Image, Alpha)
-     * Draws Full Screen Screen Overlay
-     */
+	/**
+	 * drawScreenBlur(Width, Height, Image, Alpha, Red, Green, Blue)
+	 * Draws Full Screen Screen Overlay
+	 */
 	@SideOnly(Side.CLIENT)
-	public static void drawScreenBlur(int par1, int par2, ResourceLocation MaskResource , float Alpha)
+	public static void drawScreenOverlay(int par1, int par2, int par5)
 	{
+		float f = (float)(par5 >> 24 & 255) / 255.0F;
+		float f1 = (float)(par5 >> 16 & 255) / 255.0F;
+		float f2 = (float)(par5 >> 8 & 255) / 255.0F;
+		float f3 = (float)(par5 & 255) / 255.0F;
+		
 		Minecraft mc = Minecraft.getMinecraft();
 		
-    		GL11.glEnable(GL11.GL_BLEND);
-	        GL11.glDisable(GL11.GL_DEPTH_TEST);
-	        GL11.glDepthMask(false);
-	        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-	        GL11.glColor4f(1.0F, 1.0F, 1.0F, Alpha);
-	        GL11.glDisable(GL11.GL_ALPHA_TEST);
-	        mc.getTextureManager().bindTexture(MaskResource);
-	        Tessellator tessellator = Tessellator.instance;
-	        tessellator.startDrawingQuads();
-	        tessellator.addVertexWithUV(0.0D, (double)par2, -90.0D, 0.0D, 1.0D);
-	        tessellator.addVertexWithUV((double)par1, (double)par2, -90.0D, 1.0D, 1.0D);
-	        tessellator.addVertexWithUV((double)par1, 0.0D, -90.0D, 1.0D, 0.0D);
-	        tessellator.addVertexWithUV(0.0D, 0.0D, -90.0D, 0.0D, 0.0D);
-	        tessellator.draw();
-	        GL11.glDepthMask(true);
-	        GL11.glEnable(GL11.GL_DEPTH_TEST);
-	        GL11.glEnable(GL11.GL_ALPHA_TEST);
-	        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDepthMask(false);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		// GL11.glColor4f(1.0F, 1.0F, 1.0F, Alpha);
+		GL11.glColor4f(f1, f2, f3, f);
+		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		//mc.getTextureManager().bindTexture(MaskResource);
+		Tessellator tessellator = Tessellator.instance;
+		tessellator.startDrawingQuads();
+		tessellator.addVertexWithUV(0.0D, (double)par2, -90.0D, 0.0D, 1.0D);
+		tessellator.addVertexWithUV((double)par1, (double)par2, -90.0D, 1.0D, 1.0D);
+		tessellator.addVertexWithUV((double)par1, 0.0D, -90.0D, 1.0D, 0.0D);
+		tessellator.addVertexWithUV(0.0D, 0.0D, -90.0D, 0.0D, 0.0D);
+		tessellator.draw();
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 }

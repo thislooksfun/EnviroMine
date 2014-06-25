@@ -26,10 +26,10 @@ public class EM_GuiEnviroMeters extends Gui
 	public Minecraft mc;
 	
 	public static final String guiResource = "textures/gui/status_Gui.png";
-	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur3.png");
-	public static final ResourceLocation frostMaskResource = new ResourceLocation("enviromine", "textures/misc/frost_mask.png");
-	public static final ResourceLocation insaneMaskResource = new ResourceLocation("enviromine", "textures/misc/insane.png");
+	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur2.png");
 	public static final ResourceLocation breathMaskResource = new ResourceLocation("enviromine", "textures/misc/breath.png");
+	public static final ResourceLocation bloodshotResource = new ResourceLocation("enviromine", "textures/misc/bloodshot.png");
+	public static final ResourceLocation blurOverlayResource = new ResourceLocation("enviromine", "textures/misc/blur.png");
 	
 	public static final int meterWidth = 96;
 	public static final int meterHeight = 8;
@@ -534,56 +534,76 @@ public class EM_GuiEnviroMeters extends Gui
 	{
 		if(tracker != null)
 		{
-			if(tracker.bodyTemp <= 35)
+			this.mc.renderEngine.bindTexture(blurOverlayResource);
+			
+			if(tracker.bodyTemp >= 39)
 			{
-				float grad = 0;
-				if(tracker.bodyTemp <= 32F)
+				int grad = 0;
+				if(tracker.bodyTemp >= 41F)
 				{
-					grad = 64F;
+					grad = 210;
 				} else
 				{
-					grad = (((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
+					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39)) / 3)) * 96);
 				}
-				//System.out.println(grad/100);
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, grad));
 				
-				// 	Draw (Mask) Frozen overlay
-				enviromine.EnviroUtils.drawScreenBlur(width, height, frostMaskResource, grad / 64);
+			} else if(tracker.bodyTemp <= 35)
+			{
+				int grad = 0;
+				if(tracker.bodyTemp <= 32F)
+				{
+					grad = 210;
+				} else
+				{
+					grad = (int)((Math.abs(3 - (tracker.bodyTemp - 32)))) * 64;
+				}
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(125, 255, 255, grad));
+			}
+			if(tracker.airQuality < 50F)
+			{
+				int grad = (int)((50 - tracker.airQuality) / 15 * 64);
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(32, 96, 0, grad));
+			}
+			if(tracker.sanity < 50F)
+			{
+				int grad = (int)((50 - tracker.sanity) / 15 * 64);
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(200, 0, 249, grad));
 			}
 		}
 		
+		boolean infection = false;
+		if(infection && this.mc.gameSettings.thirdPersonView == 0)
+		{
+			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(220, 3, 3, 120));
+			this.mc.renderEngine.bindTexture(bloodshotResource);
+			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 165));
+		}
+		
 		ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
-		if(this.mc.gameSettings.thirdPersonView == 0 && itemstack != null && itemstack.getItem() != null)
+		
+		if(itemstack != null && itemstack.getItem() != null)
 		{
 			if(itemstack.itemID == ObjectHandler.gasMask.itemID)
 			{
-				if(tracker != null)
-				{
-					float temp = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(1, RoundingMode.HALF_UP).floatValue();
-					float sanity = new BigDecimal(String.valueOf(tracker.sanity)).setScale(1, RoundingMode.HALF_UP).floatValue();
-					// air = new BigDecimal(String.valueOf(tracker.airQuality )).setScale(1, RoundingMode.HALF_UP).floatValue();
-					
-					Renderbreath(width, height, itemstack);
-					
-					if(tracker.sanity <= 20)
-					{
-						float sanTemp = (20 - sanity) * 5;
-						// Draw (Mask) Sanity overlay
-						enviromine.EnviroUtils.drawScreenBlur(width, height, insaneMaskResource, sanTemp);
-					}
-					
-				}
 				
-				//Draw gasMask Overlay
-				enviromine.EnviroUtils.drawScreenBlur(width, height, gasMaskResource, 1f);
+				Renderbreath(width, height, itemstack);
+				
+				if(this.mc.gameSettings.thirdPersonView == 0)
+				{
+					this.mc.renderEngine.bindTexture(gasMaskResource);
+					//Draw gasMask Overlay
+					EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 255));
+				}
 			}
 		}
+		
 	}
 	
 	boolean exhale = false;
 	float alpha = 0;
 	boolean pause = false;
 	int pauseCnt = 0;
-	int pauseLength = EM_Settings.breathPause;
 	
 	public void Renderbreath(int k, int l, ItemStack itemstack)
 	{
@@ -593,10 +613,11 @@ public class EM_GuiEnviroMeters extends Gui
 			return;
 		} else
 		{
+			
 			if(pause)
 			{
 				pauseCnt++;
-				if(pauseCnt >= pauseLength)
+				if(pauseCnt >= EM_Settings.breathPause)
 				{
 					pauseCnt = 0;
 					pause = false;
@@ -610,17 +631,17 @@ public class EM_GuiEnviroMeters extends Gui
 				return;
 			} else if(exhale)
 			{
-				alpha += 0.0075F;
+				alpha += 2.5F;
 			} else
 			//Exhale
 			{
-				alpha -= 0.01F;
+				alpha -= 2.01F;
 			}
 			
-			if(alpha >= 0.75F)
+			if(alpha >= 191)
 			{
 				exhale = false;
-				alpha = 0.5F;
+				alpha = 191F;
 			} else if(alpha <= 0F)
 			{
 				pause = true;
@@ -629,9 +650,10 @@ public class EM_GuiEnviroMeters extends Gui
 			}
 			
 			// If Item is Damaged Render Breath onscreen
-			if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1)
+			if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1 && this.mc.gameSettings.thirdPersonView == 0)
 			{
-				enviromine.EnviroUtils.drawScreenBlur(k, l, breathMaskResource, alpha);
+				this.mc.renderEngine.bindTexture(breathMaskResource);
+				enviromine.EnviroUtils.drawScreenOverlay(k, l, EnviroUtils.getColorFromRGBA(255, 255, 255, (int)alpha));
 			}
 		}
 	}
