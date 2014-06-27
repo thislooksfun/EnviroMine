@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.LongHashMap;
 import net.minecraft.util.MathHelper;
@@ -42,10 +45,28 @@ public class TeleportHandler extends Teleporter
      */
     public void placeInPortal(Entity par1Entity, double par2, double par4, double par6, float par8)
     {
-        if (!this.placeInExistingPortal(par1Entity, par2, par4, par6, par8))
+        if(!this.placeInExistingPortal(par1Entity, par2, par4, par6, par8))
         {
             this.makePortal(par1Entity);
             this.placeInExistingPortal(par1Entity, par2, par4, par6, par8);
+        } else
+        {
+        	if(par1Entity instanceof EntityPlayer)
+        	{
+        		EntityPlayer player = (EntityPlayer)par1Entity;
+        		ItemStack itemTop = new ItemStack(ObjectHandler.elevatorTop, 1);
+        		ItemStack itemBot = new ItemStack(ObjectHandler.elevatorBottom, 1);
+        		if(!player.inventory.addItemStackToInventory(itemTop))
+        		{
+                    EntityItem entityitem = new EntityItem(this.worldServerInstance, player.posX, player.posY, player.posZ, itemTop);
+                    this.worldServerInstance.spawnEntityInWorld(entityitem);
+        		}
+        		if(!player.inventory.addItemStackToInventory(itemBot))
+        		{
+                    EntityItem entityitem = new EntityItem(this.worldServerInstance, player.posX, player.posY, player.posZ, itemBot);
+                    this.worldServerInstance.spawnEntityInWorld(entityitem);
+        		}
+        	}
         }
     }
 
@@ -54,7 +75,7 @@ public class TeleportHandler extends Teleporter
      */
     public boolean placeInExistingPortal(Entity par1Entity, double par2, double par4, double par6, float par8)
     {
-        short short1 = 16;
+        short short1 = 0;
         double d3 = -1.0D;
         int i = 0;
         int j = 0;
@@ -65,6 +86,8 @@ public class TeleportHandler extends Teleporter
         boolean flag = true;
         double d4;
         int k1;
+        
+        boolean breakLoop = false;
 
         if (this.destinationCoordinateCache.containsItem(j1))
         {
@@ -90,6 +113,7 @@ public class TeleportHandler extends Teleporter
                     {
                         if (this.worldServerInstance.getBlockId(k1, i2, l1) == ObjectHandler.elevatorBottom.blockID && this.worldServerInstance.getBlockId(k1, i2 + 1, l1) == ObjectHandler.elevatorTop.blockID)
                         {
+                        	breakLoop = true;
                             while (this.worldServerInstance.getBlockId(k1, i2 - 1, l1) == ObjectHandler.elevatorBottom.blockID || this.worldServerInstance.getBlockId(k1, i2 - 1, l1) == ObjectHandler.elevatorTop.blockID)
                             {
                                 --i2;
@@ -106,7 +130,22 @@ public class TeleportHandler extends Teleporter
                                 k = l1;
                             }
                         }
+                        
+                        if(breakLoop)
+                        {
+                        	break;
+                        }
                     }
+                    
+                    if(breakLoop)
+                    {
+                    	break;
+                    }
+                }
+                
+                if(breakLoop)
+                {
+                	break;
                 }
             }
         }
@@ -136,47 +175,82 @@ public class TeleportHandler extends Teleporter
     public boolean makePortal(Entity par1Entity)
     {
         int i = MathHelper.floor_double(par1Entity.posX);
-        int j = 64;//MathHelper.floor_double(par1Entity.posY);
+        int j = 5;//MathHelper.floor_double(par1Entity.posY);
         int k = MathHelper.floor_double(par1Entity.posZ);
+        boolean clearSpace = false;
         
         if(this.worldServerInstance.provider.dimensionId == -3)
         {
-        	j = 32;
-        }
-        
-        for(int x = i - 1; x <= i + 1; x++)
-        {
-        	for(int y = j - 1; y <= j + 2; y++)
+        	for(int checkH = 120; checkH >= 32; checkH--)
         	{
-        		for(int z = k - 1; z <= k + 1; z++)
+        		if(this.worldServerInstance.isAirBlock(i, checkH, k) && this.worldServerInstance.isBlockNormalCube(i, checkH - 1, k))
         		{
-        			if(y == j - 1)
-        			{
-        				if(!this.worldServerInstance.isBlockNormalCube(x, y, z));
-        				{
-        					this.worldServerInstance.setBlock(x, y, z, Block.planks.blockID);
-        					
-        					if(x != i && z != k)
-        					{
-        						int supY = y - 1;
-        						
-        						while(!this.worldServerInstance.isBlockNormalCube(x, supY, z) && supY >= 0)
-        						{
-                					this.worldServerInstance.setBlock(x, supY, z, Block.fence.blockID);
-        							supY -= 1;
-        						}
-        					}
-        				}
-        			} else
-        			{
-        				this.worldServerInstance.setBlockToAir(x, y, z);
-        			}
+        			j = checkH;
+        			break;
+        		}
+        		
+        		if(checkH <= 32)
+        		{
+        			j = 32;
+        			clearSpace = true;
+        			break;
+        		}
+        	}
+        } else
+        {
+        	for(int checkH = 9; checkH >= 5; checkH--)
+        	{
+        		if(this.worldServerInstance.isAirBlock(i, checkH, k) && this.worldServerInstance.isBlockNormalCube(i, checkH - 1, k))
+        		{
+        			j = checkH;
+        			break;
+        		}
+        		
+        		if(checkH <= 5)
+        		{
+        			j = 5;
+        			clearSpace = true;
+        			break;
         		}
         	}
         }
         
-        this.worldServerInstance.setBlock(i, j, k, ObjectHandler.elevatorTop.blockID);
-        this.worldServerInstance.setBlock(i, j + 1, k, ObjectHandler.elevatorBottom.blockID);
+        if(clearSpace)
+        {
+		    for(int x = i - 1; x <= i + 1; x++)
+		    {
+		    	for(int y = j - 1; y <= j + 2; y++)
+		    	{
+		    		for(int z = k - 1; z <= k + 1; z++)
+		    		{
+		    			if(y == j - 1)
+		    			{
+		    				if(!this.worldServerInstance.isBlockNormalCube(x, y, z));
+		    				{
+		    					this.worldServerInstance.setBlock(x, y, z, Block.planks.blockID);
+		    					
+		    					if(x != i && z != k)
+		    					{
+		    						int supY = y - 1;
+		    						
+		    						while(!this.worldServerInstance.isBlockNormalCube(x, supY, z) && supY >= 0)
+		    						{
+		            					this.worldServerInstance.setBlock(x, supY, z, Block.fence.blockID);
+		    							supY -= 1;
+		    						}
+		    					}
+		    				}
+		    			} else
+		    			{
+		    				this.worldServerInstance.setBlockToAir(x, y, z);
+		    			}
+		    		}
+		    	}
+		    }
+        }
+        
+        this.worldServerInstance.setBlock(i, j + 1, k, ObjectHandler.elevatorTop.blockID);
+        this.worldServerInstance.setBlock(i, j, k, ObjectHandler.elevatorBottom.blockID);
         
         return true;
     }

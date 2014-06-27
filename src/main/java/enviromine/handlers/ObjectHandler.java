@@ -117,6 +117,9 @@ public class ObjectHandler
 		GameRegistry.addRecipe(new ItemStack(airFilter, 1), "xyx", "xzx", "xyx", 'x', new ItemStack(Item.ingotIron), 'y', new ItemStack(Block.cloth), 'z', new ItemStack(Item.coal, 1, 1));
 		GameRegistry.addRecipe(new ItemStack(gasMask, 1), "xxx", "xzx", "yxy", 'x', new ItemStack(Item.ingotIron), 'y', new ItemStack(airFilter), 'z', new ItemStack(Block.thinGlass));
 		GameRegistry.addRecipe(new ItemStack(hardHat, 1), "xyx", "xzx", 'x', new ItemStack(Block.cloth, 1, 4), 'y', new ItemStack(Block.redstoneLampIdle), 'z', new ItemStack(Item.helmetIron, 1, 0));
+		
+		GameRegistry.addRecipe(new ItemStack(elevatorTop), "xyx", "z z", "z z", 'x', new ItemStack(Block.blockIron), 'y', new ItemStack(Block.redstoneLampIdle), 'z', new ItemStack(Block.fenceIron));
+		GameRegistry.addRecipe(new ItemStack(elevatorBottom), "z z", "xyx", "www", 'x', new ItemStack(Block.blockIron), 'y', new ItemStack(Block.furnaceIdle), 'z', new ItemStack(Block.fenceIron), 'w', new ItemStack(Item.pickaxeDiamond));
 	}
 	
 	public static void RegisterNames()

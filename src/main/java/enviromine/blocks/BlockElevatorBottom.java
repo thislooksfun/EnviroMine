@@ -1,6 +1,7 @@
 package enviromine.blocks;
 
 import enviromine.blocks.tiles.TileEntityElevatorBottom;
+import enviromine.handlers.ObjectHandler;
 import enviromine.handlers.TeleportHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -26,6 +27,11 @@ public class BlockElevatorBottom extends Block implements ITileEntityProvider
 	 */
 	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int par6, float par7, float par8, float par9)
 	{
+		if(player.isSneaking())
+		{
+			return true;
+		}
+		
 		EntityPlayerMP playerMP = null;
 		
 		if(player instanceof EntityPlayerMP)
@@ -36,17 +42,42 @@ public class BlockElevatorBottom extends Block implements ITileEntityProvider
 			return true;
 		}
 		
-		player.timeUntilPortal = player.getPortalCooldown();
+		if(world.getBlockId(i, j + 1, k) != ObjectHandler.elevatorTop.blockID)
+		{
+			player.sendChatToPlayer(ChatMessageComponent.createFromText("Elevator is incomplete!"));
+			return true;
+		}
+		
+		if(j > 9 && player.dimension == 0)
+		{
+			player.sendChatToPlayer(ChatMessageComponent.createFromText("Elevator must be built near bedrock."));
+			return true;
+		}
+		
+		if(player.timeUntilPortal > 0)
+		{
+			player.sendChatToPlayer(ChatMessageComponent.createFromText("Please wait before attempting to teleport again."));
+			return true;
+		} else
+		{
+			player.timeUntilPortal = 100;
+		}
 		
 		if(player.dimension == -3)
 		{
+			player.setPosition(i + 0.5D, j, k + 0.5D);
 			playerMP.mcServer.getConfigurationManager().transferPlayerToDimension(playerMP, 0, new TeleportHandler(playerMP.mcServer.worldServerForDimension(0)));
+			world.setBlockToAir(i, j, k);
+			world.setBlockToAir(i, j + 1, k);
 		} else if(player.dimension == 0)
 		{
+			player.setPosition(i + 0.5D, j, k + 0.5D);
 			playerMP.mcServer.getConfigurationManager().transferPlayerToDimension(playerMP, -3, new TeleportHandler(playerMP.mcServer.worldServerForDimension(-3)));
+			world.setBlockToAir(i, j, k);
+			world.setBlockToAir(i, j + 1, k);
 		} else
 		{
-			player.sendChatToPlayer(ChatMessageComponent.createFromText("You cannot access the cave dimension from here!"));
+			player.sendChatToPlayer(ChatMessageComponent.createFromText("You cannot use the elevator from here!"));
 		}
 		return true;
 	}
@@ -81,6 +112,6 @@ public class BlockElevatorBottom extends Block implements ITileEntityProvider
 	//This is the icon to use for showing the block in your hand.
 	public void registerIcons(IconRegister icon)
 	{
-		this.blockIcon = icon.registerIcon("iron_block");
+		this.blockIcon = icon.registerIcon("enviromine:elevator_bottom_icon");
 	}
 }

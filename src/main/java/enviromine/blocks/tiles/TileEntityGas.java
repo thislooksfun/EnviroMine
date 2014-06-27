@@ -691,7 +691,7 @@ public class TileEntityGas extends TileEntity
 					
 					this.addGas(decayGasID, decayNum);
 				}
-			} else if(this.worldObj.rand.nextInt(10) == 0 && gasType.randDecay > 0 && gasType.randDecayThresh >= gasArray[1])
+			} else if(this.worldObj.rand.nextInt(100) == 0 && gasType.randDecay > 0 && gasType.randDecayThresh >= gasArray[1])
 			{
 				decayed = true;
 				this.subtractGas(gasArray[0], gasType.randDecay);
