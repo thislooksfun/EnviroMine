@@ -180,11 +180,7 @@ public class EM_GuiEnviroMeters extends Gui
 			int Bottom_Right_X = (width - xPos) - barWidth;
 			int Bottom_Right_Y = (height - yPos);
 			
-			EM_Settings.waterBarPos = "top_left";
-			EM_Settings.heatBarPos = "top_right";
-			EM_Settings.oxygenBarPos = "top_center";
-			
-			EM_Settings.ShowText = true;
+			//EM_Settings.ShowText = false;
 			
 			// Add Bars to String Array for looping
 			String[] barPos = new String[4];
@@ -345,12 +341,17 @@ public class EM_GuiEnviroMeters extends Gui
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight);
 					this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
 					
+					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight, 1);
+					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight, 1);
+					//EnviroUtils.scaledTexturedModalRect(curPosX + waterBar - 2, curPosY, 16, 64, 4, 4, 1);
+					
 					// water frame
 					
 					if(blink && tracker.hydration < 25)
 						frameborder = 5;
 					
-					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					//this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight, 2);
 					if(EM_Settings.ShowGuiIcons == true)
 					{
 						this.drawTexturedModalRect(iconPos, WAcurY - 4, 16, 80, 16, 16);
@@ -572,12 +573,15 @@ public class EM_GuiEnviroMeters extends Gui
 			}
 		}
 		
-		boolean infection = false;
+		boolean infection = true;
 		if(infection && this.mc.gameSettings.thirdPersonView == 0)
 		{
-			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(220, 3, 3, 120));
+			int A = (int) RenderPulse();
+			
+			System.out.println(A);
+			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(220, 3, 3, A));
 			this.mc.renderEngine.bindTexture(bloodshotResource);
-			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 165));
+			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 100));
 		}
 		
 		ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
@@ -599,6 +603,52 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 		
 	}
+	
+	
+	int pulseStart = 0;
+	boolean pulseDown = true;
+	float pulseAlpha = 0;
+	
+	
+	public float RenderPulse()
+	{
+		if(tracker == null)
+		{
+			return 0;
+		} else
+		{
+			if(pulseStart <= 100)
+			{
+				pulseStart++;
+				
+			} else if(pulseDown)
+			{
+				pulseAlpha += 2.5F;
+			} else
+				//Exhale
+			{
+				pulseAlpha -= 2.01F;
+			}
+		
+			if(pulseAlpha >= 250)
+			{
+				pulseDown = false;
+				pulseAlpha = 250;
+			} else if(pulseAlpha < 0F)
+			{
+				pulseStart = 0;
+				pulseDown = true;
+				pulseAlpha = 0F;
+			}
+	
+		}
+		return pulseAlpha;
+	}	
+	
+	
+	
+	
+	
 	
 	boolean exhale = false;
 	float alpha = 0;

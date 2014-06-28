@@ -2,12 +2,7 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import enviromine.EnviroDamageSource;
-import enviromine.EnviroPotion;
-import enviromine.core.EM_Settings;
-import enviromine.core.EnviroMine;
-import enviromine.handlers.EM_StatusManager;
-import enviromine.handlers.ObjectHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -21,6 +16,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MathHelper;
+import enviromine.EnviroDamageSource;
+import enviromine.EnviroPotion;
+import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
+import enviromine.handlers.EM_StatusManager;
+import enviromine.handlers.ObjectHandler;
 
 public class EnviroDataTracker
 {
@@ -42,7 +43,7 @@ public class EnviroDataTracker
 	
 	public float sanity;
 	
-	public int attackDelay = 0;
+	public int attackDelay = 1;
 	public int curAttackTime = 0;
 	public boolean isDisabled = false;
 	public int itemUse = 0;
@@ -59,6 +60,8 @@ public class EnviroDataTracker
 	public int timeBelow10 = 0;
 	
 	public int updateTimer = 0;
+	
+	public Minecraft mc = Minecraft.getMinecraft();
 	
 	public EnviroDataTracker(EntityLivingBase entity)
 	{
@@ -328,6 +331,7 @@ public class EnviroDataTracker
 			if(airQuality <= 0)
 			{
 				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 4.0F);
+				mc.sndManager.playSound("enviromine:breathing", (float)trackedEntity.posX, (float)trackedEntity.posY, (float)trackedEntity.posZ, EM_Settings.breathVolume, 1.0F);
 			}
 
 			if(airQuality <= 10F)
