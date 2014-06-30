@@ -9,11 +9,23 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.ArrayUtils;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.src.ModLoader;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldManager;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.WorldChunkManager;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import enviromine.handlers.keybinds.AddRemoveCustom;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
@@ -32,6 +44,7 @@ public class EM_ConfigHandler
 	static String blockCat = "blocks";
 	static String entityCat = "entity";
 	static String itemsCat = "items";
+	static String dmCat = "dimensions";
 	
 	// Arrays for property names
 	static String[] APName;
@@ -39,6 +52,7 @@ public class EM_ConfigHandler
 	static String[] EPName;
 	static String[] IPName;
 	static String[] SPName;
+	static String[] DMName;
 	
 	public static int initConfig()
 	{
@@ -133,6 +147,16 @@ public class EM_ConfigHandler
 		SPName[3] = "04.Max Missing Blocks To Fall";
 		SPName[4] = "05.Can Hang";
 		SPName[5] = "06.Holds Others Up";
+		
+		DMName = new String[7];
+		DMName[0] = "01.Dimension ID";
+		DMName[1] = "02.Allow Config Override";
+		DMName[2] = "03.Temperature Override";
+		DMName[3] = "04.Water Override";
+		DMName[4] = "05.Sanity Override";
+		DMName[5] = "06.Air Quality Override";
+		DMName[6] = "07.Day/Night Affects Temp";
+		
 	}
 
 	public static void loadGeneralConfig(File file)
@@ -680,6 +704,88 @@ public class EM_ConfigHandler
 		config.get(catName, APName[7], 0.0D).getDouble(0.0D);
 		config.get(catName, APName[8], 0.0D).getDouble(0.0D);
 		
+		config.save();
+	}
+	
+	public static void SearchForDimensions()
+	{
+		Integer[] DimensionIds = DimensionManager.getStaticDimensionIDs();
+		
+		//Remove Vanilla Dimensions
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, 0);
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, 1);
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, -1);
+		
+		
+		//DimensionIds.aslist
+		System.out.println("Found " +DimensionIds.length + " Custom Dimension");
+
+		if(DimensionIds.length != 0 && DimensionIds != null)
+		{
+			DetectedDimension(DimensionIds);
+		}
+	}
+	
+	public static void DetectedDimension(Integer[] DimensionIds)
+	{
+		File dimensionFile = new File(customPath + "Dimensions.cfg");
+		
+		if(!dimensionFile.exists())
+		{
+			try
+			{
+				dimensionFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		Configuration config = new Configuration(dimensionFile, true);
+		config.load();
+		String worldname = "";
+
+		for(int p = 0; p <= DimensionIds.length -1; p++)
+		{
+			
+			
+			
+			
+			WorldProvider dimension = WorldProvider.getProviderForDimension(DimensionIds[p]);
+			
+
+
+			String[] modname = dimension.getClass().getCanonicalName().toString().trim().toLowerCase().split("\\.");
+			String catName = dmCat + "." +  modname[0] +" - " +dimension.getDimensionName().toLowerCase().trim();
+			config.addCustomCategoryComment(catName, "");
+			
+			// if our Dimension else.. default settings...
+			if(DimensionIds[p] == EM_Settings.caveDimID)
+			{
+				config.get(catName, DMName[0], dimension.dimensionId, "Make sure if you change this id you also change it here.").getInt(dimension.dimensionId);
+				config.get(catName, DMName[1], false).getBoolean(true);
+				config.get(catName, DMName[2], p).getInt(p);
+				config.get(catName, DMName[3], 0.0D).getDouble(0.0D);
+				config.get(catName, DMName[4], 0.0D).getDouble(0.0D);
+				config.get(catName, DMName[5], 0.0D).getDouble(0.0D);
+				config.get(catName, DMName[6], false).getBoolean(true);
+			}
+			else
+			{
+				config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
+				config.get(catName, DMName[1], false).getBoolean(true);
+				config.get(catName, DMName[2], p).getInt(p);
+				config.get(catName, DMName[3], 0.0D).getDouble(0.0D);
+				config.get(catName, DMName[4], 0.0D).getDouble(0.0D);
+				config.get(catName, DMName[5], 0.0D).getDouble(0.0D);
+				config.get(catName, DMName[6], true).getBoolean(true);
+			}
+			
+
+			
+		}	
+
 		config.save();
 	}
 	

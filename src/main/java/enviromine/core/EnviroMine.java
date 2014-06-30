@@ -104,6 +104,8 @@ public class EnviroMine
 		DimensionManager.registerProviderType(EM_Settings.caveDimID, WorldProviderCaves.class, false);
 		DimensionManager.registerDimension(EM_Settings.caveDimID, EM_Settings.caveDimID);
 		
+
+
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}
@@ -118,6 +120,7 @@ public class EnviroMine
 			EM_ConfigHandler.SearchForModdedArmors();
 		}
 		
+		EM_ConfigHandler.SearchForDimensions();
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.armorProperties.size() + " armor properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.blockProperties.size() + " block properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.livingProperties.size() + " entity properties");
