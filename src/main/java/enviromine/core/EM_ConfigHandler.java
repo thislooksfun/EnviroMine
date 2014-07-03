@@ -28,7 +28,9 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import enviromine.handlers.keybinds.AddRemoveCustom;
 import enviromine.trackers.ArmorProperties;
+import enviromine.trackers.BiomeProperties;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.DimensionProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
 import enviromine.trackers.StabilityType;
@@ -45,6 +47,7 @@ public class EM_ConfigHandler
 	static String entityCat = "entity";
 	static String itemsCat = "items";
 	static String dmCat = "dimensions";
+	static String boCat = "biomes";
 	
 	// Arrays for property names
 	static String[] APName;
@@ -53,6 +56,7 @@ public class EM_ConfigHandler
 	static String[] IPName;
 	static String[] SPName;
 	static String[] DMName;
+	static String[] BOName;
 	
 	public static int initConfig()
 	{
@@ -84,7 +88,7 @@ public class EM_ConfigHandler
 		File configFile = new File(configPath + "EnviroMine.cfg");
 		loadGeneralConfig(configFile);
 		
-		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size()+ EM_Settings.itemProperties.size();
+		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size() + EM_Settings.itemProperties.size();
 		
 		return Total;
 	}
@@ -157,8 +161,11 @@ public class EM_ConfigHandler
 		DMName[5] = "06.Air Quality Override";
 		DMName[6] = "07.Day/Night Affects Temp";
 		
+		BOName = new String[7];
+		BOName[0] = "01.Biome ID";
+		
 	}
-
+	
 	public static void loadGeneralConfig(File file)
 	{
 		Configuration config;
@@ -198,13 +205,13 @@ public class EM_ConfigHandler
 		// Physics Settings
 		String PhySetCat = "Physics";
 		EM_Settings.spreadIce = config.get(PhySetCat, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
-		EM_Settings.updateCap = config.get(PhySetCat, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(128);
-		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 1 , "The number of ticks between physics update passes").getInt(1);
+		EM_Settings.updateCap = config.get(PhySetCat, "Consecutive Physics Update Cap", 128, "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(128);
+		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 1, "The number of ticks between physics update passes").getInt(1);
 		EM_Settings.stoneCracks = config.get(PhySetCat, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(PhySetCat, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "How long after world start until the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
 		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after loading (DO NOT SET TOO LOW)").getInt(500);
-		EM_Settings.physInterval = EM_Settings.physInterval > 0? EM_Settings.physInterval : 1;
+		EM_Settings.physInterval = EM_Settings.physInterval > 0 ? EM_Settings.physInterval : 1;
 		EM_Settings.entityFailsafe = config.get(PhySetCat, "Physics entity fail safe level", 1, "0 = No action, 1 = Limit to < 100 per 16x16 block area, 2 = Delete excessive entities & Dump physics (EMERGENCY ONLY)").getInt(1);
 		
 		// Gui settings
@@ -217,7 +224,7 @@ public class EM_ConfigHandler
 		EM_Settings.sanityBarPos = config.get(GuiSetCat, "Position Sanity Bar", "Bottom_Right").getString();
 		EM_Settings.oxygenBarPos = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center").getString();
 		
-		EM_Settings.guiScale = (float) config.get(GuiSetCat, "Gui Bar Scale", 1.0 , "Scale Enviromine Bars, Enter 0.1(10%) to 1.0(100%)").getDouble(1.0);
+		EM_Settings.guiScale = (float)config.get(GuiSetCat, "Gui Bar Scale", 1.0, "Scale Enviromine Bars, Enter 0.1(10%) to 1.0(100%)").getDouble(1.0);
 		
 		EM_Settings.ShowDebug = config.get(GuiSetCat, "Show Gui Debugging Info", false, "Show Hide Gui Text Display and Icons").getBoolean(false);
 		EM_Settings.ShowText = config.get(GuiSetCat, "Show Gui Status Text", true).getBoolean(true);
@@ -250,13 +257,21 @@ public class EM_ConfigHandler
 		// Sound
 		EM_Settings.breathSound = config.get("Sound Options", "Mask: Hear Breathing", true).getBoolean(true);
 		EM_Settings.breathPause = config.get("Sound Options", "Mask: Pause Between Breaths", 300).getInt();
-		EM_Settings.breathVolume = (float) config.get("Sound Options", "Mask: Breathing Volume", 0.75, "[Hear Breathing (Defalut: True)] - Turning on and Off Gas Mask Breathing. [Breathing Volume (Default: 0.75)]Change Volume 0.0(0%) to 1(100%). [Pause Between Breaths (Default: 300)]Change Pause between breaths. Affects Sound and Gui (In GuiRender Ticks)").getDouble(0);
+		EM_Settings.breathVolume = (float)config.get("Sound Options", "Mask: Breathing Volume", 0.75, "[Hear Breathing (Defalut: True)] - Turning on and Off Gas Mask Breathing. [Breathing Volume (Default: 0.75)]Change Volume 0.0(0%) to 1(100%). [Pause Between Breaths (Default: 300)]Change Pause between breaths. Affects Sound and Gui (In GuiRender Ticks)").getDouble(0);
 		
 		config.save();
 		
-		if(EM_Settings.breathVolume > 1.0) {EM_Settings.breathVolume = (float)1.0;}
-		else if(EM_Settings.breathVolume < 0.0) {EM_Settings.breathVolume = (float)0.0;}
-		if(EM_Settings.breathPause < 200) {EM_Settings.breathPause = 200;}
+		if(EM_Settings.breathVolume > 1.0)
+		{
+			EM_Settings.breathVolume = (float)1.0;
+		} else if(EM_Settings.breathVolume < 0.0)
+		{
+			EM_Settings.breathVolume = (float)0.0;
+		}
+		if(EM_Settings.breathPause < 200)
+		{
+			EM_Settings.breathPause = 200;
+		}
 	}
 	
 	//#######################################
@@ -334,7 +349,7 @@ public class EM_ConfigHandler
 				config = new Configuration(customFiles, true);
 				
 				EnviroMine.logger.log(Level.INFO, "Loading Config File: " + customFiles.getAbsolutePath());
-
+				
 			} catch(NullPointerException e)
 			{
 				e.printStackTrace();
@@ -402,147 +417,140 @@ public class EM_ConfigHandler
 	
 	private static void LoadItemProperty(Configuration config, String category)
 	{
-
-			config.addCustomCategoryComment(category, "");
-			//  
-			String idString = config.get(category, IPName[0], "0").getString(); 
+		
+		config.addCustomCategoryComment(category, "");
+		//  
+		String idString = config.get(category, IPName[0], "0").getString();
+		
+		List<Integer> ids = getIDS(idString);
+		
+		Iterator<Integer> iterator = ids.iterator();
+		
+		while(iterator.hasNext())
+		{
+			int id = iterator.next();
 			
-			List<Integer> ids = getIDS(idString);
-		
-			Iterator<Integer> iterator = ids.iterator();
-		
-		
-			while (iterator.hasNext()) 
+			//int id = 					config.get(category, IPName[0], 0).getInt(0);
+			int meta = config.get(category, IPName[1], 0).getInt(0);
+			boolean enableTemp = config.get(category, IPName[2], false).getBoolean(false);
+			float ambTemp = (float)config.get(category, IPName[3], 0.00).getDouble(0.00);
+			float ambAir = (float)config.get(category, IPName[4], 0.00).getDouble(0.00);
+			float ambSanity = (float)config.get(category, IPName[5], 0.00).getDouble(0.00);
+			float effTemp = (float)config.get(category, IPName[6], 0.00).getDouble(0.00);
+			float effAir = (float)config.get(category, IPName[7], 0.00).getDouble(0.00);
+			float effSanity = (float)config.get(category, IPName[8], 0.00).getDouble(0.00);
+			float effHydration = (float)config.get(category, IPName[9], 0.00).getDouble(0.00);
+			float effTempCap = (float)config.get(category, IPName[10], 37.00).getDouble(37.00);
+			
+			ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, effTemp, effAir, effSanity, effHydration, effTempCap);
+			
+			if(meta < 0)
 			{
-				int id = iterator.next();
-				
-				//int id = 					config.get(category, IPName[0], 0).getInt(0);
-				int meta = 					config.get(category, IPName[1], 0).getInt(0);
-				boolean enableTemp = 		config.get(category, IPName[2], false).getBoolean(false);
-				float ambTemp = (float)		config.get(category, IPName[3], 0.00).getDouble(0.00);
-				float ambAir = (float)		config.get(category, IPName[4], 0.00).getDouble(0.00);
-				float ambSanity = (float)	config.get(category, IPName[5], 0.00).getDouble(0.00);
-				float effTemp = (float)		config.get(category, IPName[6], 0.00).getDouble(0.00);
-				float effAir = (float)		config.get(category, IPName[7], 0.00).getDouble(0.00);
-				float effSanity = (float)	config.get(category, IPName[8], 0.00).getDouble(0.00);
-				float effHydration = (float)config.get(category, IPName[9], 0.00).getDouble(0.00);
-				float effTempCap = (float)	config.get(category, IPName[10], 37.00).getDouble(37.00);
-		
-				ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, effTemp, effAir, effSanity, effHydration, effTempCap);
-		
-				if(meta < 0)
-				{
-					EM_Settings.itemProperties.put("" + id, entry);
-				} else
-				{
-					EM_Settings.itemProperties.put("" + id + "," + meta, entry);
-				}
+				EM_Settings.itemProperties.put("" + id, entry);
+			} else
+			{
+				EM_Settings.itemProperties.put("" + id + "," + meta, entry);
 			}
+		}
 	}
-
-			
-	
 	
 	private static void LoadBlockProperty(Configuration config, String category)
 	{
 		
-
-			config.addCustomCategoryComment(category, "");
-			//  
-			String idString = config.get(category, BPName[0], "0").getString(); 
+		config.addCustomCategoryComment(category, "");
+		//  
+		String idString = config.get(category, BPName[0], "0").getString();
+		
+		List<Integer> ids = getIDS(idString);
+		
+		Iterator<Integer> iterator = ids.iterator();
+		
+		while(iterator.hasNext())
+		{
+			int id = iterator.next();
 			
-			List<Integer> ids = getIDS(idString);
-		
-			Iterator<Integer> iterator = ids.iterator();
-		
-		
-			while (iterator.hasNext()) 
+			//	int id = 					config.get(category, BPName[0], 0).getInt(0);
+			int metaData = config.get(category, BPName[1], 0).getInt(0);
+			int dropID = config.get(category, BPName[2], 0).getInt(0);
+			int dropMeta = config.get(category, BPName[3], 0).getInt(0);
+			int dropNum = config.get(category, BPName[4], 0).getInt(0);
+			boolean enableTemp = config.get(category, BPName[5], false).getBoolean(false);
+			float temperature = (float)config.get(category, BPName[6], 0.00).getDouble(0.00);
+			float airQuality = (float)config.get(category, BPName[7], 0.00).getDouble(0.00);
+			float sanity = (float)config.get(category, BPName[8], 0.00).getDouble(0.00);
+			String stability = config.get(category, BPName[9], "loose").getString();
+			boolean slides = config.get(category, BPName[10], false).getBoolean(false);
+			boolean wetSlides = config.get(category, BPName[11], false).getBoolean(false);
+			
+			// 	Get Stability Options
+			int minFall = 99;
+			int maxFall = 99;
+			int supportDist = 5;
+			boolean holdOther = false;
+			boolean canHang = true;
+			boolean hasPhys = false;
+			
+			if(EM_Settings.stabilityTypes.containsKey(stability))
 			{
-				int id = iterator.next();
+				StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
 				
-				//	int id = 					config.get(category, BPName[0], 0).getInt(0);
-				int metaData = 				config.get(category, BPName[1], 0).getInt(0);
-				int dropID = 				config.get(category, BPName[2], 0).getInt(0);
-				int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
-				int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
-				boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
-				float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
-				float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
-				float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
-				String stability = 			config.get(category, BPName[9], "loose").getString();
-				boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
-				boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
+				minFall = stabType.minFall;
+				maxFall = stabType.maxFall;
+				supportDist = stabType.supportDist;
+				hasPhys = stabType.enablePhysics;
+				holdOther = stabType.holdOther;
+				canHang = stabType.canHang;
+			} else
+			{
+				EnviroMine.logger.log(Level.WARNING, "Stability type '" + stability + "' not found.");
+				minFall = 99;
+				maxFall = 99;
+				supportDist = 9;
+				hasPhys = false;
+				holdOther = false;
+				canHang = true;
+			}
+			
+			BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
+			
+			if(metaData < 0)
+			{
+				EM_Settings.blockProperties.put("" + id, entry);
+			} else
+			{
+				EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+			}
+			
+			//EnviroMine.logger.log(Level.INFO, "Loaded Custom Block: " + id + ":" + metaData);
+			
+		}//While iterator
 		
-				// 	Get Stability Options
-				int minFall = 99;
-				int maxFall = 99;
-				int supportDist = 5;
-				boolean holdOther = false;
-				boolean canHang = true;
-				boolean hasPhys = false;
-			
-				if(EM_Settings.stabilityTypes.containsKey(stability))
-				{
-					StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
-					
-					minFall = stabType.minFall;
-					maxFall = stabType.maxFall;
-					supportDist = stabType.supportDist;
-					hasPhys = stabType.enablePhysics;
-					holdOther = stabType.holdOther;
-					canHang = stabType.canHang;
-				} else
-				{
-					EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
-					minFall = 99;
-					maxFall = 99;
-					supportDist = 9;
-					hasPhys = false;
-					holdOther = false;
-					canHang = true;
-				}
-			
-				BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
-				
-				if(metaData < 0)
-				{
-					EM_Settings.blockProperties.put("" + id, entry);
-				} else
-				{
-					EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
-				}
-			
-				//EnviroMine.logger.log(Level.INFO, "Loaded Custom Block: " + id + ":" + metaData);
-				
-			}//While iterator
-			
 	}
 	
 	private static void LoadArmorProperty(Configuration config, String catagory)
 	{
 		config.addCustomCategoryComment(catagory, "");
-	
-		String idString = config.get(catagory, APName[0], "0").getString(); 
+		
+		String idString = config.get(catagory, APName[0], "0").getString();
 		
 		List<Integer> ids = getIDS(idString);
-	
+		
 		Iterator<Integer> iterator = ids.iterator();
-	
-	
-		while (iterator.hasNext()) 
+		
+		while(iterator.hasNext())
 		{
 			int id = iterator.next();
 			
 			//int id = 					config.get(catagory, APName[0], 0).getInt(0);
-			float nightTemp = (float)	config.get(catagory, APName[1], 0.00).getDouble(0.00);
-			float shadeTemp = (float)	config.get(catagory, APName[2], 0.00).getDouble(0.00);
-			float sunTemp = (float)		config.get(catagory, APName[3], 0.00).getDouble(0.00);
-			float nightMult = (float)	config.get(catagory, APName[4], 1.00).getDouble(1.00);
-			float shadeMult = (float)	config.get(catagory, APName[5], 1.00).getDouble(1.00);
-			float sunMult = (float)		config.get(catagory, APName[6], 1.00).getDouble(1.00);
-			float sanity = (float)		config.get(catagory, APName[7], 0.00).getDouble(0.00);
-			float air = (float)			config.get(catagory, APName[8], 0.00).getDouble(0.00);
-		
+			float nightTemp = (float)config.get(catagory, APName[1], 0.00).getDouble(0.00);
+			float shadeTemp = (float)config.get(catagory, APName[2], 0.00).getDouble(0.00);
+			float sunTemp = (float)config.get(catagory, APName[3], 0.00).getDouble(0.00);
+			float nightMult = (float)config.get(catagory, APName[4], 1.00).getDouble(1.00);
+			float shadeMult = (float)config.get(catagory, APName[5], 1.00).getDouble(1.00);
+			float sunMult = (float)config.get(catagory, APName[6], 1.00).getDouble(1.00);
+			float sanity = (float)config.get(catagory, APName[7], 0.00).getDouble(0.00);
+			float air = (float)config.get(catagory, APName[8], 0.00).getDouble(0.00);
+			
 			ArmorProperties entry = new ArmorProperties(id, nightTemp, shadeTemp, sunTemp, nightMult, shadeMult, sunMult, sanity, air);
 			EM_Settings.armorProperties.put(id, entry);
 		}
@@ -552,15 +560,15 @@ public class EM_ConfigHandler
 	private static void LoadLivingProperty(Configuration config, String catagory)
 	{
 		config.addCustomCategoryComment(catagory, "");
-		String name = 			config.get(catagory, EPName[0], "").getString();
-		boolean track = 		config.get(catagory, EPName[1], true).getBoolean(true);
-		boolean dehydration = 	config.get(catagory, EPName[2], true).getBoolean(true);
-		boolean bodyTemp = 		config.get(catagory, EPName[3], true).getBoolean(true);
-		boolean airQ = 			config.get(catagory, EPName[4], true).getBoolean(true);
+		String name = config.get(catagory, EPName[0], "").getString();
+		boolean track = config.get(catagory, EPName[1], true).getBoolean(true);
+		boolean dehydration = config.get(catagory, EPName[2], true).getBoolean(true);
+		boolean bodyTemp = config.get(catagory, EPName[3], true).getBoolean(true);
+		boolean airQ = config.get(catagory, EPName[4], true).getBoolean(true);
 		boolean immuneToFrost = config.get(catagory, EPName[5], false).getBoolean(false);
-		boolean immuneToHeat = 	config.get(catagory, EPName[6], false).getBoolean(false);
-		float aSanity = (float)	config.get(catagory, EPName[7], 0.0D).getDouble(0.0D);
-		float hSanity = (float)	config.get(catagory, EPName[8], 0.0D).getDouble(0.0D);
+		boolean immuneToHeat = config.get(catagory, EPName[6], false).getBoolean(false);
+		float aSanity = (float)config.get(catagory, EPName[7], 0.0D).getDouble(0.0D);
+		float hSanity = (float)config.get(catagory, EPName[8], 0.0D).getDouble(0.0D);
 		
 		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat, aSanity, hSanity);
 		EM_Settings.livingProperties.put(name.toLowerCase(), entry);
@@ -573,17 +581,15 @@ public class EM_ConfigHandler
 		File customFile = new File(customPath + "Defaults.cfg");
 		
 		Configuration custom;
-		try	
+		try
 		{
 			custom = new Configuration(customFile, true);
-		} 
-		catch(NullPointerException e)
+		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
 			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD DEFAULTS!");
 			return;
-		} 
-		catch(StringIndexOutOfBoundsException e)	
+		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
 			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD DEFAULTS!");
@@ -593,61 +599,58 @@ public class EM_ConfigHandler
 		
 		custom.load();
 		
-		
-		
 		// Load Default Categories
 		custom.addCustomCategoryComment(armorCat, "Custom armor properties");
 		custom.addCustomCategoryComment(blockCat, "Custom block properties");
 		custom.addCustomCategoryComment(entityCat, "Custom entity properties");
 		custom.addCustomCategoryComment(itemsCat, "Custom item properties");
 		
-			
-		ArmorDefaultSave(custom, armorCat + ".helmetLeather", 	ItemArmor.helmetLeather.itemID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".plateLeather", 	ItemArmor.plateLeather.itemID, 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".legsLeather", 	ItemArmor.legsLeather.itemID, 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".bootsLeather", 	ItemArmor.bootsLeather.itemID, 	1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".helmetLeather", ItemArmor.helmetLeather.itemID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".plateLeather", ItemArmor.plateLeather.itemID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".legsLeather", ItemArmor.legsLeather.itemID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".bootsLeather", ItemArmor.bootsLeather.itemID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0);
 		
-		ArmorDefaultSave(custom, armorCat + ".helmetIron", 		ItemArmor.helmetIron.itemID, 	-0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".plateIron", 		ItemArmor.plateIron.itemID, 	-0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".legsIron", 		ItemArmor.legsIron.itemID, 		-0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".bootsIron", 		ItemArmor.bootsIron.itemID, 	-0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".helmetIron", ItemArmor.helmetIron.itemID, -0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".plateIron", ItemArmor.plateIron.itemID, -0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".legsIron", ItemArmor.legsIron.itemID, -0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".bootsIron", ItemArmor.bootsIron.itemID, -0.5, 0.0, 2.5, 1.0, 1.0, 1.1, 0.0, 0.0);
 		
-		ArmorDefaultSave(custom, armorCat + ".helmetGold", 		ItemArmor.helmetGold.itemID, 	0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".plateGold", 		ItemArmor.plateGold.itemID, 	0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".legsGold", 		ItemArmor.legsGold.itemID, 		0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".bootsGold", 		ItemArmor.bootsGold.itemID, 	0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".helmetGold", ItemArmor.helmetGold.itemID, 0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".plateGold", ItemArmor.plateGold.itemID, 0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".legsGold", ItemArmor.legsGold.itemID, 0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".bootsGold", ItemArmor.bootsGold.itemID, 0.0, 0.0, 0.0, 1.0, 1.0, 1.2, 0.0, 0.0);
 		
-		ArmorDefaultSave(custom, armorCat + ".helmetDiamond", 	ItemArmor.helmetDiamond.itemID, 0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".plateDiamond", 	ItemArmor.plateDiamond.itemID, 	0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".legsDiamond", 	ItemArmor.legsDiamond.itemID, 	0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
-		ArmorDefaultSave(custom, armorCat + ".bootsDiamond", 	ItemArmor.bootsDiamond.itemID, 	0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".helmetDiamond", ItemArmor.helmetDiamond.itemID, 0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".plateDiamond", ItemArmor.plateDiamond.itemID, 0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".legsDiamond", ItemArmor.legsDiamond.itemID, 0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
+		ArmorDefaultSave(custom, armorCat + ".bootsDiamond", ItemArmor.bootsDiamond.itemID, 0.0, 0.0, 0.0, 1.1, 1.0, 0.9, 0.0, 0.0);
 		
-		ItemDefaultSave(custom, itemsCat + ".potions", 		Item.potion.itemID, 		-1, false, 0.0, 0.0, 0.0, -0.05, 0.0, 0.0, 25.0, 37.05);
-		ItemDefaultSave(custom, itemsCat + ".melon", 		Item.melon.itemID, 			-1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
-		ItemDefaultSave(custom, itemsCat + ".carrot", 		Item.carrot.itemID, 		-1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
-		ItemDefaultSave(custom, itemsCat + ".goldCarrot", 	Item.goldenCarrot.itemID, 	-1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
-		ItemDefaultSave(custom, itemsCat + ".redApple", 	Item.appleRed.itemID, 		-1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
+		ItemDefaultSave(custom, itemsCat + ".potions", Item.potion.itemID, -1, false, 0.0, 0.0, 0.0, -0.05, 0.0, 0.0, 25.0, 37.05);
+		ItemDefaultSave(custom, itemsCat + ".melon", Item.melon.itemID, -1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
+		ItemDefaultSave(custom, itemsCat + ".carrot", Item.carrot.itemID, -1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
+		ItemDefaultSave(custom, itemsCat + ".goldCarrot", Item.goldenCarrot.itemID, -1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
+		ItemDefaultSave(custom, itemsCat + ".redApple", Item.appleRed.itemID, -1, false, 0.0, 0.0, 0.0, -0.01, 0.0, 0.0, 5.0, 37.01);
 		
-		ItemDefaultSave(custom, itemsCat + ".bucketLava", 	Item.bucketLava.itemID, 	-1, true, 100.0, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".redFlower", 	Block.plantRed.blockID, 	-1, false, 0.0, 0.01, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".yellowFlower", Block.plantYellow.blockID, 	-1, false, 0.0, 0.01, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".leaves", 		Block.leaves.blockID, 		-1, false, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".snowBlock", 	Block.blockSnow.blockID, 	-1, true, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".ice", 			Block.ice.blockID, 			-1, true, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".snowLayer",	Block.snow.blockID, 		-1, true, -0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".netherrack", 	Block.netherrack.blockID, 	-1, true, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".soulSand", 	Block.slowSand.blockID, 	-1, false, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".skull", 		Item.skull.itemID, 			-1, false, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".web", 			Block.web.blockID, 			-1, false, 0.0, 0.0, -0.01, 0.0, 0.0, 0.0, 0.0, 37.0);
-		ItemDefaultSave(custom, itemsCat + ".11", 			Item.record11.itemID, 		-1, false, 0.0, 0.0, -1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".bucketLava", Item.bucketLava.itemID, -1, true, 100.0, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".redFlower", Block.plantRed.blockID, -1, false, 0.0, 0.01, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".yellowFlower", Block.plantYellow.blockID, -1, false, 0.0, 0.01, 0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".leaves", Block.leaves.blockID, -1, false, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".snowBlock", Block.blockSnow.blockID, -1, true, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".ice", Block.ice.blockID, -1, true, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".snowLayer", Block.snow.blockID, -1, true, -0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".netherrack", Block.netherrack.blockID, -1, true, 50.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".soulSand", Block.slowSand.blockID, -1, false, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".skull", Item.skull.itemID, -1, false, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".web", Block.web.blockID, -1, false, 0.0, 0.0, -0.01, 0.0, 0.0, 0.0, 0.0, 37.0);
+		ItemDefaultSave(custom, itemsCat + ".11", Item.record11.itemID, -1, false, 0.0, 0.0, -1, 0.0, 0.0, 0.0, 0.0, 37.0);
 		
-		custom.save();	
+		custom.save();
 	}
 	
 	private static void ArmorDefaultSave(Configuration config, String catName, int id, double nightTemp, double shadeTemp, double sunTemp, double nightMult, double shadeMult, double sunMult, double sanity, double air)
 	{
 		//config.get(catName, APName[0], id).getInt(id);
-		config.get(catName, APName[0], id).getString(); 
+		config.get(catName, APName[0], id).getString();
 		config.get(catName, APName[1], nightTemp).getDouble(nightTemp);
 		config.get(catName, APName[2], shadeTemp).getDouble(shadeTemp);
 		config.get(catName, APName[3], sunTemp).getDouble(sunTemp);
@@ -711,15 +714,19 @@ public class EM_ConfigHandler
 	{
 		Integer[] DimensionIds = DimensionManager.getStaticDimensionIDs();
 		
+		if(EM_Settings.useDefaultConfig == true)
+		{	
+			DimensionDefaultSave();
+		}
 		//Remove Vanilla Dimensions
-		DimensionIds = ArrayUtils.removeElements(DimensionIds, 0);
-		DimensionIds = ArrayUtils.removeElements(DimensionIds, 1);
-		DimensionIds = ArrayUtils.removeElements(DimensionIds, -1);
-		
+
+			DimensionIds = ArrayUtils.removeElements(DimensionIds, 0);
+			DimensionIds = ArrayUtils.removeElements(DimensionIds, 1);
+			DimensionIds = ArrayUtils.removeElements(DimensionIds, -1);
 		
 		//DimensionIds.aslist
-		System.out.println("Found " +DimensionIds.length + " Custom Dimension");
-
+		EnviroMine.logger.log(Level.INFO, "Found " + DimensionIds.length + " Mod Dimension");
+		
 		if(DimensionIds.length != 0 && DimensionIds != null)
 		{
 			DetectedDimension(DimensionIds);
@@ -728,7 +735,7 @@ public class EM_ConfigHandler
 	
 	public static void DetectedDimension(Integer[] DimensionIds)
 	{
-		File dimensionFile = new File(customPath + "Dimensions.cfg");
+		File dimensionFile = new File(customPath + "ModDimensions.cfg");
 		
 		if(!dimensionFile.exists())
 		{
@@ -745,19 +752,13 @@ public class EM_ConfigHandler
 		Configuration config = new Configuration(dimensionFile, true);
 		config.load();
 		String worldname = "";
-
-		for(int p = 0; p <= DimensionIds.length -1; p++)
+		
+		for(int p = 0; p <= DimensionIds.length - 1; p++)
 		{
-			
-			
-			
-			
 			WorldProvider dimension = WorldProvider.getProviderForDimension(DimensionIds[p]);
 			
-
-
 			String[] modname = dimension.getClass().getCanonicalName().toString().trim().toLowerCase().split("\\.");
-			String catName = dmCat + "." +  modname[0] +" - " +dimension.getDimensionName().toLowerCase().trim();
+			String catName = dmCat + "." + modname[0] + " - " + dimension.getDimensionName().toLowerCase().trim();
 			config.addCustomCategoryComment(catName, "");
 			
 			// if our Dimension else.. default settings...
@@ -770,8 +771,7 @@ public class EM_ConfigHandler
 				config.get(catName, DMName[4], 0.0D).getDouble(0.0D);
 				config.get(catName, DMName[5], 0.0D).getDouble(0.0D);
 				config.get(catName, DMName[6], false).getBoolean(true);
-			}
-			else
+			} else
 			{
 				config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
 				config.get(catName, DMName[1], false).getBoolean(true);
@@ -781,11 +781,132 @@ public class EM_ConfigHandler
 				config.get(catName, DMName[5], 0.0D).getDouble(0.0D);
 				config.get(catName, DMName[6], true).getBoolean(true);
 			}
+		}
+		config.save();
+	}
+	
+	public static void DimensionDefaultSave()
+	{
+		File dimensionFile = new File(customPath + "Defaults.cfg");
+		
+		if(!dimensionFile.exists())
+		{
+			try
+			{
+				dimensionFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		// Vanilla Dimensions
+		int[] dimensionIds = {1,0,-1};
+		
+				
+		Configuration config = new Configuration(dimensionFile, true);
+		config.load();
+		String worldname = "";
+		for(int p = 0; p <= 2; p++)
+		{
+			WorldProvider dimension = WorldProvider.getProviderForDimension(dimensionIds[p]);
+			
+			String catName = dmCat + ".Vanilla - " + dimension.getDimensionName().toLowerCase().trim();
+			config.addCustomCategoryComment(catName, "");
+
+			int id = config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
+			config.get(catName, DMName[1], false).getBoolean(true);
+			config.get(catName, DMName[2], p).getInt(p);
+			config.get(catName, DMName[3], 0.0D).getDouble(0.0D);
+			config.get(catName, DMName[4], 0.0D).getDouble(0.0D);
+			config.get(catName, DMName[5], 0.0D).getDouble(0.0D);
+			config.get(catName, DMName[6], true).getBoolean(true);
+			
+			DimensionProperties entry = new DimensionProperties(id);
+			
+			EM_Settings.dimensionProperties.put("" + id, entry);
+		}
+		config.save();
+	}
+	
+	public static void SearchForBiomes()
+	{
+		File biomesFile = new File(customPath + "ModBiomes.cfg");
+		
+		if(!biomesFile.exists())
+		{
+			try
+			{
+				biomesFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		Configuration config = new Configuration(biomesFile, true);
+		config.load();
+		
+		EnviroMine.logger.log(Level.INFO, "Found " + (BiomeGenBase.biomeList.length - 23) + " Mod Biomes");
+		for(int p = 23; p <= BiomeGenBase.biomeList.length - 1 && BiomeGenBase.biomeList[p] != null; p++)
+		{
+			
+			String catName = boCat + "." + BiomeGenBase.biomeList[p].biomeName;
+			config.addCustomCategoryComment(catName, "");
+			
+			int id = config.get(catName, BOName[0], BiomeGenBase.biomeList[p].biomeID, "Make sure if you change this id you also change it here.").getInt(BiomeGenBase.biomeList[p].biomeID);
+			
 			
 
+			BiomeProperties entry = new BiomeProperties(id);
+			EM_Settings.biomeProperties.put("" + id, entry);
+		}
+		
+		config.save();
+		
+		if(EM_Settings.useDefaultConfig == true)
+		{
+			BiomeDefaultSave();
+		}
+	}
+	
+	public static void BiomeDefaultSave()
+	{
+		File biomesFile = new File(customPath + "Defaults.cfg");
+		
+		if(!biomesFile.exists())
+		{
+			try
+			{
+				biomesFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		Configuration config = new Configuration(biomesFile, true);
+		config.load();
+		
+		for(int p = 0; p <= 23 && BiomeGenBase.biomeList[p] != null; p++)
+		{
 			
-		}	
+			String catName = boCat + "." + BiomeGenBase.biomeList[p].biomeName;
+			config.addCustomCategoryComment(catName, "");
+			
+			int id = config.get(catName, BOName[0], BiomeGenBase.biomeList[p].biomeID, "Make sure if you change this id you also change it here.").getInt(BiomeGenBase.biomeList[p].biomeID);
+			
 
+			BiomeProperties entry = new BiomeProperties(id);
+			EM_Settings.biomeProperties.put("" + id, entry);
+		}
+		
+
+			
+		
 		config.save();
 	}
 	
@@ -982,12 +1103,12 @@ public class EM_ConfigHandler
 		{
 			String currentCat = catagory.get(x);
 			
-			boolean physEnable = 	config.get(currentCat, SPName[0], true).getBoolean(true);
-			int supportDist = 		config.get(currentCat, SPName[1], 0).getInt(0);
-			int minFall = 			config.get(currentCat, SPName[2], -1).getInt(-1);
-			int maxFall = 			config.get(currentCat, SPName[3], -1).getInt(-1);
-			boolean canHang = 		config.get(currentCat, SPName[4], false).getBoolean(false);
-			boolean holdOther = 	config.get(currentCat, SPName[5], false).getBoolean(false);
+			boolean physEnable = config.get(currentCat, SPName[0], true).getBoolean(true);
+			int supportDist = config.get(currentCat, SPName[1], 0).getInt(0);
+			int minFall = config.get(currentCat, SPName[2], -1).getInt(-1);
+			int maxFall = config.get(currentCat, SPName[3], -1).getInt(-1);
+			boolean canHang = config.get(currentCat, SPName[4], false).getBoolean(false);
+			boolean holdOther = config.get(currentCat, SPName[5], false).getBoolean(false);
 			
 			EM_Settings.stabilityTypes.put(currentCat, new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		}
@@ -997,233 +1118,216 @@ public class EM_ConfigHandler
 	
 	public static void loadDefaultStabilityTypes(Configuration config)
 	{
-		boolean physEnable = 	config.get("sand-like", SPName[0], true).getBoolean(true);
-		int supportDist = 		config.get("sand-like", SPName[1], 0).getInt(0);
-		int minFall = 			config.get("sand-like", SPName[2], -1).getInt(-1);
-		int maxFall = 			config.get("sand-like", SPName[3], -1).getInt(-1);
-		boolean canHang = 		config.get("sand-like", SPName[4], false).getBoolean(false);
-		boolean holdOther = 	config.get("sand-like", SPName[5], false).getBoolean(false);
+		boolean physEnable = config.get("sand-like", SPName[0], true).getBoolean(true);
+		int supportDist = config.get("sand-like", SPName[1], 0).getInt(0);
+		int minFall = config.get("sand-like", SPName[2], -1).getInt(-1);
+		int maxFall = config.get("sand-like", SPName[3], -1).getInt(-1);
+		boolean canHang = config.get("sand-like", SPName[4], false).getBoolean(false);
+		boolean holdOther = config.get("sand-like", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("sand-like", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		
-		physEnable = 	config.get("loose", SPName[0], true).getBoolean(true);
-		supportDist = 	config.get("loose", SPName[1], 1).getInt(1);
-		minFall = 		config.get("loose", SPName[2], 10).getInt(10);
-		maxFall = 		config.get("loose", SPName[3], 15).getInt(15);
-		canHang = 		config.get("loose", SPName[4], false).getBoolean(false);
-		holdOther = 	config.get("loose", SPName[5], false).getBoolean(false);
+		physEnable = config.get("loose", SPName[0], true).getBoolean(true);
+		supportDist = config.get("loose", SPName[1], 1).getInt(1);
+		minFall = config.get("loose", SPName[2], 10).getInt(10);
+		maxFall = config.get("loose", SPName[3], 15).getInt(15);
+		canHang = config.get("loose", SPName[4], false).getBoolean(false);
+		holdOther = config.get("loose", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("loose", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		
-		physEnable = 	config.get("average", SPName[0], true).getBoolean(true);
-		supportDist = 	config.get("average", SPName[1], 2).getInt(2);
-		minFall = 		config.get("average", SPName[2], 15).getInt(15);
-		maxFall = 		config.get("average", SPName[3], 22).getInt(22);
-		canHang = 		config.get("average", SPName[4], false).getBoolean(false);
-		holdOther = 	config.get("average", SPName[5], false).getBoolean(false);
+		physEnable = config.get("average", SPName[0], true).getBoolean(true);
+		supportDist = config.get("average", SPName[1], 2).getInt(2);
+		minFall = config.get("average", SPName[2], 15).getInt(15);
+		maxFall = config.get("average", SPName[3], 22).getInt(22);
+		canHang = config.get("average", SPName[4], false).getBoolean(false);
+		holdOther = config.get("average", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("average", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		
-		physEnable = 	config.get("strong", SPName[0], true).getBoolean(true);
-		supportDist = 	config.get("strong", SPName[1], 3).getInt(3);
-		minFall = 		config.get("strong", SPName[2], 22).getInt(22);
-		maxFall = 		config.get("strong", SPName[3], 25).getInt(25);
-		canHang = 		config.get("strong", SPName[4], true).getBoolean(true);
-		holdOther = 	config.get("strong", SPName[5], false).getBoolean(false);
+		physEnable = config.get("strong", SPName[0], true).getBoolean(true);
+		supportDist = config.get("strong", SPName[1], 3).getInt(3);
+		minFall = config.get("strong", SPName[2], 22).getInt(22);
+		maxFall = config.get("strong", SPName[3], 25).getInt(25);
+		canHang = config.get("strong", SPName[4], true).getBoolean(true);
+		holdOther = config.get("strong", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("strong", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 	}
 	
-/** 
- * Pass a <String> of Id's and Returns an ArrayList of All Id's
- * 	
- */
-public static List<Integer> getIDS(String idString) 	
-{
-	boolean CommaSplit = false;
-	boolean ColonSplit = false;
-	List<String> CommaList = new ArrayList<String>();
-	List<String> ColonList = new ArrayList<String>();
-	List<Integer> ids = new ArrayList<Integer>();
-	String[] idSplitComma = null;
-	String[] idSplitColon = null;
-	
-	
-	//System.out.println("checking number");
-	if(!((String)idString).isEmpty() && ((String)idString).contains(","))
+	/** 
+	 * Pass a <String> of Id's and Returns an ArrayList of All Id's
+	 * 	
+	 */
+	public static List<Integer> getIDS(String idString)
 	{
-		idSplitComma = idString.split(",");
+		boolean CommaSplit = false;
+		boolean ColonSplit = false;
+		List<String> CommaList = new ArrayList<String>();
+		List<String> ColonList = new ArrayList<String>();
+		List<Integer> ids = new ArrayList<Integer>();
+		String[] idSplitComma = null;
+		String[] idSplitColon = null;
 		
-		
-		
-		for(int o = 0; o <= (idSplitComma.length - 1); ++o)
+		//System.out.println("checking number");
+		if(!((String)idString).isEmpty() && ((String)idString).contains(","))
 		{
-			//System.out.println("Found ID "+ idSplitComma[o]);
-			idSplitComma[o] = idSplitComma[o].trim();
+			idSplitComma = idString.split(",");
 			
-			if(idSplitComma[o].contains(":"))
-			{ 
-				ColonList.add(idSplitComma[o]); 
-			}
-			else
-			{ 
-				ids.add(Integer.parseInt(idSplitComma[o])); 
-			}
-		}
-	
-		CommaSplit = true;
-	}
-
-	if(!((String)idString).isEmpty() && ((String)idString).contains(":"))
-	{
-		
-		
-		if(CommaSplit = false)
-		{
-			idSplitColon = idString.split(":");
-			idSplitColon[0] = idSplitColon[0].trim();
-			idSplitColon[1] = idSplitColon[1].trim();			
-			ids = getRangeIDS(idSplitColon,ids);
-		}
-		
-		else
-		{
-			Iterator<String> iterator = ColonList.iterator();
-			while (iterator.hasNext()) 
+			for(int o = 0; o <= (idSplitComma.length - 1); ++o)
 			{
-				idSplitColon = iterator.next().split(":");
+				//System.out.println("Found ID "+ idSplitComma[o]);
+				idSplitComma[o] = idSplitComma[o].trim();
+				
+				if(idSplitComma[o].contains(":"))
+				{
+					ColonList.add(idSplitComma[o]);
+				} else
+				{
+					ids.add(Integer.parseInt(idSplitComma[o]));
+				}
+			}
+			
+			CommaSplit = true;
+		}
+		
+		if(!((String)idString).isEmpty() && ((String)idString).contains(":"))
+		{
+			
+			if(CommaSplit = false)
+			{
+				idSplitColon = idString.split(":");
 				idSplitColon[0] = idSplitColon[0].trim();
 				idSplitColon[1] = idSplitColon[1].trim();
-				ids = getRangeIDS(idSplitColon,ids);
+				ids = getRangeIDS(idSplitColon, ids);
+			}
+			
+			else
+			{
+				Iterator<String> iterator = ColonList.iterator();
+				while(iterator.hasNext())
+				{
+					idSplitColon = iterator.next().split(":");
+					idSplitColon[0] = idSplitColon[0].trim();
+					idSplitColon[1] = idSplitColon[1].trim();
+					ids = getRangeIDS(idSplitColon, ids);
+				}
+			}
+			
+			ColonSplit = true;
+		}
+		
+		if(CommaSplit == false && ColonSplit == false)
+		{
+			try
+			{
+				ids.add(Integer.parseInt(idString));
+			} catch(NullPointerException e)
+			{
+				e.printStackTrace();
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: " + idString);
+			} catch(StringIndexOutOfBoundsException e)
+			{
+				e.printStackTrace();
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: " + idString);
+			} catch(NumberFormatException e)
+			{
+				e.printStackTrace();
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: " + idString);
 			}
 		}
 		
-
-		ColonSplit = true;
+		return ids;
 	}
 	
-	if(CommaSplit == false && ColonSplit == false)
-	{	
+	// This arranges a range of IDS from small to large numbers 
+	private static List<Integer> getRangeIDS(String[] idSplitColon, List<Integer> ids)
+	{
+		//System.out.println("Found Colon");
+		
 		try
 		{
-			ids.add(Integer.parseInt(idString));
-		}
-		catch(NullPointerException e)
-		{
-			e.printStackTrace();
-			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: "+ idString);
-		} catch(StringIndexOutOfBoundsException e)
-		{
-			e.printStackTrace();
-			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: "+ idString);
-		}
-		catch(NumberFormatException e)
-		{
-			e.printStackTrace();
-			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: "+ idString);
-		}
-	}
-	
-	return ids;
-}
-
-// This arranges a range of IDS from small to large numbers 
-private static List<Integer> getRangeIDS(String[] idSplitColon, List<Integer> ids) 
-{
-	//System.out.println("Found Colon");
-
-	try
-	{
-
-		
-		
-
-	int Min = Integer.parseInt(idSplitColon[0]);  
-	int Max = Integer.parseInt(idSplitColon[1]);
-	
-	if(Max <= Min)
-	{
-		Min = Integer.parseInt(idSplitColon[1]);  
-		Max = Integer.parseInt(idSplitColon[0]);
-	}
-
-	for(int j = Min; j <= Max ; ++j)
-	{
-		ids.add(j);
-	}
-	
-
-	}
-	catch(NullPointerException e)
-	{
-		e.printStackTrace();
-		EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \""+ idSplitColon[0]+":"+ idSplitColon[1] +"\"");
-	} 
-	catch(StringIndexOutOfBoundsException e)
-	{
-		e.printStackTrace();
-		EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \""+ idSplitColon[0] +":"+ idSplitColon[1] +"\"");
-	}
-	catch(NumberFormatException e)
-	{
-		e.printStackTrace();
-		EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs:\""+ idSplitColon[0] +":"+ idSplitColon[1]+"\"");
-	}
-	return ids;
-}
-
-
-
-/* from get IDS
-if(CommaSplit == true)
-{
-	System.out.println("Checking for Colons");
-
-	Iterator<String> iterator = ColonList.iterator();
-	while (iterator.hasNext()) 
-	{
-
-			System.out.println("Found Colon");
-			idSplitColon = iterator.next().split(":");
 			
-			int Min = Integer.parseInt(idSplitColon[0]);  
+			int Min = Integer.parseInt(idSplitColon[0]);
 			int Max = Integer.parseInt(idSplitColon[1]);
 			
 			if(Max <= Min)
 			{
-				Min = Integer.parseInt(idSplitColon[1]);  
+				Min = Integer.parseInt(idSplitColon[1]);
 				Max = Integer.parseInt(idSplitColon[0]);
 			}
-
-			for(int j = Min; j <= Max ; ++j)
+			
+			for(int j = Min; j <= Max; ++j)
 			{
 				ids.add(j);
-				System.out.println("Found ID "+ j);
-				
 			}
-
-	}	
-		
-
-	
-}
-else 
-{	
-	idSplitColon = idString.split(":");
-	
-	int Min = Integer.parseInt(idSplitColon[0]);  
-	int Max = Integer.parseInt(idSplitColon[1]);
-	
-	if(Max <= Min)
-	{
-		Min = Integer.parseInt(idSplitColon[1]);  
-		Max = Integer.parseInt(idSplitColon[0]);
+			
+		} catch(NullPointerException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \"" + idSplitColon[0] + ":" + idSplitColon[1] + "\"");
+		} catch(StringIndexOutOfBoundsException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \"" + idSplitColon[0] + ":" + idSplitColon[1] + "\"");
+		} catch(NumberFormatException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs:\"" + idSplitColon[0] + ":" + idSplitColon[1] + "\"");
+		}
+		return ids;
 	}
-
-	for(int j = 0; j <= (idSplitComma.length - 1); ++j)
+	
+	/* from get IDS
+	if(CommaSplit == true)
 	{
+		System.out.println("Checking for Colons");
+
+		Iterator<String> iterator = ColonList.iterator();
+		while (iterator.hasNext()) 
+		{
+
+				System.out.println("Found Colon");
+				idSplitColon = iterator.next().split(":");
+				
+				int Min = Integer.parseInt(idSplitColon[0]);  
+				int Max = Integer.parseInt(idSplitColon[1]);
+				
+				if(Max <= Min)
+				{
+					Min = Integer.parseInt(idSplitColon[1]);  
+					Max = Integer.parseInt(idSplitColon[0]);
+				}
+
+				for(int j = Min; j <= Max ; ++j)
+				{
+					ids.add(j);
+					System.out.println("Found ID "+ j);
+					
+				}
+
+		}	
+			
+
 		
 	}
-}*/
+	else 
+	{	
+		idSplitColon = idString.split(":");
+		
+		int Min = Integer.parseInt(idSplitColon[0]);  
+		int Max = Integer.parseInt(idSplitColon[1]);
+		
+		if(Max <= Min)
+		{
+			Min = Integer.parseInt(idSplitColon[1]);  
+			Max = Integer.parseInt(idSplitColon[0]);
+		}
 
+		for(int j = 0; j <= (idSplitComma.length - 1); ++j)
+		{
+			
+		}
+	}*/
+	
 } // End of Page

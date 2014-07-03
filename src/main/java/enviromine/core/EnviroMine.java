@@ -10,6 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.DimensionManager;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
@@ -101,6 +103,10 @@ public class EnviroMine
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
 		caves = (new BiomeGenCaves(23)).setColor(16711680).setBiomeName("Caves").setDisableRain().setTemperatureRainfall(1.0F, 0.0F);
+		GameRegistry.addBiome(caves);
+		BiomeDictionary.registerBiomeType(caves, Type.WASTELAND);
+		
+		
 		DimensionManager.registerProviderType(EM_Settings.caveDimID, WorldProviderCaves.class, false);
 		DimensionManager.registerDimension(EM_Settings.caveDimID, EM_Settings.caveDimID);
 		
@@ -121,6 +127,8 @@ public class EnviroMine
 		}
 		
 		EM_ConfigHandler.SearchForDimensions();
+		EM_ConfigHandler.SearchForBiomes();
+		
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.armorProperties.size() + " armor properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.blockProperties.size() + " block properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.livingProperties.size() + " entity properties");

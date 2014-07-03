@@ -350,8 +350,8 @@ public class EM_GuiEnviroMeters extends Gui
 					if(blink && tracker.hydration < 25)
 						frameborder = 5;
 					
-					//this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
-					EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight, 2);
+					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight, 2);
 					if(EM_Settings.ShowGuiIcons == true)
 					{
 						this.drawTexturedModalRect(iconPos, WAcurY - 4, 16, 80, 16, 16);
@@ -420,41 +420,6 @@ public class EM_GuiEnviroMeters extends Gui
 					
 				}
 			}
-			
-			/*
-			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
-			
-			if(tracker.bodyTemp >= 39)
-			{
-				int grad = 0;
-				if(tracker.bodyTemp >= 41F)
-				{
-					grad = 64;
-				} else
-				{
-					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39)) / 3)) * 96);
-				}
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, grad), EnviroUtils.getColorFromRGBA(255, 255, 255, grad));
-			} else if(tracker.bodyTemp <= 35F)
-			{
-				int grad = 0;
-				if(tracker.bodyTemp <= 32F)
-				{
-					grad = 64;
-				} else
-				{
-					grad = (int)(((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
-				}
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(125, 255, 255, grad), EnviroUtils.getColorFromRGBA(125, 255, 255, grad));
-			} else if(tracker.airQuality < 50F)
-			{
-				int grad = (int)((50 - tracker.airQuality) / 50 * 64);
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(32, 96, 0, grad), EnviroUtils.getColorFromRGBA(32, 96, 0, grad));
-			} else if(tracker.sanity < 50F)
-			{
-				int grad = (int)((50 - tracker.sanity) / 50 * 64);
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(200, 0, 249, grad), EnviroUtils.getColorFromRGBA(200, 0, 249, grad));
-			}*/
 		}
 		
 		GL11.glPopMatrix();
@@ -573,15 +538,14 @@ public class EM_GuiEnviroMeters extends Gui
 			}
 		}
 		
-		boolean infection = true;
+		boolean infection = false;
 		if(infection && this.mc.gameSettings.thirdPersonView == 0)
 		{
 			int A = (int) RenderPulse();
-			
-			System.out.println(A);
 			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(220, 3, 3, A));
-			this.mc.renderEngine.bindTexture(bloodshotResource);
-			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 100));
+			
+			//this.mc.renderEngine.bindTexture(bloodshotResource);
+			//EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 100));
 		}
 		
 		ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);

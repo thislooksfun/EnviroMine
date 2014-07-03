@@ -3,7 +3,9 @@ package enviromine.core;
 import java.util.HashMap;
 import java.util.UUID;
 import enviromine.trackers.ArmorProperties;
+import enviromine.trackers.BiomeProperties;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.DimensionProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
 import enviromine.trackers.StabilityType;
@@ -81,6 +83,8 @@ public class EM_Settings
 	public static HashMap<String,BlockProperties> blockProperties = new HashMap<String,BlockProperties>();
 	public static HashMap<String,EntityProperties> livingProperties = new HashMap<String,EntityProperties>();
 	public static HashMap<String,ItemProperties> itemProperties = new HashMap<String,ItemProperties>();
+	public static HashMap<String,BiomeProperties> biomeProperties = new HashMap<String,BiomeProperties>();
+	public static HashMap<String,DimensionProperties> dimensionProperties = new HashMap<String,DimensionProperties>();
 	
 	public static HashMap<String,StabilityType> stabilityTypes = new HashMap<String,StabilityType>();
 	public static int updateCap;
@@ -103,6 +107,7 @@ public class EM_Settings
 	public static boolean villageAssist;
 	
 	public static int caveDimID = -3;
+	public static int caveBiomeID = 23;
 	
 	public static float convertToFarenheit(float num)
 	{

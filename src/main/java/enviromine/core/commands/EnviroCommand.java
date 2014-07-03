@@ -24,19 +24,35 @@ public class EnviroCommand extends CommandBase
 	@Override
 	public String getCommandUsage(ICommandSender sender)
 	{
-		return "/envirostat <playername> <add, set> <temp, sanity, water, air> <float>";
+		return "/envirostat <playername, me> <add, set> <temp, sanity, water, air> <float>";
 	}
+	
+    public int getRequiredPermissionLevel()
+    {
+        return 2;
+    }
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] astring)
 	{
+
 		if(astring.length != 4)
 		{
 			this.ShowUsage(sender);
 			return;
 		}
 		
-		EnviroDataTracker tracker = EM_StatusManager.lookupTrackerFromUsername(astring[0]);
+		String target = "";
+		if(astring[0].equalsIgnoreCase("me") )
+		{
+			target = sender.getCommandSenderName();
+		}
+		else
+		{
+			target = astring[0];
+		}
+		
+		EnviroDataTracker tracker = EM_StatusManager.lookupTrackerFromUsername(target);
 		
 		if(tracker == null)
 		{
