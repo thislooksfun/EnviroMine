@@ -1,17 +1,16 @@
 package enviromine.handlers.keybinds;
 
 import java.util.EnumSet;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-
+import net.minecraft.src.ModLoader;
 import org.lwjgl.input.Keyboard;
-
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_ConfigHandler;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
+import enviromine.gui.EM_GuiMenu;
 
 public class ReloadCustomObjects extends KeyHandler{
 
@@ -58,6 +57,10 @@ public class ReloadCustomObjects extends KeyHandler{
 				{
 					try
 					{
+						//Temp To Open Gui Screen
+						//mc.displayGuiScreen(new enviromine.gui.EM_GuiMenu());
+						
+						
 						mc.thePlayer.addChatMessage("Reloading Configs...");
 						EM_Settings.armorProperties.clear();
 						EM_Settings.blockProperties.clear();

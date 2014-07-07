@@ -163,6 +163,12 @@ public class EM_ConfigHandler
 		
 		BOName = new String[7];
 		BOName[0] = "01.Biome ID";
+		BOName[1] = "02.Override Biome";
+		BOName[2] = "03.Water Quality";
+		BOName[3] = "04.Ambient Temperature";
+		BOName[4] = "05.Temp Rate";
+		BOName[5] = "06.Sanity Rate";
+		BOName[6] = "07.Dehydrate Rate";
 		
 	}
 	
@@ -715,14 +721,14 @@ public class EM_ConfigHandler
 		Integer[] DimensionIds = DimensionManager.getStaticDimensionIDs();
 		
 		if(EM_Settings.useDefaultConfig == true)
-		{	
+		{
 			DimensionDefaultSave();
 		}
 		//Remove Vanilla Dimensions
-
-			DimensionIds = ArrayUtils.removeElements(DimensionIds, 0);
-			DimensionIds = ArrayUtils.removeElements(DimensionIds, 1);
-			DimensionIds = ArrayUtils.removeElements(DimensionIds, -1);
+		
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, 0);
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, 1);
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, -1);
 		
 		//DimensionIds.aslist
 		EnviroMine.logger.log(Level.INFO, "Found " + DimensionIds.length + " Mod Dimension");
@@ -802,9 +808,8 @@ public class EM_ConfigHandler
 		}
 		
 		// Vanilla Dimensions
-		int[] dimensionIds = {1,0,-1};
+		int[] dimensionIds = {1, 0, -1};
 		
-				
 		Configuration config = new Configuration(dimensionFile, true);
 		config.load();
 		String worldname = "";
@@ -814,7 +819,7 @@ public class EM_ConfigHandler
 			
 			String catName = dmCat + ".Vanilla - " + dimension.getDimensionName().toLowerCase().trim();
 			config.addCustomCategoryComment(catName, "");
-
+			
 			int id = config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
 			config.get(catName, DMName[1], false).getBoolean(true);
 			config.get(catName, DMName[2], p).getInt(p);
@@ -857,10 +862,14 @@ public class EM_ConfigHandler
 			config.addCustomCategoryComment(catName, "");
 			
 			int id = config.get(catName, BOName[0], BiomeGenBase.biomeList[p].biomeID, "Make sure if you change this id you also change it here.").getInt(BiomeGenBase.biomeList[p].biomeID);
+			boolean biomeOveride = config.get(catName, BOName[1], false).getBoolean(false);
+			String waterQ = config.get(catName, BOName[2], getWater(BiomeGenBase.biomeList[p]), "Water Quality: dirty, salt, cold, clean").getString();
+			double ambTemp = config.get(catName, BOName[3], getTemp(BiomeGenBase.biomeList[p]), "In Celsius").getDouble(37.00);
+			double tempRate = config.get(catName, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
+			double sanRate = config.get(catName, BOName[5], 0.0).getDouble(0.0);
+			double dehyRate = config.get(catName, BOName[6], 0.0).getDouble(0.0);
 			
-			
-
-			BiomeProperties entry = new BiomeProperties(id);
+			BiomeProperties entry = new BiomeProperties(id, biomeOveride, waterQ, ambTemp, tempRate, sanRate, dehyRate);
 			EM_Settings.biomeProperties.put("" + id, entry);
 		}
 		
@@ -869,6 +878,42 @@ public class EM_ConfigHandler
 		if(EM_Settings.useDefaultConfig == true)
 		{
 			BiomeDefaultSave();
+		}
+	}
+	
+	private static double getTemp(BiomeGenBase biome)
+	{
+		float bTemp = biome.temperature * 2.25F;
+		
+		if(bTemp > 1.5F)
+		{
+			bTemp = 30F + ((bTemp - 1F) * 10);
+		} else if(bTemp < -1.5F)
+		{
+			bTemp = -30F + ((bTemp + 1F) * 10);
+		} else
+		{
+			bTemp *= 20;
+		}
+		
+		return bTemp;
+		
+	}
+	
+	private static String getWater(BiomeGenBase biome)
+	{
+		if(biome.biomeName == BiomeGenBase.swampland.biomeName || biome.biomeName == BiomeGenBase.jungle.biomeName || biome.biomeName == BiomeGenBase.jungleHills.biomeName)
+		{
+			return "dirty";
+		} else if(biome.biomeName == BiomeGenBase.frozenOcean.biomeName || biome.biomeName == BiomeGenBase.ocean.biomeName || biome.biomeName == BiomeGenBase.beach.biomeName)
+		{
+			return "salt";
+		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName || biome.temperature < 0F)
+		{
+			return "cold";
+		} else
+		{
+			return "clean";
 		}
 	}
 	
@@ -891,21 +936,23 @@ public class EM_ConfigHandler
 		Configuration config = new Configuration(biomesFile, true);
 		config.load();
 		
-		for(int p = 0; p <= 23 && BiomeGenBase.biomeList[p] != null; p++)
+		for(int p = 0; p <= 22 && BiomeGenBase.biomeList[p] != null; p++)
 		{
 			
 			String catName = boCat + "." + BiomeGenBase.biomeList[p].biomeName;
 			config.addCustomCategoryComment(catName, "");
 			
 			int id = config.get(catName, BOName[0], BiomeGenBase.biomeList[p].biomeID, "Make sure if you change this id you also change it here.").getInt(BiomeGenBase.biomeList[p].biomeID);
+			boolean biomeOveride = config.get(catName, BOName[1], false).getBoolean(false);
+			String waterQ = config.get(catName, BOName[2], "clean", "Water Quality: dirty, salt, cold, clean").getString();
+			double ambTemp = config.get(catName, BOName[3], getTemp(BiomeGenBase.biomeList[p]), "In Celsius").getDouble(37.00);
+			double tempRate = config.get(catName, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
+			double sanRate = config.get(catName, BOName[5], 0.0).getDouble(0.0);
+			double dehyRate = config.get(catName, BOName[6], 0.0).getDouble(0.0);
 			
-
-			BiomeProperties entry = new BiomeProperties(id);
+			BiomeProperties entry = new BiomeProperties(id, biomeOveride, waterQ, ambTemp, tempRate, sanRate, dehyRate);
 			EM_Settings.biomeProperties.put("" + id, entry);
 		}
-		
-
-			
 		
 		config.save();
 	}
