@@ -5,6 +5,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_Settings;
+import enviromine.world.Earthquake;
 
 public class EM_ServerScheduledTickHandler implements ITickHandler
 {
@@ -20,6 +21,8 @@ public class EM_ServerScheduledTickHandler implements ITickHandler
 		{
 			return;
 		}
+		
+		Earthquake.updateEarthquakes();
 		
 		if(EM_Settings.enablePhysics)
 		{

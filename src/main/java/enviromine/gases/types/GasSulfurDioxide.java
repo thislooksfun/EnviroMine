@@ -13,7 +13,7 @@ public class GasSulfurDioxide extends EnviroGas
 	public GasSulfurDioxide(String name, int ID)
 	{
 		super(name, ID);
-		this.setColor(new Color(192, 192, 0, 64));
+		this.setColor(new Color(192, 192, 0, 0));
 		this.setDensity(3F);
 	}
 	

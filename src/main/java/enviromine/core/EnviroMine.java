@@ -29,7 +29,6 @@ import enviromine.EnviroPotion;
 import enviromine.EnviroUtils;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
-import enviromine.handlers.EM_EventManager;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.handlers.ObjectHandler;

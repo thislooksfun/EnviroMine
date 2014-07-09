@@ -1,6 +1,7 @@
 package enviromine.handlers;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.UUID;
 import java.util.logging.Level;
 import enviromine.EntityPhysicsBlock;
@@ -12,6 +13,7 @@ import enviromine.trackers.EntityProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.Hallucination;
 import enviromine.trackers.ItemProperties;
+import enviromine.world.features.mineshaft.MineshaftBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -22,12 +24,8 @@ import net.minecraft.entity.ai.attributes.AttributeInstance;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.passive.EntityChicken;
-import net.minecraft.entity.passive.EntitySheep;
-import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -47,7 +45,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -951,6 +948,21 @@ public class EM_EventManager
 		{
 			EM_PhysManager.worldStartTime = event.world.getTotalWorldTime();
 		}
+
+		MinecraftServer server = MinecraftServer.getServer();
+		
+		if(EM_Settings.worldDir == null && server.isServerRunning())
+		{
+			if(EnviroMine.proxy.isClient())
+			{
+				EM_Settings.worldDir = MinecraftServer.getServer().getFile("saves/" + server.getFolderName());
+			} else
+			{
+				EM_Settings.worldDir = server.getFile(server.getFolderName());
+			}
+			
+			MineshaftBuilder.loadBuilders(new File(EM_Settings.worldDir.getAbsolutePath(), "data/EnviroMineshafts"));
+		}
 	}
 	
 	@ForgeSubscribe
@@ -967,6 +979,14 @@ public class EM_EventManager
 				EM_PhysManager.usedSlidePositions.clear();
 				EM_PhysManager.worldStartTime = -1;
 				EM_PhysManager.chunkDelay.clear();
+				
+				if(EM_Settings.worldDir != null)
+				{
+					MineshaftBuilder.saveBuilders(new File(EM_Settings.worldDir.getAbsolutePath(), "data/EnviroMineshafts"));
+				}
+				MineshaftBuilder.clearBuilders();
+				
+				EM_Settings.worldDir = null;
 			}
 		}
 	}
@@ -989,6 +1009,10 @@ public class EM_EventManager
 	public void onWorldSave(Save event)
 	{
 		EM_StatusManager.saveAllWorldTrackers(event.world);
+		if(EM_Settings.worldDir != null && event.world.provider.dimensionId == 0)
+		{
+			MineshaftBuilder.saveBuilders(new File(EM_Settings.worldDir.getAbsolutePath(), "data/EnviroMineshafts"));
+		}
 	}
 	
 	protected static MovingObjectPosition getMovingObjectPositionFromPlayer(World par1World, EntityPlayer par2EntityPlayer, boolean par3)

@@ -64,6 +64,11 @@ public class EnviroGas
 		return this;
 	}
 	
+	public int[] react(World world, int i, int j, int k, int amount)
+	{
+		return new int[]{this.gasID, amount};
+	}
+	
 	public void applyEffects(EntityLivingBase entityLiving, int amplifier)
 	{
 	}

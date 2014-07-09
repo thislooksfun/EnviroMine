@@ -1,5 +1,6 @@
 package enviromine.core;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.UUID;
 import enviromine.trackers.ArmorProperties;
@@ -16,6 +17,8 @@ public class EM_Settings
 	public static final UUID HEAT1_UUID = UUID.fromString("CA6E2CFA-4C53-4CD2-AAD3-3D6177A4F126");
 	public static final UUID DEHY1_UUID = UUID.fromString("38909A39-E1A1-4E93-9016-B2CCBE83D13D");
 	
+	public static File worldDir = null;
+	
 	//Mod Data
 	public static final String Version = "FWG_EM_VER";
 	public static final String ID = "EnviroMine";
@@ -29,7 +32,7 @@ public class EM_Settings
 	public static boolean enableHydrate = true;
 	public static boolean enableSanity = true;
 	public static boolean enableBodyTemp = true;
-	public static boolean trackNonPlayer;
+	public static boolean trackNonPlayer = false;
 	
 	public static boolean ShowGuiIcons;
 	
@@ -55,10 +58,11 @@ public class EM_Settings
 	public static int gasMaskID = 5005;
 	public static int airFilterID = 5006;
 	public static int hardHatID = 5007;
-	public static int blockElevatorTopID = 251;
-	public static int blockElevatorBottomID = 252;
-	public static int gasBlockID = 254;
-	public static int fireGasBlockID = 253;
+	
+	public static int blockElevatorTopID = 501;
+	public static int blockElevatorBottomID = 502;
+	public static int gasBlockID = 503;
+	public static int fireGasBlockID = 504;
 	
 	public static int hypothermiaPotionID = 27;
 	public static int heatstrokePotionID = 28;
@@ -66,8 +70,14 @@ public class EM_Settings
 	public static int dehydratePotionID = 30;
 	public static int insanityPotionID = 31;
 	
+	//Gases
+	public static boolean renderGases = false;
+	public static int gasTickRate = 32; //GasFires are 4x faster than this
+	
 	//World Gen
-	public static boolean shaftGen;
+	public static boolean shaftGen = true;
+	public static boolean gasGen = true;
+	public static boolean oldMineGen = true;
 	
 	//Properties
 	public static HashMap<Integer,ArmorProperties> armorProperties = new HashMap<Integer,ArmorProperties>();

@@ -519,7 +519,7 @@ public class TileEntityGas extends TileEntity
 			
 			int[] rDir = gDir.get(index);
 			
-			if(rDir[1] == 0 && this.amount <= 1)
+			if(rDir[1] == 0 && this.amount <= 1 || !this.worldObj.getChunkProvider().chunkExists((this.xCoord + rDir[0])/16, (this.zCoord + rDir[2])/16))
 			{
 				gDir.remove(index);
 				continue;
@@ -572,10 +572,17 @@ public class TileEntityGas extends TileEntity
 		TileEntity tile = this.worldObj.getBlockTileEntity(i, j, k);
 		if(tile == null)
 		{
-			if(this.worldObj.getBlockId(i, j, k) == 0)
+			if(this.worldObj.getBlockId(i, j, k) == 0 && this.getBlockType().blockID != 0)
 			{
 				this.worldObj.setBlock(i, j, k, this.getBlockType().blockID);
-				return this.offLoadGas(i, j, k, offLoadNum);
+				
+				if(this.worldObj.getBlockTileEntity(i, j, k) == null)
+				{
+					return false;
+				} else
+				{
+					return this.offLoadGas(i, j, k, offLoadNum);
+				}
 			} else
 			{
 				return false;
@@ -764,6 +771,11 @@ public class TileEntityGas extends TileEntity
 	
 	public int getGasCapactiy(int i, int j, int k)
 	{
+		if(!worldObj.getChunkProvider().chunkExists(i/16, k/16))
+		{
+			return 0;
+		}
+		
 		int fireAmount = this.getGasQuantity(0);
 		TileEntity tile = this.worldObj.getBlockTileEntity(i, j, k);
 		

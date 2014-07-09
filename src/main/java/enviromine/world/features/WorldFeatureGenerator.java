@@ -2,7 +2,6 @@ package enviromine.world.features;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
@@ -10,13 +9,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.IWorldGenerator;
 import enviromine.blocks.tiles.TileEntityGas;
-import enviromine.core.EnviroMine;
+import enviromine.core.EM_Settings;
 import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;
+import enviromine.world.features.mineshaft.MineshaftBuilder;
 
 public class WorldFeatureGenerator implements IWorldGenerator
 {
 	public static ArrayList<int[]> pendingMines = new ArrayList<int[]>();
+	public static boolean disableMineScan = false;
 	
 	public WorldFeatureGenerator()
 	{
@@ -30,14 +31,34 @@ public class WorldFeatureGenerator implements IWorldGenerator
 			return;
 		}
 		
-		/*if(random.nextInt(1000) == 0)
+		if(EM_Settings.oldMineGen)
 		{
-			
-		} else */
-		{
-			for(int i = random.nextInt(5) + 5; i >= 0; i--)
+			if(!disableMineScan)
 			{
-				//GenGasPocket(random, chunkX, chunkZ, world, chunkGenerator, chunkProvider);
+				MineshaftBuilder.scanGrids(world, chunkX, chunkZ, random);
+			}
+			
+			for(int i = MineshaftBuilder.pendingBuilders.size() - 1; i >= 0; i--)
+			{
+				MineshaftBuilder builder = MineshaftBuilder.pendingBuilders.get(i);
+				
+				if(builder.checkAndBuildSegments(chunkX, chunkZ))
+				{
+					MineshaftBuilder.pendingBuilders.remove(i);
+					if(MineshaftBuilder.scannedGrids.containsKey("" + (chunkX/64) + "," + (chunkZ/64) + "," + world.provider.dimensionId))
+					{
+						int remBuilders = MineshaftBuilder.scannedGrids.get("" + (chunkX/64) + "," + (chunkZ/64) + "," + world.provider.dimensionId);
+						MineshaftBuilder.scannedGrids.put("" + (chunkX/64) + "," + (chunkZ/64) + "," + world.provider.dimensionId, remBuilders - 1);
+					}
+				}
+			}
+		}
+		
+		if(EM_Settings.gasGen)
+		{
+			for(int i = 25; i >= 0; i--)
+			{
+				GenGasPocket(random, chunkX, chunkZ, world, chunkGenerator, chunkProvider);
 			}
 		}
 	}
@@ -45,8 +66,13 @@ public class WorldFeatureGenerator implements IWorldGenerator
 	public void GenGasPocket(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
 	{
 		int rX = (chunkX * 16) + random.nextInt(16);
-		int rY = random.nextInt(32);
+		int rY = 1 + random.nextInt(32);
 		int rZ = (chunkZ * 16) + random.nextInt(16);
+		
+		while(world.getBlockId(rX, rY - 1, rZ) == 0 && rY > 1)
+		{
+			rY -= 1;
+		}
 		
 		if(world.getBlockId(rX, rY, rZ) == 0)
 		{
@@ -55,50 +81,50 @@ public class WorldFeatureGenerator implements IWorldGenerator
 			{
 				if(bBlock != null && bBlock.blockMaterial == Material.water)
 				{
-					world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID);
+					world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID, 0, 2);
 					TileEntity tile = world.getBlockTileEntity(rX, rY, rZ);
 					
 					if(tile instanceof TileEntityGas)
 					{
 						TileEntityGas gasTile = (TileEntityGas)tile;
-						gasTile.addGas(EnviroGasDictionary.hydrogenSulfide.gasID, 5);
-						EnviroMine.logger.log(Level.INFO, "Generation hydrogen sulfide at (" + rX + "," + rY + "," + rZ + ")");
+						gasTile.addGas(EnviroGasDictionary.hydrogenSulfide.gasID, 10);
+						//EnviroMine.logger.log(Level.INFO, "Generating hydrogen sulfide at (" + rX + "," + rY + "," + rZ + ")");
 					}
 				} else if(bBlock != null && (bBlock.blockMaterial == Material.lava || bBlock.blockMaterial == Material.fire))
 				{
-					world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID);
+					world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID, 0, 2);
 					TileEntity tile = world.getBlockTileEntity(rX, rY, rZ);
 					
 					if(tile instanceof TileEntityGas)
 					{
 						TileEntityGas gasTile = (TileEntityGas)tile;
-						gasTile.addGas(EnviroGasDictionary.carbonMonoxide.gasID, 10);
-						gasTile.addGas(EnviroGasDictionary.sulfurDioxide.gasID, 10);
-						EnviroMine.logger.log(Level.INFO, "Generation carbon monoxide at (" + rX + "," + rY + "," + rZ + ")");
+						gasTile.addGas(EnviroGasDictionary.carbonMonoxide.gasID, 25);
+						gasTile.addGas(EnviroGasDictionary.sulfurDioxide.gasID, 25);
+						//EnviroMine.logger.log(Level.INFO, "Generating carbon monoxide at (" + rX + "," + rY + "," + rZ + ")");
 					}
 				} else
 				{
-					world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID);
+					world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID, 0, 2);
 					TileEntity tile = world.getBlockTileEntity(rX, rY, rZ);
 					
 					if(tile instanceof TileEntityGas)
 					{
 						TileEntityGas gasTile = (TileEntityGas)tile;
-						gasTile.addGas(EnviroGasDictionary.sulfurDioxide.gasID, 10);
-						gasTile.addGas(EnviroGasDictionary.carbonDioxide.gasID, 20);
-						EnviroMine.logger.log(Level.INFO, "Generation sulfur dioxide at (" + rX + "," + rY + "," + rZ + ")");
+						gasTile.addGas(EnviroGasDictionary.sulfurDioxide.gasID, 20);
+						gasTile.addGas(EnviroGasDictionary.carbonDioxide.gasID, 30);
+						//EnviroMine.logger.log(Level.INFO, "Generating sulfur dioxide at (" + rX + "," + rY + "," + rZ + ")");
 					}
 				}
 			} else
 			{
-				world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID);
+				world.setBlock(rX, rY, rZ, ObjectHandler.gasBlock.blockID, 0, 2);
 				TileEntity tile = world.getBlockTileEntity(rX, rY, rZ);
 				
 				if(tile instanceof TileEntityGas)
 				{
 					TileEntityGas gasTile = (TileEntityGas)tile;
-					gasTile.addGas(EnviroGasDictionary.carbonDioxide.gasID, 30);
-					EnviroMine.logger.log(Level.INFO, "Generation carbon dioxide at (" + rX + "," + rY + "," + rZ + ")");
+					gasTile.addGas(EnviroGasDictionary.carbonDioxide.gasID, 50);
+					//EnviroMine.logger.log(Level.INFO, "Generating carbon dioxide at (" + rX + "," + rY + "," + rZ + ")");
 				}
 			}
 		}

@@ -8,7 +8,7 @@ public class GasNitrogenDioxide extends EnviroGas
 	public GasNitrogenDioxide(String name, int ID)
 	{
 		super(name, ID);
-		this.setColor(new Color(255, 255, 255, 64));
+		this.setColor(new Color(255, 255, 255, 0));
 		this.setDensity(2F);
 	}
 }

@@ -158,6 +158,8 @@ public class EM_ConfigHandler
 		//World Generation
 		
 		EM_Settings.shaftGen = config.get("World Generation", "Enable Village MineShafts", true, "Generates mineshafts in villages").getBoolean(true);
+		EM_Settings.oldMineGen = config.get("World Generation", "Enable New Abandoned Mineshafts", true, "Generates massive abandoned mineshafts (size doesn't cause lag)").getBoolean(true);
+		EM_Settings.gasGen = config.get("World Generation", "Generate Gases", true).getBoolean(true);
 		
 		//General Settings
 		EM_Settings.enablePhysics = config.get(Configuration.CATEGORY_GENERAL, "Enable Physics", true, "Turn physics On/Off").getBoolean(true);
@@ -202,6 +204,16 @@ public class EM_ConfigHandler
 		EM_Settings.saltBottleID = config.get(Configuration.CATEGORY_ITEM, "Salt Water Bottle", 5002).getInt(5002);
 		EM_Settings.coldBottleID = config.get(Configuration.CATEGORY_ITEM, "Cold Water Bottle", 5003).getInt(5003);
 		EM_Settings.camelPackID = config.get(Configuration.CATEGORY_ITEM, "Camel Pack", 5004).getInt(5004);
+		
+		// Config Block ID's
+		EM_Settings.blockElevatorTopID = config.get(Configuration.CATEGORY_BLOCK, "Elevator Top ID", 501).getInt(501);
+		EM_Settings.blockElevatorBottomID = config.get(Configuration.CATEGORY_BLOCK, "Elevator Bottom ID", 502).getInt(502);
+		EM_Settings.gasBlockID = config.get(Configuration.CATEGORY_BLOCK, "Normal Gas ID", 503).getInt(503);
+		EM_Settings.fireGasBlockID = config.get(Configuration.CATEGORY_BLOCK, "Gas Fire ID", 504).getInt(504);
+		
+		// Config Gas
+		EM_Settings.renderGases = config.get("Gases", "Render normal gas", true).getBoolean(true);
+		EM_Settings.gasTickRate = config.get("Gases", "Gas Tick Rate", 32, "How many ticks between gas updates. Gas fires are 1/4 of this.").getInt(32);
 		
 		// Potion ID's
 		EM_Settings.hypothermiaPotionID = config.get("Potions", "Hypothermia", 27).getInt(27);
