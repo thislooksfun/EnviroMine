@@ -3,13 +3,11 @@ package enviromine.blocks;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EnviroUtils;
 import enviromine.blocks.tiles.TileEntityGas;
 import enviromine.core.EM_Settings;
-import enviromine.core.EnviroMine;
 import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;
 import net.minecraft.block.Block;
@@ -401,33 +399,26 @@ public class BlockGas extends Block implements ITileEntityProvider
 
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID)
 	{
-		try
+		if(world.scheduledUpdatesAreImmediate)
 		{
-			if(world.scheduledUpdatesAreImmediate)
-			{
-				world.scheduleBlockUpdateFromLoad(x, y, z, this.blockID, this.tickRate(world), 0);
-			} else
-			{
-				world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
-			}
+			world.scheduleBlockUpdateFromLoad(x, y, z, this.blockID, this.tickRate(world), 0);
+		} else
+		{
+			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
+		}
+		
+		if(world.isRemote && (blockID == ObjectHandler.gasBlock.blockID || blockID == ObjectHandler.fireGasBlock.blockID))
+		{
+			TileEntity tile = world.getBlockTileEntity(x, y, z);
 			
-			if(world.isRemote && (blockID == ObjectHandler.gasBlock.blockID || blockID == ObjectHandler.fireGasBlock.blockID))
+			if(tile != null && tile instanceof TileEntityGas)
 			{
-				TileEntity tile = world.getBlockTileEntity(x, y, z);
+				TileEntityGas gasTile = (TileEntityGas)tile;
 				
-				if(tile != null && tile instanceof TileEntityGas)
-				{
-					TileEntityGas gasTile = (TileEntityGas)tile;
-					
-					gasTile.updateOpacity();
-					gasTile.updateSize();
-					Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(x, y, z);
-				}
+				gasTile.updateOpacity();
+				gasTile.updateSize();
+				Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(x, y, z);
 			}
-		} catch(Throwable throwable)
-		{
-			EnviroMine.logger.log(Level.SEVERE, "BlockGas threw an error onNeighbouringBlockChange:", throwable);
-			throw throwable;
 		}
 	}
 	
