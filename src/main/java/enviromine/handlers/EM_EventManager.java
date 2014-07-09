@@ -200,6 +200,13 @@ public class EM_EventManager
 				if(livingProps != null)
 				{
 					tracker.sanity += livingProps.hitSanity;
+					tracker.airQuality += livingProps.hitAir;
+					tracker.hydration += livingProps.hitHydration;
+					
+					if(!livingProps.bodyTemp)
+					{
+						tracker.bodyTemp += livingProps.hitTemp;
+					}
 				} else if(attacker instanceof EntityEnderman || attacker.getEntityName().toLowerCase().contains("ender"))
 				{
 					tracker.sanity -= 5F;

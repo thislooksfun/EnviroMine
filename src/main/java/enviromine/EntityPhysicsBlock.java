@@ -40,7 +40,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		
 		if(EM_Settings.entityFailsafe > 0 && !world.isRemote)
 		{
-			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(16F, 16F, 16F));
+			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(8F, 8F, 8F));
 			
 			if(entityList.size() >= 100)
 			{
@@ -82,7 +82,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		
 		if(EM_Settings.entityFailsafe > 0 && !world.isRemote)
 		{
-			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(16F, 16F, 16F));
+			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(8F, 8F, 8F));
 			
 			if(entityList.size() >= 100)
 			{
