@@ -80,7 +80,7 @@ public class EM_PhysManager
 		physSchedule.add(entry);
 	}
 	
-	public static void scheduleSlideUpdate(World world, int x, int y, int z)
+	public static void scheduleSingleUpdate(World world, int x, int y, int z, String type)
 	{
 		if(world.isRemote || world.getTotalWorldTime() < worldStartTime + EM_Settings.worldDelay)
 		{
@@ -104,7 +104,7 @@ public class EM_PhysManager
 		entry[2] = y;
 		entry[3] = z;
 		entry[4] = true;
-		entry[5] = "Slide";
+		entry[5] = "Single:" + type;
 		
 		physSchedule.add(entry);
 	}
@@ -163,7 +163,7 @@ public class EM_PhysManager
 		
 		if(excluded.containsKey(position))
 		{
-			if(!excluded.get(position).equals("Collapse") && type.equals("Collapse"))
+			if(!(excluded.get(position).equalsIgnoreCase("Collapse") || excluded.get(position).equalsIgnoreCase("Quake")) && (type.equalsIgnoreCase("Collapse") || type.equalsIgnoreCase("Quake")))
 			{
 				excluded.put(position, type);
 			} else
@@ -270,8 +270,13 @@ public class EM_PhysManager
 					}
 					world.setBlock(x, y, z, 0);
 					physBlock.isLandSlide = true;
+					
+					if(type.equalsIgnoreCase("Quake"))
+					{
+						physBlock.earthquake = true;
+					}
 					world.spawnEntityInWorld(physBlock);
-					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
+					EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, type.equalsIgnoreCase("Quake")? type : "Collapse");
 					return;
 				}
 			} else if(!(pos[0] == npos[0] && pos[1] == npos[1] && pos[2] == npos[2]) && !usedSlidePositions.contains("" + npos[0] + "," + npos[2]))
@@ -286,12 +291,16 @@ public class EM_PhysManager
 				}
 				world.setBlock(x, y, z, 0);
 				physBlock.isLandSlide = true;
+				if(type.equalsIgnoreCase("Quake"))
+				{
+					physBlock.earthquake = true;
+				}
 				world.spawnEntityInWorld(physBlock);
-				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, "Collapse");
+				EM_PhysManager.schedulePhysUpdate(world, x, y, z, true, type.equalsIgnoreCase("Quake")? type : "Collapse");
 				return;
 			} else if(!(pos[0] == ppos[0] && pos[1] == ppos[1] && pos[2] == ppos[2]))
 			{
-				EM_PhysManager.scheduleSlideUpdate(world, x, y, z);
+				EM_PhysManager.scheduleSingleUpdate(world, x, y, z, type.equalsIgnoreCase("Quake")? type : "Slide");
 			}
 		}
 		
@@ -489,12 +498,12 @@ public class EM_PhysManager
 				dropChance = 1;
 			}
 			
-			boolean supported = hasSupports(world, x, y, z, (touchingWaterDirect || isMuddy)? MathHelper.floor_double(supportDist/2D) : supportDist);
+			boolean supported = hasSupports(world, x, y, z, (touchingWaterDirect || isMuddy || type.equalsIgnoreCase("Quake"))? MathHelper.floor_double(supportDist/2D) : supportDist);
 			//missingBlocks total = 25 - 26
 			
 			if(missingBlocks > 0 && blockNotSolid(world, x, y - 1, z, false) && !supported)
 			{
-				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0 || type.equals("Collapse"))) || missingBlocks >= maxThreshold || ((touchingWaterDirect || isMuddy) && world.rand.nextBoolean())))
+				if(!world.isRemote && ((missingBlocks > minThreshold && (world.rand.nextInt(dropChance) == 0 || (type.equalsIgnoreCase("Collapse") || type.equalsIgnoreCase("Quake")))) || missingBlocks >= maxThreshold || ((touchingWaterDirect || isMuddy) && world.rand.nextBoolean())))
 				{
 					if(dropType == 2)
 					{
@@ -513,7 +522,7 @@ public class EM_PhysManager
 							block.dropBlockAsItem(world, x, y, z, meta, 0);
 						}
 						world.setBlock(x, y, z, 0);
-						schedulePhysUpdate(world, x, y, z, true, "Normal");
+						schedulePhysUpdate(world, x, y, z, true, type.equalsIgnoreCase("Quake")? type : "Normal");
 						return;
 					} else if(dropType == 0)
 					{
@@ -537,7 +546,7 @@ public class EM_PhysManager
 						
 						if(block.blockMaterial != Material.ice || EM_Settings.spreadIce)
 						{
-							schedulePhysUpdate(world, x, y, z, true, "Break");
+							schedulePhysUpdate(world, x, y, z, true, type.equalsIgnoreCase("Quake")? type : "Break");
 						}
 						return;
 					}
@@ -561,6 +570,7 @@ public class EM_PhysManager
 							world.setBlock(x, y, z, dropBlock, world.getBlockMetadata(x, y, z), 2);
 						}
 					}
+					world.playAuxSFX(2001, x, y, z, block.blockID + (world.getBlockMetadata(x, y, z) << 12));
 					
 					TileEntity tile = world.getBlockTileEntity(x, y, z);
 					NBTTagCompound nbtTC = new NBTTagCompound();
@@ -583,6 +593,10 @@ public class EM_PhysManager
 					{
 						entityphysblock.fallingBlockTileEntityData = nbtTC;
 						world.removeBlockTileEntity(x, y, z);
+					}
+					if(type.equalsIgnoreCase("Quake"))
+					{
+						entityphysblock.earthquake = true;
 					}
 					world.spawnEntityInWorld(entityphysblock);
 					
@@ -1099,8 +1113,9 @@ public class EM_PhysManager
 				if(locLoaded)
 				{
 					canClear = false;
-					if(((String)entry[5]).equalsIgnoreCase("Slide"))
+					if(((String)entry[5]).contains("Single:"))
 					{
+						((String)entry[5]).replaceFirst("Single:", "");
 						String position = (new StringBuilder()).append((Integer)entry[1]).append(",").append((Integer)entry[2]).append(",").append((Integer)entry[3]).toString();
 						if(!excluded.containsKey(position))
 						{

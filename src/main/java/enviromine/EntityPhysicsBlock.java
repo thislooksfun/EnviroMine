@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockSand;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.item.ItemStack;
@@ -30,6 +31,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 	public int fallHurtMax2;
 	public float fallHurtAmount2;
 	public boolean isLandSlide = false;
+	public boolean earthquake = false;
 	
 	public EntityPhysicsBlock(World world)
 	{
@@ -118,7 +120,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		
 		if(update)
 		{
-			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, "Collapse");
+			EM_PhysManager.schedulePhysUpdate(world, (int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z), false, earthquake? "Quake" : "Collapse");
 		}
 	}
 	
@@ -197,6 +199,33 @@ public class EntityPhysicsBlock extends EntityFallingSand
 				{
 				}
 				
+				if(earthquake)
+				{
+					for(int jj = j; j >= MathHelper.ceiling_double_int(motionY); j --)
+					{
+						if(jj <= 5)
+						{
+							this.setDead();
+							return;
+						} else if(this.worldObj.getBlockMaterial(i, jj, k) == Material.lava)
+						{
+							this.setDead();
+							return;
+						} else if(this.worldObj.getBlockMaterial(i, jj, k) == Material.water)
+						{
+							this.setDead();
+							return;
+						} else if(this.worldObj.getBlockId(i, jj, k) == Block.obsidian.blockID || this.worldObj.getBlockId(i, jj, k) == Block.cobblestone.blockID)
+						{
+							if(this.worldObj.getBlockMaterial(i, jj - 1, k) == Material.lava)
+							{
+								this.setDead();
+								return;
+							}
+						}
+					}
+				}
+				
 				if(this.onGround)
 				{
 					this.motionX *= 0.699999988079071D;
@@ -214,7 +243,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
 						
 						if(!this.isBreakingAnvil2 && this.worldObj.canPlaceEntityOnSide(Block.anvil.blockID, i, j, k, true, 1, (Entity)null, (ItemStack)null) && !BlockSand.canFallBelow(this.worldObj, i, j - 1, k) && this.worldObj.setBlock(i, j, k, this.blockID, this.metadata, 3))
 						{
-							EM_PhysManager.schedulePhysUpdate(this.worldObj, i, j, k, true, "Collapse");
+							EM_PhysManager.schedulePhysUpdate(this.worldObj, i, j, k, true, earthquake? "Quake" : "Collapse");
 							
 							if(Block.blocksList[this.blockID] instanceof BlockSand)
 							{
@@ -245,14 +274,14 @@ public class EntityPhysicsBlock extends EntityFallingSand
 									tileentity.onInventoryChanged();
 								}
 							}
-						} else if(this.shouldDropItem && !this.isBreakingAnvil2)
+						} else if(this.shouldDropItem && !this.isBreakingAnvil2 && !earthquake)
 						{
 							this.entityDropItem(new ItemStack(this.blockID, 1, Block.blocksList[this.blockID].damageDropped(this.metadata)), 0.0F);
 						}
 					}
 				} else if(this.fallTime > 100 && !this.worldObj.isRemote && (j < 1 || j > 256) || this.fallTime > 600)
 				{
-					if(this.shouldDropItem)
+					if(this.shouldDropItem && !earthquake)
 					{
 						this.entityDropItem(new ItemStack(this.blockID, 1, Block.blocksList[this.blockID].damageDropped(this.metadata)), 0.0F);
 					}
