@@ -279,8 +279,8 @@ public class EnviroMine
 			}
 			catch (Exception e)
 			{
-				System.err.println("[ERROR] Failed to extend potion list for EnviroMine");
-				System.err.println(e);
+				logger.log(Level.SEVERE, "Failed to extend potion list for EnviroMine");
+				e.printStackTrace();
 			}
 		}
 	}

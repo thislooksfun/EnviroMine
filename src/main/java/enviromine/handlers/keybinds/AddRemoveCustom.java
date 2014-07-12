@@ -110,11 +110,12 @@ public class AddRemoveCustom extends KeyHandler
 						if(type.name() == "ENTITY")
 						{
 							Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
-							String name = EntityList.getEntityString(lookingAt);
-							name = replaceULN(name);
+							int id = EntityList.getEntityID(lookingAt);
 							
-							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
-							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.cfg file.");
+							dataToCustom[0] = id;
+							
+							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), lookingAt.getEntityName(), dataToCustom);
+							mc.thePlayer.addChatMessage(lookingAt.getEntityName() + " (" + id + ") " + returnValue + " in MyCustom.cfg file.");
 						} else if(type.name() == "TILE")
 						{
 							

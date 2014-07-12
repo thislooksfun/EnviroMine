@@ -21,12 +21,8 @@ import net.minecraft.entity.ai.attributes.AttributeInstance;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.passive.EntityChicken;
-import net.minecraft.entity.passive.EntitySheep;
-import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -163,12 +159,22 @@ public class EM_EventManager
 		}
 	}
 	
+	String lastAttID = "";
+	
 	@ForgeSubscribe
 	public void onEntityAttacked(LivingAttackEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote)
+		if(event.entityLiving.worldObj.isRemote || event.entity.worldObj.isRemote)
 		{
 			return;
+		}
+		
+		if(("" + event.entityLiving.entityId + "," + event.entityLiving.worldObj.getTotalWorldTime()).equalsIgnoreCase(lastAttID))
+		{
+			return;
+		} else
+		{
+			this.lastAttID = ("" + event.entityLiving.entityId + "," + event.entityLiving.worldObj.getTotalWorldTime());
 		}
 		
 		Entity attacker = event.source.getEntity();
@@ -191,11 +197,11 @@ public class EM_EventManager
 			{
 				EntityProperties livingProps = null;
 				
-				if(EntityList.getEntityString(attacker) != null)
+				if(EntityList.getEntityID(attacker) > 0)
 				{
-					if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(attacker).toLowerCase()))
+					if(EM_Settings.livingProperties.containsKey(EntityList.getEntityID(attacker)))
 					{
-						livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(attacker).toLowerCase());
+						livingProps = EM_Settings.livingProperties.get(EntityList.getEntityID(attacker));
 					}
 				}
 				
@@ -546,7 +552,7 @@ public class EM_EventManager
 		if(waterColour != 16777215)
 		{
 			Color bColor = new Color(waterColour);
-			Color cColor = new Color(16777215);
+			//Color cColor = new Color(16777215); //This is the colour of clean water in Minecraft. This is just here for reference
 			
 			if(bColor.getRed() < 200 || bColor.getGreen() < 200 || bColor.getBlue() < 200)
 			{

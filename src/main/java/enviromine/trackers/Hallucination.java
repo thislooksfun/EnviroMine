@@ -32,8 +32,6 @@ public class Hallucination
 			return;
 		}
 		
-		System.out.println("Creating new hallucination...");
-		
 		Random rand = entityLiving.getRNG();
 		
 		x = (int)(entityLiving.posX + rand.nextInt(20) - 10);

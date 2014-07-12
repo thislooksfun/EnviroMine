@@ -103,7 +103,7 @@ public class EM_ConfigHandler
 		BPName[11] = "12.Slides When Wet";
 		
 		EPName = new String[15];
-		EPName[0] = "01.Entity Name";
+		EPName[0] = "01.Entity ID";
 		EPName[1] = "02.Enable EnviroTracker";
 		EPName[2] = "03.Enable Dehydration";
 		EPName[3] = "04.Enable BodyTemp";
@@ -181,13 +181,13 @@ public class EM_ConfigHandler
 		String PhySetCat = "Physics";
 		EM_Settings.spreadIce = config.get(PhySetCat, "Large Ice Cracking", false, "Setting Large Ice Cracking to true can cause Massive Lag").getBoolean(false);
 		EM_Settings.updateCap = config.get(PhySetCat, "Consecutive Physics Update Cap", 128 , "This will change maximum number of blocks that can be updated with physics at a time. - 1 = Unlimited").getInt(128);
-		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 1 , "The number of ticks between physics update passes").getInt(1);
+		EM_Settings.physInterval = config.get(PhySetCat, "Physics Interval", 2 , "The number of ticks between physics update passes (must be 2 or more)").getInt(2);
 		EM_Settings.stoneCracks = config.get(PhySetCat, "Stone Cracks Before Falling", true).getBoolean(true);
 		EM_Settings.defaultStability = config.get(PhySetCat, "Default Stability Type (BlockIDs > 175)", "loose").getString();
 		EM_Settings.worldDelay = config.get(PhySetCat, "World Start Delay", 1000, "How long after world start until the physics system kicks in (DO NOT SET TOO LOW)").getInt(1000);
 		EM_Settings.chunkDelay = config.get(PhySetCat, "Chunk Physics Delay", 500, "How long until individual chunk's physics starts after loading (DO NOT SET TOO LOW)").getInt(500);
-		EM_Settings.physInterval = EM_Settings.physInterval > 0? EM_Settings.physInterval : 1;
-		EM_Settings.entityFailsafe = config.get(PhySetCat, "Physics entity fail safe level", 1, "0 = No action, 1 = Limit to < 100 per 16x16 block area, 2 = Delete excessive entities & Dump physics (EMERGENCY ONLY)").getInt(1);
+		EM_Settings.physInterval = EM_Settings.physInterval >= 2? EM_Settings.physInterval : 2;
+		EM_Settings.entityFailsafe = config.get(PhySetCat, "Physics entity fail safe level", 1, "0 = No action, 1 = Limit to < 100 per 8x8 block area, 2 = Delete excessive entities & Dump physics (EMERGENCY ONLY)").getInt(1);
 		
 		// Gui settings
 		String GuiSetCat = "GUI Settings";
@@ -475,7 +475,7 @@ public class EM_ConfigHandler
 	private static void LoadLivingProperty(Configuration config, String catagory)
 	{
 		config.addCustomCategoryComment(catagory, "");
-		String name = 			config.get(catagory, EPName[0], "").getString();
+		int id = 			config.get(catagory, EPName[0], 0).getInt(0);
 		boolean track = 		config.get(catagory, EPName[1], true).getBoolean(true);
 		boolean dehydration = 	config.get(catagory, EPName[2], true).getBoolean(true);
 		boolean bodyTemp = 		config.get(catagory, EPName[3], true).getBoolean(true);
@@ -491,8 +491,8 @@ public class EM_ConfigHandler
 		float aHyd = (float)	config.get(catagory, EPName[13], 0.0D).getDouble(0.0D);
 		float hHyd = (float)	config.get(catagory, EPName[14], 0.0D).getDouble(0.0D);
 		
-		EntityProperties entry = new EntityProperties(name, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat, aSanity, hSanity, aTemp, hTemp, aAir, hAir, aHyd, hHyd);
-		EM_Settings.livingProperties.put(name.toLowerCase(), entry);
+		EntityProperties entry = new EntityProperties(id, track, dehydration, bodyTemp, airQ, immuneToFrost, immuneToHeat, aSanity, hSanity, aTemp, hTemp, aAir, hAir, aHyd, hHyd);
+		EM_Settings.livingProperties.put(id, entry);
 	}
 	
 	// RIGHT NOW I AM JUST LOADING DEFAULT ARMOR INTO HASH MAPS
@@ -719,7 +719,7 @@ public class EM_ConfigHandler
 			} else
 			{
 				config.addCustomCategoryComment(nameEntityCat, "");
-				config.get(nameEntityCat, EPName[0], name).getString();
+				config.get(nameEntityCat, EPName[0], (Integer)data[0]).getInt(0);
 				config.get(nameEntityCat, EPName[1], true).getBoolean(true);
 				config.get(nameEntityCat, EPName[2], true).getBoolean(true);
 				config.get(nameEntityCat, EPName[3], true).getBoolean(true);

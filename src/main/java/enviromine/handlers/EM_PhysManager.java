@@ -202,6 +202,8 @@ public class EM_PhysManager
 		boolean touchingWaterDirect = blockData[2] > 0;//isTouchingLiquid(world, x, y, z, true);
 		boolean touchingWater = blockData[3] > 0;//isTouchingLiquid(world, x, y, z, false);
 		
+		BlockProperties blockProps = null;
+		
 		Chunk chunk = world.getChunkFromBlockCoords(x, z);
 		if(chunk != null)
 		{
@@ -213,18 +215,16 @@ public class EM_PhysManager
 		
 		if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
 		{
-			BlockProperties slideProps;
-			
 			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
 			{
-				slideProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
+				blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
 			} else
 			{
-				slideProps = EM_Settings.blockProperties.get("" + block.blockID);
+				blockProps = EM_Settings.blockProperties.get("" + block.blockID);
 			}
 			
-			validSlideType = slideProps.slides || ((waterLogged || touchingWater) && slideProps.wetSlide);
-			isMuddy = ((waterLogged || touchingWater) && slideProps.wetSlide);
+			validSlideType = blockProps.slides || ((waterLogged || touchingWater) && blockProps.wetSlide);
+			isMuddy = ((waterLogged || touchingWater) && blockProps.wetSlide);
 		} else if(block instanceof BlockSand || ((block.blockID == Block.dirt.blockID || block.blockID == Block.blockSnow.blockID) && (waterLogged || touchingWater)))
 		{
 			if(block instanceof BlockAnvil)
@@ -304,18 +304,9 @@ public class EM_PhysManager
 			
 			boolean isCustom = false;
 			boolean defaultDrop = true;
-			BlockProperties blockProps = null;
 			
-			if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)) || EM_Settings.blockProperties.containsKey("" + block.blockID))
+			if(blockProps != null)
 			{
-				if(EM_Settings.blockProperties.containsKey("" + block.blockID + "," + world.getBlockMetadata(x, y, z)))
-				{
-					blockProps = EM_Settings.blockProperties.get("" + block.blockID + "," + world.getBlockMetadata(x, y, z));
-				} else
-				{
-					blockProps = EM_Settings.blockProperties.get("" + block.blockID);
-				}
-				
 				isCustom = true;
 				defaultDrop = false;
 				
@@ -735,13 +726,15 @@ public class EM_PhysManager
 
 	public static boolean hasSupports(World world, int x, int y, int z, int dist)
 	{
+		boolean isLeaves = world.getBlockMaterial(x, y, z) == Material.leaves;
+		
 		for(int i = x - 1; i <= x + 1; i++)
 		{
 			for(int k = z - 1; k <= z + 1; k++)
 			{
 				int j = y - 1;
 				
-				if(!(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves))
+				if(!(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves)))
 				{
 					return true;
 				}
@@ -757,7 +750,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						cancel = true;
 						break;
@@ -767,7 +760,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						continue;
 					} else
@@ -793,7 +786,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						cancel = true;
 						break;
@@ -803,7 +796,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						continue;
 					} else
@@ -829,7 +822,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						cancel = true;
 						break;
@@ -839,7 +832,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						continue;
 					} else
@@ -865,7 +858,7 @@ public class EM_PhysManager
 			{
 				if(j == y)
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						cancel = true;
 						break;
@@ -875,7 +868,7 @@ public class EM_PhysManager
 					}
 				} else
 				{
-					if(blockNotSolid(world, i, j, k, false) || world.getBlockMaterial(i, j, k) == Material.leaves)
+					if(blockNotSolid(world, i, j, k, false) || (world.getBlockMaterial(i, j, k) == Material.leaves && !isLeaves))
 					{
 						continue;
 					} else
