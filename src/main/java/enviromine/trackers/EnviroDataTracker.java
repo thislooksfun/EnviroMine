@@ -176,14 +176,14 @@ public class EnviroDataTracker
 				}
 			}
 			
-			if(enviroData[3] < 0F)
+			if(enviroData[3] > 0F)
 			{
 				dehydrate(0.05F + enviroData[3]);
 			} else
 			{
-				if(enviroData[3] > 0F)
+				if(enviroData[3] < 0F)
 				{
-					hydrate(enviroData[3]);
+					hydrate(-enviroData[3]);
 				}
 				dehydrate(0.05F);
 			}

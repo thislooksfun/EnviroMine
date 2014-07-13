@@ -880,7 +880,7 @@ public class EM_StatusManager
 			}
 			if(plate != null)
 			{
-				NBTTagList enchTags = helmet.getEnchantmentTagList();
+				NBTTagList enchTags = plate.getEnchantmentTagList();
 				
 				if(enchTags != null)
 				{
@@ -933,7 +933,7 @@ public class EM_StatusManager
 			}
 			if(legs != null)
 			{
-				NBTTagList enchTags = helmet.getEnchantmentTagList();
+				NBTTagList enchTags = legs.getEnchantmentTagList();
 				
 				if(enchTags != null)
 				{
@@ -986,7 +986,7 @@ public class EM_StatusManager
 			}
 			if(boots != null)
 			{
-				NBTTagList enchTags = helmet.getEnchantmentTagList();
+				NBTTagList enchTags = boots.getEnchantmentTagList();
 				
 				if(enchTags != null)
 				{
@@ -1116,20 +1116,20 @@ public class EM_StatusManager
 		
 		if(entityLiving.isSprinting())
 		{
-			dehydrateBonus += 0.1F;
-			if(riseSpeed < 0.05F)
+			dehydrateBonus += 0.05F;
+			if(riseSpeed < 0.01F)
 			{
-				riseSpeed += 0.1F;
+				riseSpeed = 0.01F;
 			}
 			tempFin += 2F;
 		}
 		
 		data[0] = quality * (float)EM_Settings.airMult;
-		data[1] = (tempFin > 37F? 37F + ((tempFin-37F) * fireProt): tempFin);
+		data[1] = entityLiving.isPotionActive(Potion.fireResistance) && tempFin > 37F? 37F : (tempFin > 37F? 37F + ((tempFin-37F) * fireProt): tempFin);
 		data[2] = nearLava? 1 : 0;
 		data[3] = dehydrateBonus * (float)EM_Settings.hydrationMult;
 		data[4] = dropSpeed * (float)EM_Settings.tempMult;
-		data[5] = riseSpeed * (float)EM_Settings.tempMult * fireProt;
+		data[5] = riseSpeed * (float)EM_Settings.tempMult * (tracker.bodyTemp < 37F? 1F : fireProt);
 		data[6] = animalHostility;
 		data[7] = sanityRate * (float)EM_Settings.sanityMult;
 		
