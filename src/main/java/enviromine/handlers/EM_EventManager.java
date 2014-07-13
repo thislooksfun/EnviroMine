@@ -3,6 +3,7 @@ package enviromine.handlers;
 import java.awt.Color;
 import java.util.UUID;
 import java.util.logging.Level;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
@@ -203,6 +204,12 @@ public class EM_EventManager
 					{
 						livingProps = EM_Settings.livingProperties.get(EntityList.getEntityID(attacker));
 					}
+				} else if(EntityRegistry.instance().lookupModSpawn(attacker.getClass(), false) != null)
+				{
+					if(EM_Settings.livingProperties.containsKey(EntityRegistry.instance().lookupModSpawn(attacker.getClass(), false).getModEntityId() + 128))
+					{
+						livingProps = EM_Settings.livingProperties.get(EntityRegistry.instance().lookupModSpawn(attacker.getClass(), false).getModEntityId() + 128);
+					}
 				}
 				
 				if(livingProps != null)
@@ -210,11 +217,7 @@ public class EM_EventManager
 					tracker.sanity += livingProps.hitSanity;
 					tracker.airQuality += livingProps.hitAir;
 					tracker.hydration += livingProps.hitHydration;
-					
-					if(!livingProps.bodyTemp)
-					{
-						tracker.bodyTemp += livingProps.hitTemp;
-					}
+					tracker.bodyTemp += livingProps.hitTemp;
 				} else if(attacker instanceof EntityEnderman || attacker.getEntityName().toLowerCase().contains("ender"))
 				{
 					tracker.sanity -= 5F;

@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraftforge.common.Configuration;
@@ -567,7 +568,29 @@ public class EM_ConfigHandler
 		ItemDefaultSave(custom, itemsCat + ".web", 			Block.web.blockID, 			-1, false, 0.0, 0.0, -0.01, 0.0, 0.0, 0.0, 0.0, 37.0);
 		ItemDefaultSave(custom, itemsCat + ".11", 			Item.record11.itemID, 		-1, false, 0.0, 0.0, -1, 0.0, 0.0, 0.0, 0.0, 37.0);
 		
+		EntityDefaultSave(custom, entityCat + ".blaze",		61, false, false, false, false, true, true, -0.01, 0.0, 75.0, 0.1, -0.05, 0.0, -0.01, -0.01);
+		EntityDefaultSave(custom, entityCat + ".wither", 	64,	false, false, false, false, true, true, -0.1, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		
 		custom.save();	
+	}
+	
+	private static void EntityDefaultSave(Configuration config, String catName, int id, boolean track, boolean dehydration, boolean bodyTemp, boolean airQ, boolean immuneToFrost, boolean immuneToHeat, double aSanity, double hSanity, double aTemp, double hTemp, double aAir, double hAir, double aHyd, double hHyd)
+	{
+		config.get(catName, EPName[0], id).getInt(id);
+		config.get(catName, EPName[1], track).getBoolean(track);
+		config.get(catName, EPName[2], dehydration).getBoolean(dehydration);
+		config.get(catName, EPName[3], bodyTemp).getBoolean(bodyTemp);
+		config.get(catName, EPName[4], airQ).getBoolean(airQ);
+		config.get(catName, EPName[5], immuneToFrost).getBoolean(immuneToFrost);
+		config.get(catName, EPName[6], immuneToHeat).getBoolean(immuneToHeat);
+		config.get(catName, EPName[7], aSanity).getDouble(aSanity);
+		config.get(catName, EPName[8], hSanity).getDouble(hSanity);
+		config.get(catName, EPName[9], aTemp, "Overridden by body temp").getDouble(aTemp);
+		config.get(catName, EPName[10], hTemp).getDouble(hTemp);
+		config.get(catName, EPName[11], aAir).getDouble(aAir);
+		config.get(catName, EPName[12], hAir).getDouble(hAir);
+		config.get(catName, EPName[13], aHyd).getDouble(aHyd);
+		config.get(catName, EPName[14], hHyd).getDouble(hHyd);
 	}
 	
 	private static void ArmorDefaultSave(Configuration config, String catName, int id, double nightTemp, double shadeTemp, double sunTemp, double nightMult, double shadeMult, double sunMult, double sanity, double air)

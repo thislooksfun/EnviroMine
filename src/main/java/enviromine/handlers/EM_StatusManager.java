@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import com.google.common.base.Stopwatch;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
@@ -673,6 +674,12 @@ public class EM_StatusManager
 				if(EM_Settings.livingProperties.containsKey(EntityList.getEntityID(mob)))
 				{
 					livingProps = EM_Settings.livingProperties.get(EntityList.getEntityID(mob));
+				}
+			} else if(EntityRegistry.instance().lookupModSpawn(mob.getClass(), false) != null)
+			{
+				if(EM_Settings.livingProperties.containsKey(EntityRegistry.instance().lookupModSpawn(mob.getClass(), false).getModEntityId() + 128))
+				{
+					livingProps = EM_Settings.livingProperties.get(EntityRegistry.instance().lookupModSpawn(mob.getClass(), false).getModEntityId() + 128);
 				}
 			}
 			
