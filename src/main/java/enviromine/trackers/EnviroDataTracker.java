@@ -325,7 +325,7 @@ public class EnviroDataTracker
 				trackedEntity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 200, 0));
 			}
 			
-			if(trackedEntity.isPotionActive(Potion.fireResistance))
+			if(!trackedEntity.isPotionActive(Potion.fireResistance))
 			{
 				if(bodyTemp >= 39F && enableHeat && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
 				{
