@@ -63,11 +63,16 @@ public class UpdateNotification implements IPlayerTracker
 					if(i > 5)
 					{
 						player.addChatMessage("" + (data.length - 6) + " more...");
-						player.addChatMessage("Full Changelog: "+ EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + "http://bit.ly/1r4JJt3");
+						player.addChatMessage("Full Changelog:\n"+ EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + "https://drone.io/github.com/Funwayguy/EnviroMine/files/build/libs/version.txt");
 						break;
 					} else
 					{
 						player.addChatMessage(EnumChatFormatting.RESET + "" + data[i].trim());
+					}
+					
+					if(i == data.length - 1)
+					{
+						player.addChatMessage("Full Changelog:\n"+ EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + "https://drone.io/github.com/Funwayguy/EnviroMine/files/build/libs/version.txt");
 					}
 				}
 			} else if(verStat == 0)
