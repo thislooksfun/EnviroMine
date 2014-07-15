@@ -1,8 +1,12 @@
 package enviromine.handlers;
 
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
+import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
@@ -31,6 +35,7 @@ import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
@@ -279,6 +284,27 @@ public class EM_EventManager
 				{
 					fillBottle(event.entityPlayer.worldObj, event.entityPlayer, event.x, event.y, event.z, item, event);
 				}
+			}
+		} else if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_AIR && item == null && EnviroMine.proxy.isClient())
+		{
+			try
+			{
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				DataOutputStream dos = new DataOutputStream(bos);
+				
+				dos.writeBytes("ID:1," + event.entityPlayer.username);
+				
+				Packet250CustomPayload packet = new Packet250CustomPayload();
+				packet.channel = EM_Settings.Channel;
+				packet.data = bos.toByteArray();
+				packet.length = bos.size();
+				PacketDispatcher.sendPacketToServer(packet);
+				
+				dos.close();
+				bos.close();
+			} catch (IOException e)
+			{
+				EnviroMine.logger.log(Level.SEVERE, "EnviroMine failed to build right-click packet!", e);
 			}
 		}
 	}
@@ -533,7 +559,10 @@ public class EM_EventManager
 						
 						entityPlayer.worldObj.playSoundAtEntity(entityPlayer, "random.drink", 1.0F, 1.0F);
 						
-						event.setCanceled(true);
+						if(event != null)
+						{
+							event.setCanceled(true);
+						}
 					}
 				}
 			}

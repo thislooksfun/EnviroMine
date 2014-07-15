@@ -271,14 +271,14 @@ public class EnviroDataTracker
 		{
 			if(plate.itemID == EnviroMine.camelPack.itemID)
 			{
-				if(plate.getItemDamage() < plate.getMaxDamage() && hydration <= 99F)
+				if(plate.getItemDamage() < plate.getMaxDamage() && hydration <= 99F - EM_Settings.hydrationMult)
 				{
 					plate.setItemDamage(plate.getItemDamage() + 1);
-					hydrate(1F);
+					hydrate((float)EM_Settings.hydrationMult);
 					
-					if(bodyTemp >= 37.1F)
+					if(bodyTemp >= 37F + EM_Settings.tempMult/10F)
 					{
-						bodyTemp -= 0.1F;
+						bodyTemp -= EM_Settings.tempMult/10F;
 					}
 				}
 			}

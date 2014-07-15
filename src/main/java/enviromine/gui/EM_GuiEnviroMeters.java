@@ -141,6 +141,12 @@ public class EM_GuiEnviroMeters extends Gui
 			int Top_Center_X = (width / 2) - (barWidth / 2);
 			int Top_Center_Y = yPos;
 			
+			int Middle_Left_X = xPos;
+			int Middle_Left_Y = (height/2 + meterHeight*2) - yPos;
+			
+			int Middle_Right_X = (width - xPos) - barWidth;
+			int Middle_Right_Y = (height/2 + meterHeight*2) - yPos;
+			
 			int Bottom_Center_Left_X = (width / 2) - (barWidth / 2) - barWidth;
 			int Bottom_Center_Left_Y = (height - yPos) - 50;
 			
@@ -174,6 +180,8 @@ public class EM_GuiEnviroMeters extends Gui
 			int TL = -1;
 			int TR = -1;
 			int TC = -1;
+			int ML = -1;
+			int MR = -1;
 			int addTW = 0;
 			int AQcurX = 0;
 			int AQcurY = 0;
@@ -263,6 +271,22 @@ public class EM_GuiEnviroMeters extends Gui
 					curPosY = Bottom_Center_Left_Y - curMeterHeight;
 					textPos = Bottom_Center_Left_X - (textWidth * addTW);
 					iconPos = textPos - iconWidth;
+				} else if(barPosName.equalsIgnoreCase("middle_right"))
+				{
+					MR += 2;
+					curMeterHeight = meterHeight * MR;
+					curPosX = Middle_Right_X;
+					curPosY = Middle_Right_Y - curMeterHeight;
+					textPos = Middle_Right_X - (textWidth * addTW);
+					iconPos = textPos - iconWidth;
+				} else if(barPosName.equalsIgnoreCase("middle_left"))
+				{
+					ML += 2;
+					curMeterHeight = meterHeight * ML;
+					curPosX = Middle_Left_X;
+					curPosY = Middle_Left_Y - curMeterHeight;
+					textPos = Middle_Left_X + barWidth;
+					iconPos = textPos + (textWidth * addTW);
 				}
 				
 				// 0 = Sanity Bar

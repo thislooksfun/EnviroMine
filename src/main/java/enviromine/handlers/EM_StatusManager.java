@@ -2,9 +2,11 @@ package enviromine.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import com.google.common.base.Stopwatch;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -96,28 +98,34 @@ public class EM_StatusManager
 		String dataString = "";
 		if(tracker.trackedEntity instanceof EntityPlayer)
 		{
-			dataString = ("" + ((EntityPlayer)tracker.trackedEntity).username + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity + "," + tracker.airTemp);
+			dataString = ("ID:0," + ((EntityPlayer)tracker.trackedEntity).username + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity + "," + tracker.airTemp);
 		} else
 		{
 			return;
-			//dataString = ("" + tracker.trackedEntity.entityId + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity);
+			//dataString = ("ID:0," + tracker.trackedEntity.entityId + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity);
 		}
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		DataOutputStream outputStream = new DataOutputStream(bos);
 		
 		try
 		{
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataOutputStream outputStream = new DataOutputStream(bos);
+			
 			outputStream.writeBytes(dataString);
-		} catch(Exception ex)
+			
+			Packet250CustomPayload packet = new Packet250CustomPayload();
+			packet.channel = EM_Settings.Channel;
+			packet.data = bos.toByteArray();
+			packet.length = bos.size();
+			PacketDispatcher.sendPacketToAllPlayers(packet);
+			
+			outputStream.close();
+			bos.close();
+		} catch (IOException e)
 		{
-			ex.printStackTrace();
+			EnviroMine.logger.log(Level.SEVERE, "EnviroMine failed to build tracker sync packet!", e);
 		}
 		
-		Packet250CustomPayload packet = new Packet250CustomPayload();
-		packet.channel = EM_Settings.Channel;
-		packet.data = bos.toByteArray();
-		packet.length = bos.size();
-		PacketDispatcher.sendPacketToAllPlayers(packet);
+		
 	}
 	
 	public static EnviroDataTracker lookupTracker(EntityLivingBase entity)

@@ -14,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.potion.Potion;
 import net.minecraftforge.common.Configuration;
 import enviromine.handlers.keybinds.AddRemoveCustom;
 import enviromine.trackers.ArmorProperties;
@@ -211,17 +212,28 @@ public class EM_ConfigHandler
 		EM_Settings.camelPackID = config.get(Configuration.CATEGORY_ITEM, "Camel Pack", 5004).getInt(5004);
 		
 		// Potion ID's
-		EM_Settings.hypothermiaPotionID = config.get("Potions", "Hypothermia", 27).getInt(27);
-		EM_Settings.heatstrokePotionID = config.get("Potions", "Heat Stroke", 28).getInt(28);
-		EM_Settings.frostBitePotionID = config.get("Potions", "Frostbite", 29).getInt(29);
-		EM_Settings.dehydratePotionID = config.get("Potions", "Dehydration", 30).getInt(30);
-		EM_Settings.insanityPotionID = config.get("Potions", "Insanity", 31).getInt(31);
+		EM_Settings.hypothermiaPotionID = -1;
+		EM_Settings.heatstrokePotionID = -1;
+		EM_Settings.frostBitePotionID = -1;
+		EM_Settings.dehydratePotionID = -1;
+		EM_Settings.insanityPotionID = -1;
+		
+		EM_Settings.hypothermiaPotionID = config.get("Potions", "Hypothermia", nextAvailPotion(27)).getInt(nextAvailPotion(27));
+		EM_Settings.heatstrokePotionID = config.get("Potions", "Heat Stroke", nextAvailPotion(28)).getInt(nextAvailPotion(28));
+		EM_Settings.frostBitePotionID = config.get("Potions", "Frostbite", nextAvailPotion(29)).getInt(nextAvailPotion(29));
+		EM_Settings.dehydratePotionID = config.get("Potions", "Dehydration", nextAvailPotion(30)).getInt(nextAvailPotion(30));
+		EM_Settings.insanityPotionID = config.get("Potions", "Insanity", nextAvailPotion(31)).getInt(nextAvailPotion(31));
 		
 		// Multipliers ID's
 		EM_Settings.tempMult = config.get("Speed Multipliers", "BodyTemp", 1.0D).getDouble(1.0D);
 		EM_Settings.hydrationMult = config.get("Speed Multipliers", "Hydration", 1.0D).getDouble(1.0D);
 		EM_Settings.airMult = config.get("Speed Multipliers", "AirQuality", 1.0D).getDouble(1.0D);
 		EM_Settings.sanityMult = config.get("Speed Multipliers", "Sanity", 1.0D).getDouble(1.0D);
+		
+		EM_Settings.tempMult 		= EM_Settings.tempMult 		< 0? 	0F : EM_Settings.tempMult;
+		EM_Settings.hydrationMult 	= EM_Settings.hydrationMult < 0? 	0F : EM_Settings.hydrationMult;
+		EM_Settings.airMult 		= EM_Settings.airMult 		< 0? 	0F : EM_Settings.airMult;
+		EM_Settings.sanityMult 		= EM_Settings.sanityMult 	< 0? 	0F : EM_Settings.sanityMult;
 		
 		// Config Options
 		String ConSetCat = "Config";
@@ -231,6 +243,25 @@ public class EM_ConfigHandler
 		config.save();
 	}
 	
+	static int nextAvailPotion(int startID)
+	{
+		for(int i = startID; i > 0; i++)
+		{
+			if(i == EM_Settings.hypothermiaPotionID || i == EM_Settings.heatstrokePotionID || i == EM_Settings.frostBitePotionID || i == EM_Settings.dehydratePotionID || i == EM_Settings.insanityPotionID)
+			{
+				continue;
+			} else if(i >= Potion.potionTypes.length)
+			{
+				return i;
+			} else if(Potion.potionTypes[i] == null)
+			{
+				return i;
+			}
+		}
+		
+		return startID;
+	}
+
 	//#######################################
 	//#          Get File List              #                 
 	//#This Grabs Directory List for Custom #
