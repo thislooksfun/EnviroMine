@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -27,9 +28,11 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityEnderman;
+import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EnumStatus;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
@@ -40,6 +43,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityRecordPlayer;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumMovingObjectType;
@@ -59,6 +63,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -273,6 +278,8 @@ public class EM_EventManager
 			{
 				drinkWater(event.entityPlayer, event);
 			}
+			
+			//if(event.entityPlayer.worldObj.getBlockId(event.x, event.y, event.z) == )
 		} else if(event.getResult() != Result.DENY && event.action == Action.LEFT_CLICK_BLOCK)
 		{
 			EM_PhysManager.schedulePhysUpdate(event.entityPlayer.worldObj, event.x, event.y, event.z, true, "Normal");
@@ -453,6 +460,11 @@ public class EM_EventManager
 	
 	public static void drinkWater(EntityPlayer entityPlayer, PlayerInteractEvent event)
 	{
+		if(entityPlayer.isInsideOfMaterial(Material.water))
+		{
+			return;
+		}
+		
 		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(entityPlayer);
 		MovingObjectPosition mop = getMovingObjectPositionFromPlayer(entityPlayer.worldObj, entityPlayer, true);
 		
@@ -821,6 +833,20 @@ public class EM_EventManager
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
+			EntityPlayer player = (EntityPlayer)event.entityLiving;
+			
+			if(player.isPlayerSleeping() && !player.worldObj.isRemote)
+			{
+				int i = MathHelper.floor_double(player.posX);
+				int j = MathHelper.floor_double(player.posY) + 1;
+				int k = MathHelper.floor_double(player.posZ);
+				
+				if(player.worldObj.isRaining() && player.worldObj.canBlockSeeTheSky(i, j, k))
+				{
+					player.wakeUpPlayer(true, true, false);
+					player.sendChatToPlayer(ChatMessageComponent.createFromText("You can't sleep outside while it's " + (player.worldObj.canSnowAt(i, j, k)? "snow" : "rain") + "ing"));
+				}
+			}
 			
 			ItemStack item = null;
 			int itemUse = 0;
@@ -840,9 +866,17 @@ public class EM_EventManager
 					if(tracker.sanity + timeSlept > 100F)
 					{
 						tracker.sanity = 100;
+						if(tracker.bodyTemp < 37F)
+						{
+							tracker.bodyTemp = 37F;
+						}
 					} else if(timeSlept >= 0)
 					{
 						tracker.sanity += timeSlept;
+						if(tracker.bodyTemp < 37F)
+						{
+							tracker.bodyTemp = 37F;
+						}
 					} else
 					{
 						EnviroMine.logger.log(Level.SEVERE, "Something went wrong while calculating sleep sanity gain! Result: " + timeSlept);
@@ -1009,6 +1043,49 @@ public class EM_EventManager
 				}
 			}
 		}
+	}
+
+	@ForgeSubscribe
+	public void onPlayerSleepInBed(PlayerSleepInBedEvent event)
+	{
+		if(event.entityPlayer.worldObj.isRemote)
+		{
+			return;
+		}
+		
+        if (event.entityPlayer.isPlayerSleeping() || !event.entityPlayer.isEntityAlive())
+        {
+            return;
+        }
+        
+        if (!event.entityPlayer.worldObj.provider.canRespawnHere())
+        {
+            return;
+        }
+        
+        if (event.entityPlayer.worldObj.isDaytime())
+        {
+            return;
+        }
+        
+        if (Math.abs(event.entityPlayer.posX - (double)event.x) > 3.0D || Math.abs(event.entityPlayer.posY - (double)event.y) > 2.0D || Math.abs(event.entityPlayer.posZ - (double)event.z) > 3.0D)
+        {
+            return;
+        }
+        double d0 = 8.0D;
+        double d1 = 5.0D;
+        List list = event.entityPlayer.worldObj.getEntitiesWithinAABB(EntityMob.class, AxisAlignedBB.getAABBPool().getAABB((double)event.x - d0, (double)event.y - d1, (double)event.z - d0, (double)event.x + d0, (double)event.y + d1, (double)event.z + d0));
+        
+        if (!list.isEmpty())
+        {
+            return;
+        }
+	    
+        if(event.entityPlayer.worldObj.canBlockSeeTheSky(event.x, event.y, event.z) && event.entityPlayer.worldObj.isRaining())
+        {
+		    event.result = EnumStatus.OTHER_PROBLEM;
+			event.entityPlayer.sendChatToPlayer(ChatMessageComponent.createFromText("You can't sleep outside while it's " + (event.entityPlayer.worldObj.canSnowAt(event.x, event.y, event.z)? "snow" : "rain") + "ing"));
+        }
 	}
 	
 	@ForgeSubscribe

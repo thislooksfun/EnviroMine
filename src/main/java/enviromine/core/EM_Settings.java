@@ -87,6 +87,7 @@ public class EM_Settings
 	public static int physBlockID;
 	public static int entityFailsafe;
 	public static boolean villageAssist;
+	public static boolean minimalHud;
 	
 	public static float convertToFarenheit(float num)
 	{
