@@ -10,7 +10,7 @@ import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_ConfigHandler;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
-import enviromine.gui.EM_GuiMenu;
+import enviromine.gui.EM_Gui_Menu;
 
 public class ReloadCustomObjects extends KeyHandler{
 

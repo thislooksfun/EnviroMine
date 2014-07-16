@@ -114,7 +114,7 @@ public class ObjectHandler
 	}
 	
 	@ForgeSubscribe
-	public void onSound(SoundLoadEvent event)
+	public void RegisterSounds(SoundLoadEvent event)
 	{
 		// You add them the same way as you add blocks.
 		System.out.println("Loading Sounds");
@@ -125,16 +125,13 @@ public class ObjectHandler
 		event.manager.addSound("enviromine:thingkill.ogg");
 		
 		event.manager.addSound("enviromine:CaveIn.ogg");
-		event.manager.addSound("enviromine:sizzle.ogg");
 		
-		//Random Breathing
-		event.manager.addSound("enviromine:breathing1.ogg");
-		event.manager.addSound("enviromine:breathing2.ogg");
-		event.manager.addSound("enviromine:breathing3.ogg");
+		event.manager.addSound("enviromine:sizzle.ogg");
+		event.manager.addSound("enviromine:chill.ogg");
 		
 		//Random Heavy(Panic) Breathing
-		event.manager.addSound("enviromine:HeavyBreathing1.ogg");
-		event.manager.addSound("enviromine:HeavyBreathing2.ogg");
-
+		event.manager.addSound("enviromine:gag1.ogg");
+		event.manager.addSound("enviromine:gag2.ogg");
+		event.manager.addSound("enviromine:gag3.ogg");
 	}
 }

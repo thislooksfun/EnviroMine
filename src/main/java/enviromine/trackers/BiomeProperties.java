@@ -23,4 +23,5 @@ public class BiomeProperties
 		this.dehydrateRate = dehydrateRate;
 		
 	}
+
 }

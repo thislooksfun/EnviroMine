@@ -4,18 +4,19 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 
-public class EM_GuiMenu extends GuiScreen
+public class EM_Gui_Menu extends GuiScreen
 {
 
-	public EM_GuiMenu()
+	public EM_Gui_Menu()
 	{
 		System.out.println("tester");
 	}
 	
 	public void initGui()
 	{
-	    this.buttonList.add(new GuiButton(101, this.width / 2 - 75, this.height / 6 + 74 - 6, 150, 20, "Gui Options"));
-        this.buttonList.add(new GuiButton(100, this.width / 2 - 75, this.height / 6 + 98 - 6, 150, 20, "Config Settings"));
+	    this.buttonList.add(new GuiButton(101, this.width / 2 - 75, this.height / 6 + 50 - 6, 150, 20, "Gui Options"));
+        this.buttonList.add(new GuiButton(100, this.width / 2 - 75, this.height / 6 + 74 - 6, 150, 20, "Config Settings"));
+        this.buttonList.add(new GuiButton(100, this.width / 2 - 75, this.height / 6 + 98 - 6, 150, 20, "Custom Editor"));
         this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, I18n.getString("gui.done")));
    
 	}
@@ -32,11 +33,11 @@ public class EM_GuiMenu extends GuiScreen
     {
         if (par1GuiButton.id == 100)
         {
-        	this.mc.displayGuiScreen(new EM_GuiGeneral(this));	
+        	this.mc.displayGuiScreen(new EM_Gui_General(this));	
         }
         else if (par1GuiButton.id == 101)
         {
-        	this.mc.displayGuiScreen(new EM_GuiSettings(this));	
+        	this.mc.displayGuiScreen(new EM_Gui_GuiSettings(this));	
         }
         else if (par1GuiButton.id == 200)
         {

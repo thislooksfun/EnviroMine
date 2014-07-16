@@ -5,11 +5,11 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import enviromine.core.EM_Settings;
 
-public class EM_GuiGeneral extends GuiScreen
+public class EM_Gui_General extends GuiScreen
 {
 	private GuiScreen parentGuiScreen;
 	
-	public EM_GuiGeneral(GuiScreen par1GuiScreen)
+	public EM_Gui_General(GuiScreen par1GuiScreen)
 	{
         this.parentGuiScreen = par1GuiScreen;
     }

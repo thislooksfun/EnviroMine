@@ -6,11 +6,11 @@ import net.minecraft.client.gui.ScreenChatOptions;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 
-public class EM_GuiSettings extends GuiScreen
+public class EM_Gui_GuiSettings extends GuiScreen
 {
 	private GuiScreen parentGuiScreen;
 	
-	public EM_GuiSettings(GuiScreen par1GuiScreen)
+	public EM_Gui_GuiSettings(GuiScreen par1GuiScreen)
 	{
         this.parentGuiScreen = par1GuiScreen;
     }
