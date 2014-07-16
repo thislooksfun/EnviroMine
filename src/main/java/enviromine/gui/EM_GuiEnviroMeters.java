@@ -308,9 +308,9 @@ public class EM_GuiEnviroMeters extends Gui
 					curPosY = Middle_Left_Y - curMeterHeight;
 					textPos = Middle_Left_X + barWidth;
 					iconPos = textPos + (textWidth * addTW);
-				} else if(barPosName.startsWith("Custom_"))
+				} else if(barPosName.startsWith("custom_"))
 				{
-					barPosName.replaceFirst("Custom_", "");
+					barPosName = barPosName.replaceFirst("custom_", "").trim();
 					String pos[] = barPosName.split(",");
 					if(pos.length == 2)
 					{
@@ -335,13 +335,13 @@ public class EM_GuiEnviroMeters extends Gui
 								cY = 100;
 							}
 							
-							curPosY = cY/100 * height;
-							curPosX = cX/100 * width;
+							curPosY = MathHelper.floor_float(cY/100F * (float)height);
+							curPosX = MathHelper.floor_float(cX/100F * (float)width);
 							
 							if(cX > 50)
 							{
-								curPosX -= (barWidth + textWidth + iconWidth);
-								textPos -= (textWidth * addTW);
+								curPosX -= (barWidth);
+								textPos = curPosX - (textWidth * addTW);
 								iconPos = textPos - iconWidth;
 							} else
 							{
@@ -351,6 +351,8 @@ public class EM_GuiEnviroMeters extends Gui
 						} catch (NumberFormatException e)
 						{
 						}
+					} else
+					{
 					}
 				}
 				
@@ -469,8 +471,14 @@ public class EM_GuiEnviroMeters extends Gui
 					
 					if(EM_Settings.ShowGuiIcons == true)
 					{
-						this.drawTexturedModalRect(iconPos, HTcurY - 4, 16, 96, 16, 16);
-						this.drawTexturedModalRect(iconPos, HTcurY - 4 + preheatIco, 0, 96 + preheatIco, 16, 16-preheatIco);
+						this.drawTexturedModalRect(iconPos, HTcurY - 4, 0, 80, 16, 16);
+						if(preheatIco >= 8)
+						{
+							this.drawTexturedModalRect(iconPos, HTcurY - 4 + preheatIco, 16, 96 + preheatIco, 16, 16-preheatIco);
+						} else
+						{
+							this.drawTexturedModalRect(iconPos, HTcurY - 4 + preheatIco, 0, 96 + preheatIco, 16, 16-preheatIco);
+						}
 					}
 				}
 				
