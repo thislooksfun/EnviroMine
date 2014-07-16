@@ -161,7 +161,7 @@ public class EM_ConfigHandler
 		BOName[5] = "06.Sanity Rate";
 		BOName[6] = "07.Dehydrate Rate";
 	
-		DMName = new String[14];
+		DMName = new String[15];
 		DMName[0] = "01.Biome ID";
 		DMName[1] = "02.Allow Config Override";
 		DMName[2] = "03.Track Sanity";
@@ -176,6 +176,7 @@ public class EM_ConfigHandler
 		DMName[11] = "12.Day/Night Affects Temp";
 		DMName[12] = "13.Weather Affects Temp";
 		DMName[13] = "14.Generate Mineshafts";
+		DMName[14] = "15.Where is Sea Level";
 		
 	}
 	
@@ -736,7 +737,7 @@ public class EM_ConfigHandler
 	public static void SearchForDimensions()
 	{
 		Integer[] DimensionIds = DimensionManager.getStaticDimensionIDs();
-		
+
 		if(EM_Settings.useDefaultConfig == true)
 		{
 			DimensionDefaultSave();
@@ -756,7 +757,7 @@ public class EM_ConfigHandler
 		}
 	}
 	
-	public static void DetectedDimension(Integer[] DimensionIds)
+	private static void DetectedDimension(Integer[] DimensionIds)
 	{
 		File dimensionFile = new File(customPath + "ModDimensions.cfg");
 		
@@ -801,6 +802,7 @@ public class EM_ConfigHandler
 				 config.get(catName, DMName[11], true).getBoolean(true);
 				 config.get(catName, DMName[12], true).getBoolean(true);
 				 config.get(catName, DMName[13], false).getBoolean(false);
+				 config.get(catName, DMName[14], 65).getInt(65);
 			} else
 			{
 				 config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
@@ -817,12 +819,13 @@ public class EM_ConfigHandler
 				 config.get(catName, DMName[11], true).getBoolean(true);
 				 config.get(catName, DMName[12], true).getBoolean(true);
 				 config.get(catName, DMName[13], false).getBoolean(false);
+				 config.get(catName, DMName[14], 65).getInt(65);
 			}
 		}
 		config.save();
 	}
 	
-	public static void DimensionDefaultSave()
+	private static void DimensionDefaultSave()
 	{
 		File dimensionFile = new File(customPath + "Defaults.cfg");
 		
@@ -865,11 +868,11 @@ public class EM_ConfigHandler
 			 config.get(catName, DMName[11], true).getBoolean(true);
 			 config.get(catName, DMName[12], true).getBoolean(true);
 			 config.get(catName, DMName[13], false).getBoolean(false);
-
+			 config.get(catName, DMName[14], 65).getInt(65);
 		}
 		config.save();
 	}
-	public static void LoadDimensionProperty(Configuration config, String category)
+	private static void LoadDimensionProperty(Configuration config, String category)
 	{
 	
 		String catName = dimensionCat + "." + category;
@@ -889,9 +892,9 @@ public class EM_ConfigHandler
 		 boolean dayNightTemp = config.get(catName, DMName[11], true).getBoolean(true);
 		 boolean weatherAffectsTemp =config.get(catName, DMName[12], true).getBoolean(true);
 		 boolean mineshaftGen = config.get(catName, DMName[13], true).getBoolean(true);
-
+		 int sealevel = config.get(catName, DMName[14], 65).getInt(65);
 		
-		DimensionProperties entry = new DimensionProperties(id, override, sanity,  darkAffectSanity, sanityMultiplyer, air, airMulti, water, waterMulti, temp, tempMulti, dayNightTemp, weatherAffectsTemp, mineshaftGen);
+		DimensionProperties entry = new DimensionProperties(id, override, sanity,  darkAffectSanity, sanityMultiplyer, air, airMulti, water, waterMulti, temp, tempMulti, dayNightTemp, weatherAffectsTemp, mineshaftGen, sealevel);
 		
 		EM_Settings.dimensionProperties.put("" + id, entry);
 	
@@ -940,7 +943,7 @@ public class EM_ConfigHandler
 		}
 	}
 	
-	public static void BiomeDefaultSave()
+	private static void BiomeDefaultSave()
 	{
 		File biomesFile = new File(customPath + "Defaults.cfg");
 		
@@ -977,7 +980,7 @@ public class EM_ConfigHandler
 		config.save();
 	}
 	
-	public static void 	LoadBiomeProperty(Configuration config, String category)
+	private static void 	LoadBiomeProperty(Configuration config, String category)
 	{
 		String catName = biomeCat + "." + category;
 		config.addCustomCategoryComment(catName, "");

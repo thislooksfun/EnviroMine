@@ -16,8 +16,9 @@ public class DimensionProperties
 	public boolean dayNightTemp;
 	public boolean weatherAffectsTemp;
 	public boolean mineshaftGen;
+	public int sealevel;
 	
-	public DimensionProperties(int id, boolean override, boolean sanity, boolean darkAffectSanity, 	double sanityMultiplyer, boolean air, double airMulti, boolean water, double waterMulti, boolean temp, double tempMulti, boolean dayNightTemp, boolean weatherAffectsTemp, boolean mineshaftGen)
+	public DimensionProperties(int id, boolean override, boolean sanity, boolean darkAffectSanity, 	double sanityMultiplyer, boolean air, double airMulti, boolean water, double waterMulti, boolean temp, double tempMulti, boolean dayNightTemp, boolean weatherAffectsTemp, boolean mineshaftGen, int sealevel)
 	{
 		this.id = id;
 		this.override = override;
@@ -33,6 +34,7 @@ public class DimensionProperties
 		this.dayNightTemp = dayNightTemp;
 		this.weatherAffectsTemp = weatherAffectsTemp;
 		this.mineshaftGen = mineshaftGen;
+		this.sealevel = sealevel;
 		
 				
 	}

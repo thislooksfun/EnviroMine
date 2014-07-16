@@ -1,14 +1,17 @@
 package enviromine.gui;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import enviromine.core.EM_Settings;
 
+@SideOnly(Side.CLIENT)
 public class EM_Gui_General extends GuiScreen
 {
 	private GuiScreen parentGuiScreen;
-	
+
 	public EM_Gui_General(GuiScreen par1GuiScreen)
 	{
         this.parentGuiScreen = par1GuiScreen;
@@ -57,6 +60,16 @@ public class EM_Gui_General extends GuiScreen
         	else if(par1GuiButton.id == 152)
         	{
         		EM_Settings.useFarenheit = !EM_Settings.useFarenheit;
+         		
+        		if (EM_Settings.useFarenheit == true)
+        		{
+        			par1GuiButton.displayString = "Temperature Scale: Fahrenheit";	
+        		}
+        		else
+        		{
+        			par1GuiButton.displayString =  "Temperature Scale: Celsius";	
+        		}
+        		
         	}
         	else if (par1GuiButton.id == 200)
         	{
@@ -65,7 +78,7 @@ public class EM_Gui_General extends GuiScreen
         }
     }
 
-    
+  
     public void drawScreen(int par1, int par2, float par3)
     {
     	this.drawDefaultBackground();

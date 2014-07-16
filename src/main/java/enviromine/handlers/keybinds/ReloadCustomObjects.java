@@ -3,14 +3,12 @@ package enviromine.handlers.keybinds;
 import java.util.EnumSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.src.ModLoader;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import enviromine.core.EM_ConfigHandler;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
-import enviromine.gui.EM_Gui_Menu;
 
 public class ReloadCustomObjects extends KeyHandler{
 
