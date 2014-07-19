@@ -64,7 +64,6 @@ import net.minecraftforge.event.world.WorldEvent.Unload;
 
 public class EM_EventManager
 {
-	
 	@ForgeSubscribe
 	public void onEntityJoinWorld(EntityJoinWorldEvent event)
 	{

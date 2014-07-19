@@ -13,6 +13,7 @@ import enviromine.trackers.EnviroDataTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -34,6 +35,9 @@ public class EM_GuiEnviroMeters extends Gui
 	private static int ticktimer = 1;
 	private static boolean blink = false;
 	
+	EntityRenderer preRender = null;
+	RenderCameraShake camShake = null;
+	
 	public static EnviroDataTracker tracker = null;
 	
 	public EM_GuiEnviroMeters(Minecraft mc)
@@ -45,6 +49,17 @@ public class EM_GuiEnviroMeters extends Gui
 	@SideOnly(Side.CLIENT)
 	public void onGuiRender(RenderGameOverlayEvent event)
 	{
+		if(this.camShake == null)
+		{
+			this.camShake = new RenderCameraShake(this.mc);
+		}
+		
+		if(this.mc.entityRenderer != camShake)
+		{
+			this.preRender = this.mc.entityRenderer;
+			this.mc.entityRenderer = camShake;
+		}
+		
 		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
 		{
 			return;
