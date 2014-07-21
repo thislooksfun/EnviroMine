@@ -41,6 +41,12 @@ public class Hallucination
 		BiomeGenBase biome = entityLiving.worldObj.getBiomeGenForCoords(MathHelper.floor_double(entityLiving.posX), MathHelper.floor_double(entityLiving.posZ));
 		
 		ArrayList<SpawnListEntry> spawnList = (ArrayList<SpawnListEntry>)biome.getSpawnableList(EnumCreatureType.monster);
+		
+		if(spawnList.size() <= 0)
+		{
+			return;
+		}
+		
 		int spawnIndex = entityLiving.getRNG().nextInt(spawnList.size());
 		
         try

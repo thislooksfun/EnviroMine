@@ -234,14 +234,14 @@ public class EnviroPotion extends Potion
 				float rndY = (player.getRNG().nextInt(6) - 3) * player.getRNG().nextFloat();
 				float rndZ = (player.getRNG().nextInt(6) - 3) * player.getRNG().nextFloat();
 				
-				Packet62LevelSound packet = new Packet62LevelSound(sound, entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 1.0F, 0.2F);
+				Packet62LevelSound packet = new Packet62LevelSound(sound, entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 1.0F, player.getRNG().nextBoolean()? 0.2F : (player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.2F + 1.0F);
 				
 				if(!EnviroMine.proxy.isClient() && player instanceof EntityPlayerMP)
 				{
 					((EntityPlayerMP)player).playerNetServerHandler.sendPacketToPlayer(packet);
 				} else if(EnviroMine.proxy.isClient() && !player.worldObj.isRemote)
 				{
-					player.worldObj.playSoundEffect(entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, sound, 1.0F, 0.2F);
+					player.worldObj.playSoundEffect(entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, sound, 1.0F, (player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.2F + 1.0F);
 				}
 			}
 		}
