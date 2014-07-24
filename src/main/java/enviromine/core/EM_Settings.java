@@ -7,6 +7,7 @@ import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
+import enviromine.trackers.RotProperties;
 import enviromine.trackers.StabilityType;
 
 public class EM_Settings
@@ -58,6 +59,7 @@ public class EM_Settings
 	public static int gasMaskID = 5005;
 	public static int airFilterID = 5006;
 	public static int hardHatID = 5007;
+	public static int rottenFoodID = 5008;
 	
 	public static int blockElevatorTopID = 501;
 	public static int blockElevatorBottomID = 502;
@@ -86,6 +88,9 @@ public class EM_Settings
 	public static HashMap<String,ItemProperties> itemProperties = new HashMap<String,ItemProperties>();
 	
 	public static HashMap<String,StabilityType> stabilityTypes = new HashMap<String,StabilityType>();
+	
+	public static HashMap<String,RotProperties> rotProperties = new HashMap<String,RotProperties>();
+	
 	public static int updateCap;
 	public static boolean stoneCracks;
 	public static String defaultStability;
@@ -106,6 +111,9 @@ public class EM_Settings
 	public static boolean villageAssist;
 	
 	public static int caveDimID = -3;
+	
+	public static boolean foodSpoiling = true;
+	public static int foodRotTime = 30;
 	
 	public static float convertToFarenheit(float num)
 	{
