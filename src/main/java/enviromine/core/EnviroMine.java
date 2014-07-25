@@ -29,6 +29,7 @@ import enviromine.EnviroPotion;
 import enviromine.EnviroUtils;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
+import enviromine.handlers.EnviroAchievements;
 import enviromine.handlers.EnviroPacketHandler;
 import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.handlers.ObjectHandler;
@@ -94,6 +95,8 @@ public class EnviroMine
 		EnviroUtils.extendPotionList();
 		
 		EnviroPotion.RegisterPotions();
+		
+		EnviroAchievements.InitAchievements();
 		
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
