@@ -113,7 +113,7 @@ public class EM_Settings
 	public static int caveDimID = -3;
 	
 	public static boolean foodSpoiling = true;
-	public static int foodRotTime = 30;
+	public static double foodRotTime = 10.0D;
 	
 	public static float convertToFarenheit(float num)
 	{

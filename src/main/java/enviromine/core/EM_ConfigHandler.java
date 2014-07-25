@@ -189,6 +189,8 @@ public class EM_ConfigHandler
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
 		EM_Settings.physBlockID = config.get(Configuration.CATEGORY_GENERAL, "EntityPhysicsBlock ID", EntityRegistry.findGlobalUniqueEntityId()).getInt(EntityRegistry.findGlobalUniqueEntityId());
 		EM_Settings.villageAssist = config.get(Configuration.CATEGORY_GENERAL, "Enable villager assistance", true).getBoolean(true);
+		EM_Settings.foodSpoiling = config.get(Configuration.CATEGORY_GENERAL, "Enable food spoiling", true).getBoolean(true);
+		EM_Settings.foodRotTime = config.get(Configuration.CATEGORY_GENERAL, "Default spoil time (days)", 10D).getDouble(10D);
 		
 		// Physics Settings
 		String PhySetCat = "Physics";
@@ -407,7 +409,7 @@ public class EM_ConfigHandler
 		int rotMeta =	config.get(category, RPName[3], 0).getInt(0);
 		double DTR =	config.get(category, RPName[4], 0.00).getDouble(0.00);
 		
-		RotProperties entry = new RotProperties(id, meta, rotID, rotMeta, (float)DTR);
+		RotProperties entry = new RotProperties(id, meta, rotID, rotMeta, DTR);
 		
 		if(meta < 0)
 		{

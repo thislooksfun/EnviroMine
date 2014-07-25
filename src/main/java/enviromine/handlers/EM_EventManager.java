@@ -13,6 +13,7 @@ import enviromine.trackers.EntityProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.Hallucination;
 import enviromine.trackers.ItemProperties;
+import enviromine.trackers.RotProperties;
 import enviromine.world.features.mineshaft.MineshaftBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -57,6 +58,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
@@ -67,7 +69,6 @@ import net.minecraftforge.event.world.WorldEvent.Unload;
 
 public class EM_EventManager
 {
-	
 	@ForgeSubscribe
 	public void onEntityJoinWorld(EntityJoinWorldEvent event)
 	{
@@ -96,7 +97,6 @@ public class EM_EventManager
 			RotHandler.rotInvo(event.world, invo);
 		} else if(event.entity instanceof IInventory)
 		{
-			System.out.println("Entity " + event.entity.getEntityName() + " has inventory.");
 			IInventory invo = (IInventory)event.entity;
 			RotHandler.rotInvo(event.world, invo);
 		}
@@ -153,6 +153,28 @@ public class EM_EventManager
 			event.world.spawnEntityInWorld(newSand);
 			event.setCanceled(true);
 			event.entity.setDead();
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onItemTooltip(ItemTooltipEvent event)
+	{
+		if(event.itemStack != null && event.itemStack.getTagCompound() != null)
+		{
+			if(event.itemStack.getTagCompound().getLong("EM_ROT_DATE") > 0 && EM_Settings.foodSpoiling)
+			{
+				double rotDate = event.itemStack.getTagCompound().getLong("EM_ROT_DATE");
+				double rotTime = event.itemStack.getTagCompound().getLong("EM_ROT_TIME");
+				double curTime = event.entity.worldObj.getTotalWorldTime();
+				
+				if(curTime - rotDate <= 0)
+				{
+					event.toolTip.add("Rotten: 0%");
+				} else
+				{
+					event.toolTip.add("Rotten: " + MathHelper.floor_double((curTime - rotDate)/rotTime * 100D) + "%");
+				}
+			}
 		}
 	}
 	

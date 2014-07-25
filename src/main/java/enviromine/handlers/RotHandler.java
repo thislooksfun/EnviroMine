@@ -2,6 +2,7 @@ package enviromine.handlers;
 
 import enviromine.core.EM_Settings;
 import enviromine.items.RottenFood;
+import enviromine.trackers.RotProperties;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
@@ -13,7 +14,21 @@ public class RotHandler
 {
 	public static ItemStack doRot(World world, ItemStack item)
 	{
-		if(!EM_Settings.foodSpoiling || !(item.getItem() instanceof ItemFood) || item.getItem() instanceof RottenFood || item.itemID == Item.rottenFlesh.itemID)
+		
+		RotProperties rotProps = null;
+		long rotTime = (long)(EM_Settings.foodRotTime * 24000L);
+		
+		if(EM_Settings.rotProperties.containsKey("" + item.itemID))
+		{
+			rotProps = EM_Settings.rotProperties.get("" + item.itemID);
+			rotTime = (long)(rotProps.days * 24000L);
+		} else if(EM_Settings.rotProperties.containsKey("" + item.itemID + "," + item.getItemDamage()))
+		{
+			rotProps = EM_Settings.rotProperties.get("" + item.itemID + "," + item.getItemDamage());
+			rotTime = (long)(rotProps.days * 24000L);
+		}
+		
+		if(!EM_Settings.foodSpoiling || (!(item.getItem() instanceof ItemFood) && rotProps == null) || (rotTime < 0 && rotProps != null) || item.getItem() instanceof RottenFood || item.itemID == Item.rottenFlesh.itemID)
 		{
 			return item;
 		} else
@@ -22,20 +37,22 @@ public class RotHandler
 			{
 				item.setTagCompound(new NBTTagCompound());
 			}
-			long UBD = item.getTagCompound().getLong("EM_UBD");
+			long UBD = item.getTagCompound().getLong("EM_ROT_DATE");
 			
 			if(UBD == 0)
 			{
-				item.getTagCompound().setLong("EM_UBD", world.getTotalWorldTime() + (EM_Settings.foodRotTime * 24000L));
+				long timeRound = (long)(world.getTotalWorldTime() % (rotTime < 24000L? rotTime/4D : 6000L));
+				item.getTagCompound().setLong("EM_ROT_DATE", world.getTotalWorldTime() + (long)(timeRound >= (rotTime < 24000L? rotTime/4D : 6000L)/2? (rotTime < 24000L? rotTime/4D : 6000L) - timeRound : -timeRound));
+				item.getTagCompound().setLong("EM_ROT_TIME", rotTime);
 				return item;
-			} else if(UBD < world.getTotalWorldTime())
+			} else if(UBD + rotTime < world.getTotalWorldTime())
 			{
 				ItemStack rotStack = new ItemStack(ObjectHandler.rottenFood, item.stackSize);
 				rotStack.setItemName("Rotten " + item.getDisplayName());
-				System.out.println("" + item.getDisplayName() + " turned to rot!");
 				return rotStack;
 			} else
 			{
+				item.getTagCompound().setLong("EM_ROT_TIME", rotTime);
 				return item;
 			}
 		}

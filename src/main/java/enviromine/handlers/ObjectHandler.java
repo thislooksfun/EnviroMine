@@ -116,8 +116,9 @@ public class ObjectHandler
 		GameRegistry.addShapelessRecipe(new ItemStack(badWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.dirt, 1));
 		GameRegistry.addShapelessRecipe(new ItemStack(saltWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.sand, 1));
 		
-		GameRegistry.addShapelessRecipe(new ItemStack(Item.slimeBall, 1, 0), new ItemStack(Item.bucketWater, 1, 0), new ItemStack(rottenFood, 1));
-		GameRegistry.addShapelessRecipe(new ItemStack(Block.grass, 1, 0), new ItemStack(Block.mushroomCapBrown, 1, 0), new ItemStack(rottenFood, 1));
+		GameRegistry.addRecipe(new ItemStack(Item.slimeBall, 1, 0), " r ", "rwr", " r ", 'w', new ItemStack(Item.bucketWater, 1, 0), 'r', new ItemStack(rottenFood, 1));
+		GameRegistry.addRecipe(new ItemStack(Block.mycelium), "xyx", "yzy", "xyx", 'z', new ItemStack(Block.grass), 'x', new ItemStack(Block.mushroomBrown), 'y', new ItemStack(rottenFood, 1));
+		GameRegistry.addRecipe(new ItemStack(Block.mycelium), "xyx", "yzy", "xyx", 'z', new ItemStack(Block.grass), 'y', new ItemStack(Block.mushroomBrown), 'x', new ItemStack(rottenFood, 1));
 		GameRegistry.addRecipe(new ItemStack(Block.dirt, 1), "xxx", "xxx", "xxx", 'x', new ItemStack(rottenFood, 1));
 		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));

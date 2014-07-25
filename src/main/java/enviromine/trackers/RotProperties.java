@@ -6,9 +6,9 @@ public class RotProperties
 	public int meta;
 	public int rotID;
 	public int rotMeta;
-	public float days = 10.0F;
+	public double days;
 	
-	public RotProperties(int id, int meta, int rotID, int rotMeta, float days)
+	public RotProperties(int id, int meta, int rotID, int rotMeta, double days)
 	{
 		this.id = id;
 		this.meta = meta;
