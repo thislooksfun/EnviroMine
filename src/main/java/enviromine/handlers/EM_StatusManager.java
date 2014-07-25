@@ -2,11 +2,14 @@ package enviromine.handlers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import com.google.common.base.Stopwatch;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import enviromine.EnviroPotion;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
@@ -25,13 +28,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureAttribute;
-import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -97,28 +98,34 @@ public class EM_StatusManager
 		String dataString = "";
 		if(tracker.trackedEntity instanceof EntityPlayer)
 		{
-			dataString = ("" + ((EntityPlayer)tracker.trackedEntity).username + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity + "," + tracker.airTemp);
+			dataString = ("ID:0," + ((EntityPlayer)tracker.trackedEntity).username + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity + "," + tracker.airTemp);
 		} else
 		{
 			return;
-			//dataString = ("" + tracker.trackedEntity.entityId + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity);
+			//dataString = ("ID:0," + tracker.trackedEntity.entityId + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity);
 		}
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		DataOutputStream outputStream = new DataOutputStream(bos);
 		
 		try
 		{
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			DataOutputStream outputStream = new DataOutputStream(bos);
+			
 			outputStream.writeBytes(dataString);
-		} catch(Exception ex)
+			
+			Packet250CustomPayload packet = new Packet250CustomPayload();
+			packet.channel = EM_Settings.Channel;
+			packet.data = bos.toByteArray();
+			packet.length = bos.size();
+			PacketDispatcher.sendPacketToAllPlayers(packet);
+			
+			outputStream.close();
+			bos.close();
+		} catch (IOException e)
 		{
-			ex.printStackTrace();
+			EnviroMine.logger.log(Level.SEVERE, "EnviroMine failed to build tracker sync packet!", e);
 		}
 		
-		Packet250CustomPayload packet = new Packet250CustomPayload();
-		packet.channel = EM_Settings.Channel;
-		packet.data = bos.toByteArray();
-		packet.length = bos.size();
-		PacketDispatcher.sendPacketToAllPlayers(packet);
+		
 	}
 	
 	public static EnviroDataTracker lookupTracker(EntityLivingBase entity)
@@ -173,7 +180,6 @@ public class EM_StatusManager
 		float temp = -999F;
 		float cooling = 0;
 		float dehydrateBonus = 0.0F;
-		int unused = 0;
 		int animalHostility = 0;
 		boolean nearLava = false;
 		float dist = 0;
@@ -206,6 +212,11 @@ public class EM_StatusManager
 		int biomeTempChecks = 0;
 		
 		boolean isDay = entityLiving.worldObj.isDaytime();
+		
+		if(entityLiving.worldObj.provider.hasNoSky)
+		{
+			isDay = false;
+		}
 		
 		int lightLev = 0;
 		int blockLightLev = 0;
@@ -666,11 +677,17 @@ public class EM_StatusManager
 			EnviroDataTracker mobTrack = lookupTracker((EntityLivingBase)mob);
 			EntityProperties livingProps = null;
 			
-			if(EntityList.getEntityString(mob) != null)
+			if(EntityList.getEntityID(mob) > 0)
 			{
-				if(EM_Settings.livingProperties.containsKey(EntityList.getEntityString(mob).toLowerCase()))
+				if(EM_Settings.livingProperties.containsKey(EntityList.getEntityID(mob)))
 				{
-					livingProps = EM_Settings.livingProperties.get(EntityList.getEntityString(mob).toLowerCase());
+					livingProps = EM_Settings.livingProperties.get(EntityList.getEntityID(mob));
+				}
+			} else if(EntityRegistry.instance().lookupModSpawn(mob.getClass(), false) != null)
+			{
+				if(EM_Settings.livingProperties.containsKey(EntityRegistry.instance().lookupModSpawn(mob.getClass(), false).getModEntityId() + 128))
+				{
+					livingProps = EM_Settings.livingProperties.get(EntityRegistry.instance().lookupModSpawn(mob.getClass(), false).getModEntityId() + 128);
 				}
 			}
 			
@@ -752,7 +769,7 @@ public class EM_StatusManager
 				{
 					sanityRate = -0.1F;
 				}
-			} else if(((EntityLivingBase)mob).getCreatureAttribute() == EnumCreatureAttribute.UNDEAD)
+			} else if(((EntityLivingBase)mob).getCreatureAttribute() == EnumCreatureAttribute.UNDEAD && entityLiving.canEntityBeSeen(mob))
 			{
 				if(sanityRate <= sanityStartRate && sanityRate > -0.01F)
 				{
@@ -764,7 +781,7 @@ public class EM_StatusManager
 			{
 				if(livingProps != null)
 				{
-					if(!livingProps.bodyTemp)
+					if(!livingProps.bodyTemp || !livingProps.shouldTrack)
 					{
 						avgEntityTemp += livingProps.ambTemp;
 					} else
@@ -776,25 +793,23 @@ public class EM_StatusManager
 					avgEntityTemp += mobTrack.bodyTemp;
 				}
 				validEntities += 1;
-			} else if(!(mob instanceof EntityMob))
+			} else
 			{
 				if(livingProps != null)
 				{
-					if(!livingProps.bodyTemp)
+					if(!livingProps.bodyTemp || !livingProps.shouldTrack)
 					{
 						avgEntityTemp += livingProps.ambTemp;
 					} else
 					{
 						avgEntityTemp += 37F;
 					}
-				} else
+					validEntities += 1;
+				} else if(!(mob instanceof EntityMob))
 				{
 					avgEntityTemp += 37F;
+					validEntities += 1;
 				}
-				validEntities += 1;
-			} else
-			{
-				continue;
 			}
 		}
 		
@@ -807,6 +822,8 @@ public class EM_StatusManager
 				bTemp = (bTemp + avgEntityTemp) / 2;
 			}
 		}
+		
+		float fireProt = 0;
 		
 		{
 			ItemStack helmet = entityLiving.getCurrentItemOrArmor(4);
@@ -831,6 +848,9 @@ public class EM_StatusManager
 						if(enID == Enchantment.respiration.effectId)
 						{
 							leaves += 3F * enLV;
+						} else if(enID == Enchantment.fireProtection.effectId)
+						{
+							fireProt += enLV;
 						}
 					}
 				}
@@ -875,6 +895,22 @@ public class EM_StatusManager
 			}
 			if(plate != null)
 			{
+				NBTTagList enchTags = plate.getEnchantmentTagList();
+				
+				if(enchTags != null)
+				{
+					for(int index = 0; index < enchTags.tagCount(); index++)
+					{
+						int enID = ((NBTTagCompound)enchTags.tagAt(index)).getShort("id");
+						int enLV = ((NBTTagCompound)enchTags.tagAt(index)).getShort("lvl");
+						
+						if(enID == Enchantment.fireProtection.effectId)
+						{
+							fireProt += enLV;
+						}
+					}
+				}
+				
 				if(EM_Settings.armorProperties.containsKey(plate.itemID))
 				{
 					ArmorProperties props = EM_Settings.armorProperties.get(plate.itemID);
@@ -912,6 +948,22 @@ public class EM_StatusManager
 			}
 			if(legs != null)
 			{
+				NBTTagList enchTags = legs.getEnchantmentTagList();
+				
+				if(enchTags != null)
+				{
+					for(int index = 0; index < enchTags.tagCount(); index++)
+					{
+						int enID = ((NBTTagCompound)enchTags.tagAt(index)).getShort("id");
+						int enLV = ((NBTTagCompound)enchTags.tagAt(index)).getShort("lvl");
+						
+						if(enID == Enchantment.fireProtection.effectId)
+						{
+							fireProt += enLV;
+						}
+					}
+				}
+				
 				if(EM_Settings.armorProperties.containsKey(legs.itemID))
 				{
 					ArmorProperties props = EM_Settings.armorProperties.get(legs.itemID);
@@ -949,6 +1001,22 @@ public class EM_StatusManager
 			}
 			if(boots != null)
 			{
+				NBTTagList enchTags = boots.getEnchantmentTagList();
+				
+				if(enchTags != null)
+				{
+					for(int index = 0; index < enchTags.tagCount(); index++)
+					{
+						int enID = ((NBTTagCompound)enchTags.tagAt(index)).getShort("id");
+						int enLV = ((NBTTagCompound)enchTags.tagAt(index)).getShort("lvl");
+						
+						if(enID == Enchantment.fireProtection.effectId)
+						{
+							fireProt += enLV;
+						}
+					}
+				}
+				
 				if(EM_Settings.armorProperties.containsKey(boots.itemID))
 				{
 					ArmorProperties props = EM_Settings.armorProperties.get(boots.itemID);
@@ -987,6 +1055,7 @@ public class EM_StatusManager
 			
 			bTemp *= (1F + tempMultTotal);
 			bTemp += addTemp;
+			fireProt = 1F - fireProt/18F;
 		}
 		
 		float tempFin = 0F;
@@ -1032,17 +1101,24 @@ public class EM_StatusManager
 			}
 		}
 		
-		if(entityLiving.worldObj.getBlockId(i, j, k) == Block.lavaStill.blockID || entityLiving.worldObj.getBlockId(i, j, k) == Block.lavaMoving.blockID)
+		if(!entityLiving.isPotionActive(Potion.fireResistance))
 		{
-			tempFin = 200F;
-			riseSpeed = 1.0F;
-		} else if(entityLiving.isBurning())
-		{
-			if(tempFin <= 75F)
+			if(entityLiving.worldObj.getBlockId(i, j, k) == Block.lavaStill.blockID || entityLiving.worldObj.getBlockId(i, j, k) == Block.lavaMoving.blockID)
 			{
-				tempFin = 75;
+				tempFin = 200F;
+				riseSpeed = 1.0F;
+			} else if(entityLiving.isBurning())
+			{
+				if(tempFin <= 75F)
+				{
+					tempFin = 75F;
+				}
+				
+				if(riseSpeed < 0.1F)
+				{
+					riseSpeed = 0.1F;
+				}
 			}
-			riseSpeed = 0.1F;
 		}
 		
 		quality += (leaves * 0.1F);
@@ -1053,12 +1129,22 @@ public class EM_StatusManager
 			quality *= solidBlocks/Math.pow(range*2, 3);
 		}
 		
+		if(entityLiving.isSprinting())
+		{
+			dehydrateBonus += 0.05F;
+			if(riseSpeed < 0.01F)
+			{
+				riseSpeed = 0.01F;
+			}
+			tempFin += 2F;
+		}
+		
 		data[0] = quality * (float)EM_Settings.airMult;
-		data[1] = tempFin;
+		data[1] = entityLiving.isPotionActive(Potion.fireResistance) && tempFin > 37F? 37F : (tempFin > 37F? 37F + ((tempFin-37F) * fireProt): tempFin);
 		data[2] = nearLava? 1 : 0;
 		data[3] = dehydrateBonus * (float)EM_Settings.hydrationMult;
 		data[4] = dropSpeed * (float)EM_Settings.tempMult;
-		data[5] = riseSpeed * (float)EM_Settings.tempMult;
+		data[5] = riseSpeed * (float)EM_Settings.tempMult * (tracker.bodyTemp < 37F? 1F : fireProt);
 		data[6] = animalHostility;
 		data[7] = sanityRate * (float)EM_Settings.sanityMult;
 		
@@ -1248,12 +1334,12 @@ public class EM_StatusManager
 		
 		if(tracker != null)
 		{
-			if(tracker.bodyTemp >= 38F && EM_Settings.sweatParticals == true)
+			if(tracker.bodyTemp >= 38F && EM_Settings.sweatParticals)
 			{
 				entityLiving.worldObj.spawnParticle("dripWater", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}
 			
-			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity) && EM_Settings.insaneParticals == true)
+			if(tracker.trackedEntity.isPotionActive(EnviroPotion.insanity) && EM_Settings.insaneParticals)
 			{
 				entityLiving.worldObj.spawnParticle("portal", entityLiving.posX + rndX, entityLiving.posY + rndY, entityLiving.posZ + rndZ, 0.0D, 0.0D, 0.0D);
 			}

@@ -76,7 +76,6 @@ public class Earthquake
 					if(y < 8)
 					{
 						world.setBlock(x, y, z, Block.lavaMoving.blockID);
-						//System.out.println("Placed lava at (" + x + "," + y + "," + z + ")");
 						
 						if(EM_Settings.enablePhysics)
 						{
@@ -86,7 +85,6 @@ public class Earthquake
 					} else
 					{
 						world.setBlockToAir(x, y, z);
-						//System.out.println("Placed air at (" + x + "," + y + "," + z + ")");
 						
 						if(EM_Settings.enablePhysics)
 						{
@@ -148,7 +146,6 @@ public class Earthquake
 			if(!quake.removeBlock() || quake.ravineMask.size() <= 0)
 			{
 				pendingQuakes.remove(i);
-				System.out.println("Finished building ravine...");
 			}
 		}
 	}

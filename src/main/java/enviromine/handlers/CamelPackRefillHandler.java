@@ -2,9 +2,7 @@ package enviromine.handlers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import cpw.mods.fml.common.ICraftingHandler;
-import enviromine.core.EnviroMine;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;

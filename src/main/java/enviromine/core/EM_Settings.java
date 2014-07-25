@@ -82,7 +82,7 @@ public class EM_Settings
 	//Properties
 	public static HashMap<Integer,ArmorProperties> armorProperties = new HashMap<Integer,ArmorProperties>();
 	public static HashMap<String,BlockProperties> blockProperties = new HashMap<String,BlockProperties>();
-	public static HashMap<String,EntityProperties> livingProperties = new HashMap<String,EntityProperties>();
+	public static HashMap<Integer,EntityProperties> livingProperties = new HashMap<Integer,EntityProperties>();
 	public static HashMap<String,ItemProperties> itemProperties = new HashMap<String,ItemProperties>();
 	
 	public static HashMap<String,StabilityType> stabilityTypes = new HashMap<String,StabilityType>();
@@ -104,6 +104,7 @@ public class EM_Settings
 	public static int physBlockID;
 	public static int entityFailsafe;
 	public static boolean villageAssist;
+	public static boolean minimalHud;
 	
 	public static int caveDimID = -3;
 	

@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
 import net.minecraft.util.LongHashMap;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -20,9 +19,6 @@ import net.minecraft.world.WorldServer;
 public class TeleportHandler extends Teleporter
 {
     private final WorldServer worldServerInstance;
-
-    /** A private Random() function in Teleporter */
-    private final Random random;
 
     /** Stores successful portal placement locations for rapid lookup. */
     private final LongHashMap destinationCoordinateCache = new LongHashMap();
@@ -37,7 +33,6 @@ public class TeleportHandler extends Teleporter
 	{
 		super(par1WorldServer);
         this.worldServerInstance = par1WorldServer;
-        this.random = new Random(par1WorldServer.getSeed());
 	}
 
     /**
