@@ -44,12 +44,16 @@ public class EnviroPacketHandler implements IPacketHandler
 			}
 			data = bos.toString().split(",");
 			
-			if(data[0].equalsIgnoreCase("ID:0"))
+			if(data[0].trim().equalsIgnoreCase("ID:0"))
 			{
 				this.trackerSync(data);
-			} else if(data[0].equalsIgnoreCase("ID:1"))
+			} else if(data[0].trim().equalsIgnoreCase("ID:1"))
 			{
 				this.emptyRightClick(data);
+			} else
+			{
+				EnviroMine.logger.log(Level.WARNING, "EnviroMine received an unknown packet with data: " + data);
+				EnviroMine.logger.log(Level.WARNING, "Please report this to the author as this is not supposed to happen!");
 			}
 			
 			outputStream.close();
@@ -63,7 +67,7 @@ public class EnviroPacketHandler implements IPacketHandler
 	void trackerSync(String[] data)
 	{
 		
-		EnviroDataTracker tracker = EM_StatusManager.lookupTrackerFromUsername(data[1]);
+		EnviroDataTracker tracker = EM_StatusManager.lookupTrackerFromUsername(data[1].trim());
 		
 		if(tracker != null)
 		{
@@ -77,7 +81,7 @@ public class EnviroPacketHandler implements IPacketHandler
 	
 	void emptyRightClick(String[] data)
 	{
-		EntityPlayer player = EM_StatusManager.findPlayer(data[1]);
+		EntityPlayer player = EM_StatusManager.findPlayer(data[1].trim());
 		
 		if(player != null)
 		{

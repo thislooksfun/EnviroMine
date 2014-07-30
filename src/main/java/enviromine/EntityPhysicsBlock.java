@@ -80,6 +80,11 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		this.fallHurtMax2 = 40;
 		this.fallHurtAmount2 = 2.0F;
 		
+		if(id == 0)
+		{
+			this.setDead();
+		}
+		
 		if(EM_Settings.entityFailsafe > 0 && !world.isRemote)
 		{
 			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(8F, 8F, 8F));
@@ -346,5 +351,10 @@ public class EntityPhysicsBlock extends EntityFallingSand
             this.isAnvil2 = true;
         }
         this.isLandSlide = par1NBTTagCompound.getBoolean("Landslide");
+        
+        if(this.blockID == 0)
+        {
+        	this.setDead();
+        }
     }
 }
