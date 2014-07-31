@@ -42,6 +42,7 @@ import enviromine.handlers.EnviroShaftCreationHandler;
 import enviromine.handlers.ObjectHandler;
 import enviromine.world.WorldProviderCaves;
 import enviromine.world.biomes.BiomeGenCaves;
+import enviromine.world.features.WorldFeatureGenerator;
 
 @Mod(modid = EM_Settings.ID, name = EM_Settings.Name, version = EM_Settings.Version)
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = {EM_Settings.Channel}, packetHandler = EnviroPacketHandler.class)
@@ -86,6 +87,8 @@ public class EnviroMine
 			VillagerRegistry.instance().registerVillageCreationHandler(new EnviroShaftCreationHandler());
 			MapGenStructureIO.func_143031_a(EM_VillageMineshaft.class, "ViMS");
 		}
+		
+		GameRegistry.registerWorldGenerator(new WorldFeatureGenerator());
 	}
 	
 	@EventHandler

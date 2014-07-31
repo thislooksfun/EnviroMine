@@ -12,9 +12,9 @@ public class GasFire extends EnviroGas
 	public GasFire(String name, int ID)
 	{
 		super(name, ID);
-		this.setColor(new Color(255, 128, 0, 192));
+		this.setColor(new Color(255, 128, 0, 64));
 		this.setDensity(-10F);
-		this.setDecayRates(1, 1, 100, 100);
+		this.setDecayRates(1, 1, 1, 100, 100, 100);
 	}
 	
 	@Override

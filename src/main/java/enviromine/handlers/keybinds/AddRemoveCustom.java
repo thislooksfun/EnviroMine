@@ -1,9 +1,8 @@
 package enviromine.handlers.keybinds;
 
 import java.util.EnumSet;
-
+import java.util.logging.Level;
 import org.lwjgl.input.Keyboard;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -14,6 +13,7 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.util.EnumMovingObjectType;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import enviromine.core.EM_ConfigHandler;
 import enviromine.core.EnviroMine;
 
@@ -110,11 +110,24 @@ public class AddRemoveCustom extends KeyHandler
 						if(type.name() == "ENTITY")
 						{
 							Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
-							String name = EntityList.getEntityString(lookingAt);
-							name = replaceULN(name);
+							int id = 0;
 							
-							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), name, dataToCustom);
-							mc.thePlayer.addChatMessage(name + " " + returnValue + " in MyCustom.cfg file.");
+							if(EntityList.getEntityID(lookingAt) > 0)
+							{
+								id = EntityList.getEntityID(lookingAt);
+							} else if(EntityRegistry.instance().lookupModSpawn(lookingAt.getClass(), false) != null)
+							{
+								id = EntityRegistry.instance().lookupModSpawn(lookingAt.getClass(), false).getModEntityId() + 128;
+							} else
+							{
+								mc.thePlayer.addChatMessage("Failed to add/remove config entry. " + lookingAt.getEntityName() + " has no ID!");
+								EnviroMine.logger.log(Level.WARNING, "Failed to add/remove config entry. " + lookingAt.getEntityName() + " has no ID!");
+							}
+							
+							dataToCustom[0] = id;
+							
+							returnValue = EM_ConfigHandler.SaveMyCustom(type.name(), lookingAt.getEntityName(), dataToCustom);
+							mc.thePlayer.addChatMessage(lookingAt.getEntityName() + " (" + id + ") " + returnValue + " in MyCustom.cfg file.");
 						} else if(type.name() == "TILE")
 						{
 							
@@ -141,7 +154,7 @@ public class AddRemoveCustom extends KeyHandler
 					}
 					catch(NullPointerException e)
 					{
-						
+						EnviroMine.logger.log(Level.WARNING, "A NullPointerException occured while adding/removing config entry!", e);
 					}
 				}
 				else

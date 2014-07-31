@@ -6,6 +6,8 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EnviroUtils;
+import enviromine.blocks.tiles.TileEntityGas;
+import enviromine.core.EM_Settings;
 import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;
 import net.minecraft.block.Block;
@@ -31,6 +33,7 @@ public class BlockGas extends Block implements ITileEntityProvider
 	public BlockGas(int par1, Material par2Material)
 	{
 		super(par1, par2Material);
+		this.setTickRandomly(true);
 		igniteList.add("" + Block.lavaMoving.blockID);
 		igniteList.add("" + Block.lavaStill.blockID);
 		igniteList.add("" + Block.torchWood.blockID);
@@ -43,13 +46,24 @@ public class BlockGas extends Block implements ITileEntityProvider
 		return false;
 	}
 	
-	public void onBlockAdded(World par1World, int par2, int par3, int par4)
+	public void onBlockAdded(World world, int i, int j, int k)
 	{
-		super.onBlockAdded(par1World, par2, par3, par4);
+		super.onBlockAdded(world, i, j, k);
 		
-		if(par1World.getBlockId(par2, par3, par4) == this.blockID)
+		TileEntity tile = world.getBlockTileEntity(i, j, k);
+		
+		if(tile == null)
 		{
-			par1World.scheduleBlockUpdate(par2, par3, par4, this.blockID, this.tickRate(par1World));
+			tile = new TileEntityGas(world);
+			world.setBlockTileEntity(i, j, k, tile);
+		}
+		
+		if(world.scheduledUpdatesAreImmediate)
+		{
+			world.scheduleBlockUpdateFromLoad(i, j, k, this.blockID, this.tickRate(world), 0);
+		} else
+		{
+			world.scheduleBlockUpdate(i, j, k, this.blockID, this.tickRate(world));
 		}
 	}
 	
@@ -92,35 +106,44 @@ public class BlockGas extends Block implements ITileEntityProvider
 	
 	public float getOpacity(IBlockAccess blockAccess, int i, int j, int k)
 	{
-		TileEntity tile = blockAccess.getBlockTileEntity(i, j, k);
-		
-		if(tile != null && tile instanceof TileEntityGas)
+		if(blockAccess.getBlockId(i, k, k) == ObjectHandler.gasBlock.blockID && !EM_Settings.renderGases)
 		{
-			float maxOpacity = ((TileEntityGas)tile).opacity;
-			return maxOpacity;
+			return 0;
 		} else
 		{
-			return 1F;
+			TileEntity tile = blockAccess.getBlockTileEntity(i, j, k);
+			
+			if(tile != null && tile instanceof TileEntityGas)
+			{
+				float maxOpacity = ((TileEntityGas)tile).opacity;
+				return maxOpacity;
+			} else
+			{
+				return 0F;
+			}
 		}
 	}
 	
 	public void swtichIgnitionState(World world, int i, int j, int k)
 	{
         TileEntity tile = world.getBlockTileEntity(i, j, k);
+        int newID = this.blockID;
         
         if(this.blockID == ObjectHandler.gasBlock.blockID)
         {
             world.setBlock(i, j, k, ObjectHandler.fireGasBlock.blockID);
+            newID = ObjectHandler.fireGasBlock.blockID;
         } else
         {
             world.setBlock(i, j, k, ObjectHandler.gasBlock.blockID);
+            newID = ObjectHandler.gasBlock.blockID;
         }
         
         if (tile != null)
         {
             tile.validate();
             world.setBlockTileEntity(i, j, k, tile);
-            tile.blockType = Block.blocksList[world.getBlockId(i, j, k)];
+            tile.blockType = Block.blocksList[newID];
             
             if(tile instanceof TileEntityGas)
             {
@@ -133,10 +156,10 @@ public class BlockGas extends Block implements ITileEntityProvider
 	{
 		if(this.blockID  == ObjectHandler.fireGasBlock.blockID)
 		{
-			return 5;
+			return EM_Settings.gasTickRate/4;
 		} else
 		{
-			return 20;
+			return EM_Settings.gasTickRate;
 		}
 	}
 	
@@ -298,7 +321,13 @@ public class BlockGas extends Block implements ITileEntityProvider
 				world.notifyBlocksOfNeighborChange(x, y, z, this.blockID);
 			} else if(gasTile.amount > 10)
 			{
-				world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
+				if(world.scheduledUpdatesAreImmediate)
+				{
+					world.scheduleBlockUpdateFromLoad(x, y, z, this.blockID, this.tickRate(world), 0);
+				} else
+				{
+					world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
+				}
 			}
 			
 			if(gasTile.getGasQuantity(0) > 20)
@@ -370,30 +399,25 @@ public class BlockGas extends Block implements ITileEntityProvider
 
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID)
 	{
-		TileEntity tile = world.getBlockTileEntity(x, y, z);
-		
-		if(this.blockID == ObjectHandler.gasBlock.blockID && this.igniteList.contains("" + blockID))
+		if(world.scheduledUpdatesAreImmediate)
 		{
-			if(tile != null && tile instanceof TileEntityGas)
-			{
-				TileEntityGas gasTile = (TileEntityGas)tile;
-				gasTile.burnGases();
-				this.swtichIgnitionState(world, x, y, z);
-				world.scheduleBlockUpdate(x, y, z, ObjectHandler.fireGasBlock.blockID, ObjectHandler.fireGasBlock.tickRate(world));
-			}
+			world.scheduleBlockUpdateFromLoad(x, y, z, this.blockID, this.tickRate(world), 0);
 		} else
 		{
 			world.scheduleBlockUpdate(x, y, z, this.blockID, this.tickRate(world));
-			if(world.isRemote)
+		}
+		
+		if(world.isRemote && (blockID == ObjectHandler.gasBlock.blockID || blockID == ObjectHandler.fireGasBlock.blockID))
+		{
+			TileEntity tile = world.getBlockTileEntity(x, y, z);
+			
+			if(tile != null && tile instanceof TileEntityGas)
 			{
-				if(tile != null && tile instanceof TileEntityGas)
-				{
-					TileEntityGas gasTile = (TileEntityGas)tile;
-					
-					gasTile.updateOpacity();
-					gasTile.updateSize();
-					Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(x, y, z);
-				}
+				TileEntityGas gasTile = (TileEntityGas)tile;
+				
+				gasTile.updateOpacity();
+				gasTile.updateSize();
+				Minecraft.getMinecraft().renderGlobal.markBlockForRenderUpdate(x, y, z);
 			}
 		}
 	}

@@ -8,7 +8,6 @@ import enviromine.world.chunk.ChunkProviderCaves;
 import enviromine.world.chunk.WorldChunkManagerCaves;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldProvider;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.IChunkProvider;
 
 public class WorldProviderCaves extends WorldProvider

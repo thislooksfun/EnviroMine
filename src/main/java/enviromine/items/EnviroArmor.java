@@ -2,7 +2,6 @@ package enviromine.items;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import enviromine.core.EnviroMine;
 import enviromine.handlers.ObjectHandler;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;

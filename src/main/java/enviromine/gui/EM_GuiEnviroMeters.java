@@ -33,7 +33,7 @@ public class EM_GuiEnviroMeters extends Gui
 	
 	public static final int meterWidth = 96;
 	public static final int meterHeight = 8;
-	public static final int barWidth = 64;
+	public static int barWidth = 64;
 	public static final int textWidth = 32;
 	public static final int iconWidth = 16;
 	
@@ -63,7 +63,19 @@ public class EM_GuiEnviroMeters extends Gui
 			blink = !blink;
 			ticktimer = 1;
 		} else
+		{
 			ticktimer++;
+		}
+		
+		if(EM_Settings.minimalHud)
+		{
+			barWidth = 0;
+			EM_Settings.ShowText = true;
+			EM_Settings.ShowGuiIcons = true;
+		} else
+		{
+			barWidth = 64;
+		}
 		
 		int xPos = 4;
 		int yPos = 4;
@@ -108,6 +120,7 @@ public class EM_GuiEnviroMeters extends Gui
 			int waterBar = MathHelper.ceiling_float_int((tracker.hydration / 100) * barWidth);
 			int heatBar = MathHelper.ceiling_float_int(((tracker.bodyTemp + 50) / 150) * barWidth);
 			int preheatBar = MathHelper.ceiling_float_int(((tracker.airTemp + 50) / 150) * barWidth);
+			int preheatIco = 16- MathHelper.ceiling_float_int(((tracker.airTemp + 50) / 150) * 16);
 			int sanityBar = MathHelper.ceiling_float_int((tracker.sanity / 100) * barWidth);
 			int airBar = MathHelper.ceiling_float_int((tracker.airQuality / 100) * barWidth);
 			
@@ -139,6 +152,14 @@ public class EM_GuiEnviroMeters extends Gui
 				preheatBar = 0;
 			}
 			
+			if(preheatIco > 24)
+			{
+				preheatIco = 24;
+			} else if(preheatIco < 0)
+			{
+				preheatIco = 0;
+			}
+			
 			if(sanityBar > barWidth)
 			{
 				sanityBar = barWidth;
@@ -167,6 +188,12 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			int Top_Center_X = (width / 2) - (barWidth / 2);
 			int Top_Center_Y = yPos;
+			
+			int Middle_Left_X = xPos;
+			int Middle_Left_Y = (height/2 + meterHeight*2) - yPos;
+			
+			int Middle_Right_X = (width - xPos) - barWidth;
+			int Middle_Right_Y = (height/2 + meterHeight*2) - yPos;
 			
 			int Bottom_Center_Left_X = (width / 2) - (barWidth / 2) - barWidth;
 			int Bottom_Center_Left_Y = (height - yPos) - 50;
@@ -203,6 +230,8 @@ public class EM_GuiEnviroMeters extends Gui
 			int TL = -1;
 			int TR = -1;
 			int TC = -1;
+			int ML = -1;
+			int MR = -1;
 			int addTW = 0;
 			int AQcurX = 0;
 			int AQcurY = 0;
@@ -292,6 +321,68 @@ public class EM_GuiEnviroMeters extends Gui
 					curPosY = Bottom_Center_Left_Y - curMeterHeight;
 					textPos = Bottom_Center_Left_X - (textWidth * addTW);
 					iconPos = textPos - iconWidth;
+				} else if(barPosName.equalsIgnoreCase("middle_right"))
+				{
+					MR += 2;
+					curMeterHeight = meterHeight * MR;
+					curPosX = Middle_Right_X;
+					curPosY = Middle_Right_Y - curMeterHeight;
+					textPos = Middle_Right_X - (textWidth * addTW);
+					iconPos = textPos - iconWidth;
+				} else if(barPosName.equalsIgnoreCase("middle_left"))
+				{
+					ML += 2;
+					curMeterHeight = meterHeight * ML;
+					curPosX = Middle_Left_X;
+					curPosY = Middle_Left_Y - curMeterHeight;
+					textPos = Middle_Left_X + barWidth;
+					iconPos = textPos + (textWidth * addTW);
+				} else if(barPosName.startsWith("custom_"))
+				{
+					barPosName = barPosName.replaceFirst("custom_", "").trim();
+					String pos[] = barPosName.split(",");
+					if(pos.length == 2)
+					{
+						try
+						{
+							int cX = Integer.parseInt(pos[0].trim());
+							int cY = Integer.parseInt(pos[1].trim());
+							
+							if(cX < 0)
+							{
+								cX = 0;
+							} else if(cX > 100)
+							{
+								cX = 100;
+							}
+							
+							if(cY < 0)
+							{
+								cY = 0;
+							} else if(cY > 100)
+							{
+								cY = 100;
+							}
+							
+							curPosY = MathHelper.floor_float(cY/100F * (float)height);
+							curPosX = MathHelper.floor_float(cX/100F * (float)width);
+							
+							if(cX > 50)
+							{
+								curPosX -= (barWidth);
+								textPos = curPosX - (textWidth * addTW);
+								iconPos = textPos - iconWidth;
+							} else
+							{
+								textPos = curPosX + barWidth;
+								iconPos = textPos + (textWidth * addTW);
+							}
+						} catch (NumberFormatException e)
+						{
+						}
+					} else
+					{
+					}
 				}
 				
 				// 0 = Sanity Bar
@@ -302,12 +393,21 @@ public class EM_GuiEnviroMeters extends Gui
 					
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 16, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 16, sanityBar, meterHeight);
-					this.drawTexturedModalRect(curPosX + sanityBar - 2, curPosY + 2, 28, 64, 4, 4);
+					if(!EM_Settings.minimalHud)
+					{
+						this.drawTexturedModalRect(curPosX + sanityBar - 2, curPosY + 2, 28, 64, 4, 4);
+					}
 					
 					// sanity frame
 					if(blink && tracker.sanity < 25)
+					{
 						frameborder = 5;
-					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
+					
+					if(barWidth > 0)
+					{
+						this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
 					
 					if(EM_Settings.ShowGuiIcons == true)
 						this.drawTexturedModalRect(iconPos, SAcurY - 4, 32, 80, 16, 16);
@@ -320,12 +420,22 @@ public class EM_GuiEnviroMeters extends Gui
 					AQcurY = curPosY;
 					
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 8, barWidth, meterHeight);
-					this.drawTexturedModalRect(curPosX + airBar - 2, curPosY + 2, 8, 64, 4, 4);
+					this.drawTexturedModalRect(curPosX, curPosY, 64, 8, airBar, meterHeight);
+					if(!EM_Settings.minimalHud)
+					{
+						this.drawTexturedModalRect(curPosX + airBar - 2, curPosY + 2, 8, 64, 4, 4);
+					}
 					
 					// oxygen frame
 					if(blink && tracker.airQuality < 25)
+					{
 						frameborder = 5;
-					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
+					
+					if(barWidth > 0)
+					{
+						this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
 					
 					if(EM_Settings.ShowGuiIcons == true)
 						this.drawTexturedModalRect(iconPos, AQcurY - 4, 48, 80, 16, 16);
@@ -339,7 +449,10 @@ public class EM_GuiEnviroMeters extends Gui
 					//water bar
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight);
-					this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
+					if(!EM_Settings.minimalHud)
+					{
+						this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
+					}
 					
 					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight, 1);
 					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight, 1);
@@ -348,10 +461,15 @@ public class EM_GuiEnviroMeters extends Gui
 					// water frame
 					
 					if(blink && tracker.hydration < 25)
+					{
 						frameborder = 5;
+					}
 					
-					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
-					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight, 2);
+					if(barWidth > 0)
+					{
+						this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
+					
 					if(EM_Settings.ShowGuiIcons == true)
 					{
 						this.drawTexturedModalRect(iconPos, WAcurY - 4, 16, 80, 16, 16);
@@ -366,16 +484,34 @@ public class EM_GuiEnviroMeters extends Gui
 					
 					// heat Bar
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 24, barWidth, meterHeight);
-					this.drawTexturedModalRect(curPosX + preheatBar - 4, curPosY, 32, 64, 8, 8);
-					this.drawTexturedModalRect(curPosX + heatBar - 2, curPosY + 2, 20, 64, 4, 4);
+					if(!EM_Settings.minimalHud)
+					{
+						this.drawTexturedModalRect(curPosX + preheatBar - 4, curPosY, 32, 64, 8, 8);
+						this.drawTexturedModalRect(curPosX + heatBar - 2, curPosY + 2, 20, 64, 4, 4);
+					}
 					
 					// heat frame
 					if(blink && tracker.bodyTemp < 35 || blink && tracker.bodyTemp > 39)
+					{
 						frameborder = 5;
-					this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
+					
+					if(barWidth > 0)
+					{
+						this.drawTexturedModalRect(curPosX, curPosY, 0, meterHeight * frameborder, meterWidth - 32, meterHeight);
+					}
 					
 					if(EM_Settings.ShowGuiIcons == true)
+					{
 						this.drawTexturedModalRect(iconPos, HTcurY - 4, 0, 80, 16, 16);
+						if(preheatIco >= 8)
+						{
+							this.drawTexturedModalRect(iconPos, HTcurY - 4 + preheatIco, 16, 96 + preheatIco, 16, 16-preheatIco);
+						} else
+						{
+							this.drawTexturedModalRect(iconPos, HTcurY - 4 + preheatIco, 0, 96 + preheatIco, 16, 16-preheatIco);
+						}
+					}
 				}
 				
 			}

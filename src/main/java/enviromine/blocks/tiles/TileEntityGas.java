@@ -1,9 +1,10 @@
-package enviromine.blocks;
+package enviromine.blocks.tiles;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import enviromine.EnviroUtils;
+import enviromine.blocks.BlockGas;
 import enviromine.gases.EnviroGas;
 import enviromine.gases.EnviroGasDictionary;
 import enviromine.handlers.ObjectHandler;
@@ -22,16 +23,16 @@ import net.minecraft.world.chunk.Chunk;
 public class TileEntityGas extends TileEntity
 {
 	public ArrayList<int[]> gases = new ArrayList<int[]>();
-	Color color = Color.WHITE;
-	float opacity = 1.0F;
-	float yMax = 1.0F;
-	float yMin = 0.0F;
-	int amount = 0;
+	public Color color = Color.WHITE;
+	public float opacity = 1.0F;
+	public float yMax = 1.0F;
+	public float yMin = 0.0F;
+	public int amount = 0;
 	
-	int firePressure = 0;
+	public int firePressure = 0;
 	
-	boolean preReqRender = true;
-	boolean curReqRender = true;
+	public boolean preReqRender = true;
+	public boolean curReqRender = true;
 	
 	public TileEntityGas()
 	{
@@ -518,7 +519,7 @@ public class TileEntityGas extends TileEntity
 			
 			int[] rDir = gDir.get(index);
 			
-			if(rDir[1] == 0 && this.amount <= 1)
+			if(rDir[1] == 0 && this.amount <= 1 || !this.worldObj.getChunkProvider().chunkExists((this.xCoord + rDir[0])/16, (this.zCoord + rDir[2])/16))
 			{
 				gDir.remove(index);
 				continue;
@@ -571,10 +572,17 @@ public class TileEntityGas extends TileEntity
 		TileEntity tile = this.worldObj.getBlockTileEntity(i, j, k);
 		if(tile == null)
 		{
-			if(this.worldObj.getBlockId(i, j, k) == 0)
+			if(this.worldObj.getBlockId(i, j, k) == 0 && this.getBlockType().blockID != 0)
 			{
 				this.worldObj.setBlock(i, j, k, this.getBlockType().blockID);
-				return this.offLoadGas(i, j, k, offLoadNum);
+				
+				if(this.worldObj.getBlockTileEntity(i, j, k) == null)
+				{
+					return false;
+				} else
+				{
+					return this.offLoadGas(i, j, k, offLoadNum);
+				}
 			} else
 			{
 				return false;
@@ -690,6 +698,17 @@ public class TileEntityGas extends TileEntity
 					
 					this.addGas(decayGasID, decayNum);
 				}
+			} else if(this.worldObj.rand.nextInt(100) == 0 && gasType.randDecay > 0 && gasType.randDecayThresh >= gasArray[1])
+			{
+				decayed = true;
+				this.subtractGas(gasArray[0], gasType.randDecay);
+				
+				if(decayGasID >= 0)
+				{
+					int decayNum = gasArray[1] < gasType.randDecay? gasArray[1] : gasType.randDecay;
+					
+					this.addGas(decayGasID, decayNum);
+				}
 			}
 		}
 		return decayed;
@@ -752,6 +771,12 @@ public class TileEntityGas extends TileEntity
 	
 	public int getGasCapactiy(int i, int j, int k)
 	{
+		if(!worldObj.getChunkProvider().chunkExists(i/16, k/16))
+		{
+			return 0;
+		}
+		
+		int fireAmount = this.getGasQuantity(0);
 		TileEntity tile = this.worldObj.getBlockTileEntity(i, j, k);
 		
 		if(tile != null && tile instanceof TileEntityGas)
@@ -766,12 +791,15 @@ public class TileEntityGas extends TileEntity
 				if(j < this.yCoord)
 				{
 					return 1;
-				} else if(gasTile.getGasQuantity(0) > this.getGasQuantity(0))
+				} else if(gasTile.getGasQuantity(0) > fireAmount)
 				{
 					return 5;
-				} else
+				} else if(gasTile.getGasQuantity(0) > 0)
 				{
 					return 10;
+				} else
+				{
+					return 20;
 				}
 			} else
 			{
