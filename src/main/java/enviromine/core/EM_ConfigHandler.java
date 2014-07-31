@@ -646,6 +646,55 @@ public class EM_ConfigHandler
 		EM_Settings.livingProperties.put(id, entry);
 	}
 	
+	private static void	LoadBiomeProperty(Configuration config, String category)
+	{
+		
+		System.out.println(category);
+		
+		//String catName = biomeCat + "." + category;
+		config.addCustomCategoryComment(category, "");
+		
+		int id = config.get(category, BOName[0], 0, "Make sure if you change this id you also change it here.").getInt(0);
+		boolean biomeOveride = config.get(category, BOName[1], false).getBoolean(false);
+		String waterQ = config.get(category, BOName[2], "clean", "Water Quality: dirty, salt, cold, clean").getString();
+		double ambTemp = config.get(category, BOName[3], 37.00, "In Celsius").getDouble(37.00);
+		double tempRate = config.get(category, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
+		double sanRate = config.get(category, BOName[5], 0.0).getDouble(0.0);
+		double dehyRate = config.get(category, BOName[6], 0.0).getDouble(0.0);
+			
+		BiomeProperties entry = new BiomeProperties(id, biomeOveride, waterQ, ambTemp, tempRate, sanRate, dehyRate);
+		EM_Settings.biomeProperties.put("" + id, entry);;
+
+	}
+	
+	private static void LoadDimensionProperty(Configuration config, String category)
+	{
+	
+		//String catName = dimensionCat + "." + category;
+		config.addCustomCategoryComment(category, "");
+
+		 int id = config.get(category, DMName[0], 0).getInt(0);
+		 boolean override = config.get(category, DMName[1], false).getBoolean(false);
+		 boolean sanity = config.get(category, DMName[2], true).getBoolean(true);
+		 boolean darkAffectSanity = config.get(category, DMName[3], true).getBoolean(true);
+		 double sanityMultiplyer = config.get(category, DMName[3], 1.0D).getDouble(1.0D);
+		 boolean air = config.get(category, DMName[5], true).getBoolean(true);
+		 double airMulti = config.get(category, DMName[4], 1.0D).getDouble(1.0D);
+		 boolean water = config.get(category, DMName[7], true).getBoolean(true);
+		 double waterMulti = config.get(category, DMName[8], 1.0D).getDouble(1.0D);
+		 boolean temp = config.get(category, DMName[9], true).getBoolean(true);
+		 double tempMulti = config.get(category, DMName[10], 1.0D).getDouble(1.0D);
+		 boolean dayNightTemp = config.get(category, DMName[11], true).getBoolean(true);
+		 boolean weatherAffectsTemp =config.get(category, DMName[12], true).getBoolean(true);
+		 boolean mineshaftGen = config.get(category, DMName[13], true).getBoolean(true);
+		 int sealevel = config.get(category, DMName[14], 65).getInt(65);
+		
+		DimensionProperties entry = new DimensionProperties(id, override, sanity,  darkAffectSanity, sanityMultiplyer, air, airMulti, water, waterMulti, temp, tempMulti, dayNightTemp, weatherAffectsTemp, mineshaftGen, sealevel);
+		EM_Settings.dimensionProperties.put("" + id, entry);
+	
+	}
+	
+	
 	// RIGHT NOW I AM JUST LOADING DEFAULT ARMOR INTO HASH MAPS
 	// IF SOME CUSTOMIZED ARMOR>> THAN IT OVERIDES THIS FUNCTION
 	public static void loadDefaultArmorProperties()
@@ -942,34 +991,7 @@ public class EM_ConfigHandler
 		}
 		config.save();
 	}
-	private static void LoadDimensionProperty(Configuration config, String category)
-	{
-	
-		String catName = dimensionCat + "." + category;
-		config.addCustomCategoryComment(catName, "");
 
-		 int id = config.get(catName, DMName[0], 0).getInt(0);
-		 boolean override = config.get(catName, DMName[1], false).getBoolean(false);
-		 boolean sanity = config.get(catName, DMName[2], true).getBoolean(true);
-		 boolean darkAffectSanity = config.get(catName, DMName[3], true).getBoolean(true);
-		 double sanityMultiplyer = config.get(catName, DMName[3], 1.0D).getDouble(1.0D);
-		 boolean air = config.get(catName, DMName[5], true).getBoolean(true);
-		 double airMulti = config.get(catName, DMName[4], 1.0D).getDouble(1.0D);
-		 boolean water = config.get(catName, DMName[7], true).getBoolean(true);
-		 double waterMulti = config.get(catName, DMName[8], 1.0D).getDouble(1.0D);
-		 boolean temp = config.get(catName, DMName[9], true).getBoolean(true);
-		 double tempMulti = config.get(catName, DMName[10], 1.0D).getDouble(1.0D);
-		 boolean dayNightTemp = config.get(catName, DMName[11], true).getBoolean(true);
-		 boolean weatherAffectsTemp =config.get(catName, DMName[12], true).getBoolean(true);
-		 boolean mineshaftGen = config.get(catName, DMName[13], true).getBoolean(true);
-		 int sealevel = config.get(catName, DMName[14], 65).getInt(65);
-		
-		DimensionProperties entry = new DimensionProperties(id, override, sanity,  darkAffectSanity, sanityMultiplyer, air, airMulti, water, waterMulti, temp, tempMulti, dayNightTemp, weatherAffectsTemp, mineshaftGen, sealevel);
-		
-		EM_Settings.dimensionProperties.put("" + id, entry);
-	
-	}
-	
 	public static void SearchForBiomes()
 	{
 		File biomesFile = new File(customPath + "ModBiomes.cfg");
@@ -1049,26 +1071,6 @@ public class EM_ConfigHandler
 		
 		config.save();
 	}
-	
-	private static void 	LoadBiomeProperty(Configuration config, String category)
-	{
-		String catName = biomeCat + "." + category;
-		config.addCustomCategoryComment(catName, "");
-		
-		int id = config.get(catName, BOName[0], 0, "Make sure if you change this id you also change it here.").getInt(0);
-		boolean biomeOveride = config.get(catName, BOName[1], false).getBoolean(false);
-		String waterQ = config.get(catName, BOName[2], "clean", "Water Quality: dirty, salt, cold, clean").getString();
-		double ambTemp = config.get(catName, BOName[3], 37.00, "In Celsius").getDouble(37.00);
-		double tempRate = config.get(catName, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
-		double sanRate = config.get(catName, BOName[5], 0.0).getDouble(0.0);
-		double dehyRate = config.get(catName, BOName[6], 0.0).getDouble(0.0);
-			
-		BiomeProperties entry = new BiomeProperties(id, biomeOveride, waterQ, ambTemp, tempRate, sanRate, dehyRate);
-		EM_Settings.biomeProperties.put("" + id, entry);;
-
-	}
-	
-
 	
 	private static double getTemp(BiomeGenBase biome)
 	{
@@ -1480,57 +1482,5 @@ public class EM_ConfigHandler
 		}
 		return ids;
 	}
-	
-	/* from get IDS
-	if(CommaSplit == true)
-	{
-		System.out.println("Checking for Colons");
 
-		Iterator<String> iterator = ColonList.iterator();
-		while (iterator.hasNext()) 
-		{
-
-				System.out.println("Found Colon");
-				idSplitColon = iterator.next().split(":");
-				
-				int Min = Integer.parseInt(idSplitColon[0]);  
-				int Max = Integer.parseInt(idSplitColon[1]);
-				
-				if(Max <= Min)
-				{
-					Min = Integer.parseInt(idSplitColon[1]);  
-					Max = Integer.parseInt(idSplitColon[0]);
-				}
-
-				for(int j = Min; j <= Max ; ++j)
-				{
-					ids.add(j);
-					System.out.println("Found ID "+ j);
-					
-				}
-
-		}	
-			
-
-		
-	}
-	else 
-	{	
-		idSplitColon = idString.split(":");
-		
-		int Min = Integer.parseInt(idSplitColon[0]);  
-		int Max = Integer.parseInt(idSplitColon[1]);
-		
-		if(Max <= Min)
-		{
-			Min = Integer.parseInt(idSplitColon[1]);  
-			Max = Integer.parseInt(idSplitColon[0]);
-		}
-
-		for(int j = 0; j <= (idSplitComma.length - 1); ++j)
-		{
-			
-		}
-	}*/
-	
 } // End of Page
