@@ -1159,8 +1159,9 @@ public class EM_StatusManager
 	
 	public static float getBiomeTemprature(int x, int y, BiomeGenBase biome)
 	{
-		float temp = 0;
+		float temp= 0F;
 		
+
 		return temp;
 		
 	}

@@ -83,9 +83,9 @@ public class BlockGas extends Block implements ITileEntityProvider
 			
 			//gasTile.addGas(1, 10);
 			//gasTile.addGas(3, 50);
-			gasTile.addGas(4, 100);
+			//gasTile.addGas(4, 100);
 			//gasTile.addGas(0, 2000);
-			//gasTile.addGas(7, 100);
+			gasTile.addGas(7, 100);
 		}
 	}
 	

@@ -3,10 +3,15 @@ package enviromine.core;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.command.ICommandManager;
+import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.common.DimensionManager;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
@@ -18,6 +23,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -27,6 +33,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EM_VillageMineshaft;
 import enviromine.EnviroPotion;
 import enviromine.EnviroUtils;
+import enviromine.core.commands.CommandPhysics;
+import enviromine.core.commands.EnviroCommand;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
 import enviromine.handlers.EnviroAchievements;
@@ -101,9 +109,15 @@ public class EnviroMine
 		GameRegistry.registerPlayerTracker(new UpdateNotification());
 		
 		caves = (new BiomeGenCaves(23)).setColor(16711680).setBiomeName("Caves").setDisableRain().setTemperatureRainfall(1.0F, 0.0F);
+		GameRegistry.addBiome(caves);
+		BiomeDictionary.registerBiomeType(caves, Type.WASTELAND);
+		
+		
 		DimensionManager.registerProviderType(EM_Settings.caveDimID, WorldProviderCaves.class, false);
 		DimensionManager.registerDimension(EM_Settings.caveDimID, EM_Settings.caveDimID);
 		
+
+
 		proxy.registerTickHandlers();
 		proxy.registerEventHandlers();
 	}
@@ -118,10 +132,15 @@ public class EnviroMine
 			EM_ConfigHandler.SearchForModdedArmors();
 		}
 		
+		EM_ConfigHandler.SearchForDimensions();
+		EM_ConfigHandler.SearchForBiomes();
+		
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.armorProperties.size() + " armor properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.blockProperties.size() + " block properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.livingProperties.size() + " entity properties");
 		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.itemProperties.size() + " item properties");
+		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.biomeProperties.size() + " biome properties");
+		EnviroMine.logger.log(Level.INFO, "Loaded " + EM_Settings.dimensionProperties.size() + " dimension properties");
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -138,4 +157,15 @@ public class EnviroMine
 		KeyBindingRegistry.registerKeyBinding(new enviromine.handlers.keybinds.ReloadCustomObjects(key1, repeat1));
 	
 	}
+	
+    @EventHandler
+    public void serverStart(FMLServerStartingEvent event)
+    {
+    	MinecraftServer server = MinecraftServer.getServer();
+    	ICommandManager command = server.getCommandManager();
+    	ServerCommandManager manager = (ServerCommandManager) command;
+
+    	manager.registerCommand(new CommandPhysics());
+    	manager.registerCommand(new EnviroCommand());
+    }
 }

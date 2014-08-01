@@ -14,11 +14,20 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.Configuration;
 import enviromine.handlers.ObjectHandler;
+=======
+import net.minecraftforge.common.DimensionManager;
+import org.apache.commons.lang3.ArrayUtils;
+import cpw.mods.fml.common.registry.EntityRegistry;
+>>>>>>> Deathrow
 import enviromine.handlers.keybinds.AddRemoveCustom;
 import enviromine.trackers.ArmorProperties;
+import enviromine.trackers.BiomeProperties;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.DimensionProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
 import enviromine.trackers.RotProperties;
@@ -36,6 +45,10 @@ public class EM_ConfigHandler
 	static String entityCat = "entity";
 	static String itemsCat = "items";
 	static String rotCat = "spoiling";
+=======
+	static String dimensionCat = "dimensions";
+	static String biomeCat = "biomes";
+>>>>>>> Deathrow
 	
 	// Arrays for property names
 	static String[] APName;
@@ -44,6 +57,10 @@ public class EM_ConfigHandler
 	static String[] IPName;
 	static String[] SPName;
 	static String[] RPName;
+=======
+	static String[] DMName;
+	static String[] BOName;
+>>>>>>> Deathrow
 	
 	public static int initConfig()
 	{
@@ -75,7 +92,7 @@ public class EM_ConfigHandler
 		File configFile = new File(configPath + "EnviroMine.cfg");
 		loadGeneralConfig(configFile);
 		
-		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size()+ EM_Settings.itemProperties.size();
+		int Total = EM_Settings.armorProperties.size() + EM_Settings.blockProperties.size() + EM_Settings.livingProperties.size() + EM_Settings.itemProperties.size() + EM_Settings.biomeProperties.size() + EM_Settings.dimensionProperties.size();
 		
 		return Total;
 	}
@@ -151,6 +168,34 @@ public class EM_ConfigHandler
 		RPName[2] = "03.Rotten ID";
 		RPName[3] = "04.Rotten Damage";
 		RPName[4] = "05.Days To Rot";
+=======
+		BOName = new String[7];
+		BOName[0] = "01.Biome ID";
+		BOName[1] = "02.Allow Config Override";
+		BOName[2] = "03.Water Quality";
+		BOName[3] = "04.Ambient Temperature";
+		BOName[4] = "05.Temp Rate";
+		BOName[5] = "06.Sanity Rate";
+		BOName[6] = "07.Dehydrate Rate";
+	
+		DMName = new String[15];
+		DMName[0] = "01.Biome ID";
+		DMName[1] = "02.Allow Config Override";
+		DMName[2] = "03.Track Sanity";
+		DMName[3] = "04.Dark Affects Sanity";
+		DMName[4] = "05.Sanity Multiplier";
+		DMName[5] = "06.Track Air";
+		DMName[6] = "07.Air Multiplier";
+		DMName[7] = "08.Track Water";
+		DMName[8] = "09.Water Multiplier";
+		DMName[9] = "10.Track Temperature";
+		DMName[10] = "11.Temperature Multiplier";
+		DMName[11] = "12.Day/Night Affects Temp";
+		DMName[12] = "13.Weather Affects Temp";
+		DMName[13] = "14.Generate Mineshafts";
+		DMName[14] = "15.Where is Sea Level";
+		
+>>>>>>> Deathrow
 	}
 
 	public static void loadGeneralConfig(File file)
@@ -216,6 +261,8 @@ public class EM_ConfigHandler
 		EM_Settings.oxygenBarPos = config.get(GuiSetCat, "Position Air Quality Bar", "Bottom_Right", "Change position of Enviro Bars. Options: Bottom_Left, Bottom_Right, Bottom_Center_Left, Bottom_Center_Right, Top_Left, Top_Right, Top_Center, Middle_Left, Middle_Right, Custom_#,# (Custom_X(0-100),Y(0-100))").getString();
 		EM_Settings.minimalHud = config.get(GuiSetCat, "Minimalistic Bars", false, "WARNING: This option will hide the ambient air temperature! It will also override icons and text to true.").getBoolean(false);
 		
+		EM_Settings.guiScale = (float)config.get(GuiSetCat, "Gui Bar Scale", 1.0, "Scale Enviromine Bars, Enter 0.1(10%) to 1.0(100%)").getDouble(1.0);
+		
 		EM_Settings.ShowDebug = config.get(GuiSetCat, "Show Gui Debugging Info", false, "Show Hide Gui Text Display and Icons").getBoolean(false);
 		EM_Settings.ShowText = config.get(GuiSetCat, "Show Gui Status Text", true).getBoolean(true);
 		EM_Settings.ShowGuiIcons = config.get(GuiSetCat, "Show Gui Icons", true).getBoolean(true);
@@ -265,7 +312,24 @@ public class EM_ConfigHandler
 		EM_Settings.genArmorConfigs = config.get(ConSetCat, "Generate Armor Configs", true, "Will attempt to find and generate blank configs for any custom armors loaded before EnviroMine.").getBoolean(true);
 		EM_Settings.useDefaultConfig = config.get(ConSetCat, "Generate Defaults", true).getBoolean(true);
 		
+		// Sound
+		EM_Settings.breathSound = config.get("Sound Options", "Mask: Hear Breathing", true).getBoolean(true);
+		EM_Settings.breathPause = config.get("Sound Options", "Mask: Pause Between Breaths", 300).getInt();
+		EM_Settings.breathVolume = (float)config.get("Sound Options", "Mask: Breathing Volume", 0.75, "[Hear Breathing (Defalut: True)] - Turning on and Off Gas Mask Breathing. [Breathing Volume (Default: 0.75)]Change Volume 0.0(0%) to 1(100%). [Pause Between Breaths (Default: 300)]Change Pause between breaths. Affects Sound and Gui (In GuiRender Ticks)").getDouble(0);
+		
 		config.save();
+		
+		if(EM_Settings.breathVolume > 1.0)
+		{
+			EM_Settings.breathVolume = (float)1.0;
+		} else if(EM_Settings.breathVolume < 0.0)
+		{
+			EM_Settings.breathVolume = (float)0.0;
+		}
+		if(EM_Settings.breathPause < 200)
+		{
+			EM_Settings.breathPause = 200;
+		}
 	}
 	
 	static int nextAvailPotion(int startID)
@@ -383,6 +447,10 @@ public class EM_ConfigHandler
 			config.addCustomCategoryComment(entityCat, "Custom entity properties");
 			config.addCustomCategoryComment(itemsCat, "Custom item properties");
 			config.addCustomCategoryComment(rotCat, "Custom spoiling properties");
+=======
+			config.addCustomCategoryComment(dimensionCat, "Custom Dimension properties");
+			config.addCustomCategoryComment(biomeCat, "Custom Biome properties");
+>>>>>>> Deathrow
 			
 			// 	Grab all Categories in File
 			List<String> catagory = new ArrayList<String>();
@@ -421,6 +489,17 @@ public class EM_ConfigHandler
 					{
 						LoadRotProperty(config, catagory.get(x));
 					} else
+=======
+					}
+					 else if(parent.equals(dimensionCat))
+					{
+						LoadDimensionProperty(config, catagory.get(x));
+					}
+					 else if(parent.equals(biomeCat))
+					{
+						LoadBiomeProperty(config, catagory.get(x));
+					}else
+>>>>>>> Deathrow
 					{
 						EnviroMine.logger.log(Level.WARNING, "Failed to load object " + CurCat);
 					}
@@ -455,101 +534,141 @@ public class EM_ConfigHandler
 	private static void LoadItemProperty(Configuration config, String category)
 	{
 		config.addCustomCategoryComment(category, "");
-		int id = 					config.get(category, IPName[0], 0).getInt(0);
-		int meta = 					config.get(category, IPName[1], 0).getInt(0);
-		boolean enableTemp = 		config.get(category, IPName[2], false).getBoolean(false);
-		float ambTemp = (float)		config.get(category, IPName[3], 0.00).getDouble(0.00);
-		float ambAir = (float)		config.get(category, IPName[4], 0.00).getDouble(0.00);
-		float ambSanity = (float)	config.get(category, IPName[5], 0.00).getDouble(0.00);
-		float effTemp = (float)		config.get(category, IPName[6], 0.00).getDouble(0.00);
-		float effAir = (float)		config.get(category, IPName[7], 0.00).getDouble(0.00);
-		float effSanity = (float)	config.get(category, IPName[8], 0.00).getDouble(0.00);
-		float effHydration = (float)config.get(category, IPName[9], 0.00).getDouble(0.00);
-		float effTempCap = (float)	config.get(category, IPName[10], 37.00).getDouble(37.00);
+		//  
+		String idString = config.get(category, IPName[0], "0").getString();
 		
-		ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, effTemp, effAir, effSanity, effHydration, effTempCap);
+		List<Integer> ids = getIDS(idString);
 		
-		if(meta < 0)
+		Iterator<Integer> iterator = ids.iterator();
+		
+		while(iterator.hasNext())
 		{
-			EM_Settings.itemProperties.put("" + id, entry);
-		} else
-		{
-			EM_Settings.itemProperties.put("" + id + "," + meta, entry);
+			int id = iterator.next();
+			
+			//int id = 					config.get(category, IPName[0], 0).getInt(0);
+			int meta = config.get(category, IPName[1], 0).getInt(0);
+			boolean enableTemp = config.get(category, IPName[2], false).getBoolean(false);
+			float ambTemp = (float)config.get(category, IPName[3], 0.00).getDouble(0.00);
+			float ambAir = (float)config.get(category, IPName[4], 0.00).getDouble(0.00);
+			float ambSanity = (float)config.get(category, IPName[5], 0.00).getDouble(0.00);
+			float effTemp = (float)config.get(category, IPName[6], 0.00).getDouble(0.00);
+			float effAir = (float)config.get(category, IPName[7], 0.00).getDouble(0.00);
+			float effSanity = (float)config.get(category, IPName[8], 0.00).getDouble(0.00);
+			float effHydration = (float)config.get(category, IPName[9], 0.00).getDouble(0.00);
+			float effTempCap = (float)config.get(category, IPName[10], 37.00).getDouble(37.00);
+			
+			ItemProperties entry = new ItemProperties(id, meta, enableTemp, ambTemp, ambAir, ambSanity, effTemp, effAir, effSanity, effHydration, effTempCap);
+			
+			if(meta < 0)
+			{
+				EM_Settings.itemProperties.put("" + id, entry);
+			} else
+			{
+				EM_Settings.itemProperties.put("" + id + "," + meta, entry);
+			}
 		}
 	}
 	
 	private static void LoadBlockProperty(Configuration config, String category)
 	{
 		config.addCustomCategoryComment(category, "");
+		//  
+		String idString = config.get(category, BPName[0], "0").getString();
 		
-		int id = 					config.get(category, BPName[0], 0).getInt(0);
-		int metaData = 				config.get(category, BPName[1], 0).getInt(0);
-		int dropID = 				config.get(category, BPName[2], 0).getInt(0);
-		int dropMeta = 				config.get(category, BPName[3], 0).getInt(0);
-		int dropNum = 				config.get(category, BPName[4], 0).getInt(0);
-		boolean enableTemp = 		config.get(category, BPName[5], false).getBoolean(false);
-		float temperature = (float)	config.get(category, BPName[6], 0.00).getDouble(0.00);
-		float airQuality = (float)	config.get(category, BPName[7], 0.00).getDouble(0.00);
-		float sanity = (float)		config.get(category, BPName[8], 0.00).getDouble(0.00);
-		String stability = 			config.get(category, BPName[9], "loose").getString();
-		boolean slides = 			config.get(category, BPName[10], false).getBoolean(false);
-		boolean wetSlides = 		config.get(category, BPName[11], false).getBoolean(false);
+		List<Integer> ids = getIDS(idString);
 		
-		// Get Stability Options
-		int minFall = 99;
-		int maxFall = 99;
-		int supportDist = 5;
-		boolean holdOther = false;
-		boolean canHang = true;
-		boolean hasPhys = false;
+		Iterator<Integer> iterator = ids.iterator();
 		
-		if(EM_Settings.stabilityTypes.containsKey(stability))
+		while(iterator.hasNext())
 		{
-			StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
+			int id = iterator.next();
 			
-			minFall = stabType.minFall;
-			maxFall = stabType.maxFall;
-			supportDist = stabType.supportDist;
-			hasPhys = stabType.enablePhysics;
-			holdOther = stabType.holdOther;
-			canHang = stabType.canHang;
-		} else
-		{
-			EnviroMine.logger.log(Level.WARNING,"Stability type '" + stability + "' not found.");
-			minFall = 99;
-			maxFall = 99;
-			supportDist = 9;
-			hasPhys = false;
-			holdOther = false;
-			canHang = true;
-		}
+			//	int id = 					config.get(category, BPName[0], 0).getInt(0);
+			int metaData = config.get(category, BPName[1], 0).getInt(0);
+			int dropID = config.get(category, BPName[2], 0).getInt(0);
+			int dropMeta = config.get(category, BPName[3], 0).getInt(0);
+			int dropNum = config.get(category, BPName[4], 0).getInt(0);
+			boolean enableTemp = config.get(category, BPName[5], false).getBoolean(false);
+			float temperature = (float)config.get(category, BPName[6], 0.00).getDouble(0.00);
+			float airQuality = (float)config.get(category, BPName[7], 0.00).getDouble(0.00);
+			float sanity = (float)config.get(category, BPName[8], 0.00).getDouble(0.00);
+			String stability = config.get(category, BPName[9], "loose").getString();
+			boolean slides = config.get(category, BPName[10], false).getBoolean(false);
+			boolean wetSlides = config.get(category, BPName[11], false).getBoolean(false);
+			
+			// 	Get Stability Options
+			int minFall = 99;
+			int maxFall = 99;
+			int supportDist = 5;
+			boolean holdOther = false;
+			boolean canHang = true;
+			boolean hasPhys = false;
+			
+			if(EM_Settings.stabilityTypes.containsKey(stability))
+			{
+				StabilityType stabType = EM_Settings.stabilityTypes.get(stability);
+				
+				minFall = stabType.minFall;
+				maxFall = stabType.maxFall;
+				supportDist = stabType.supportDist;
+				hasPhys = stabType.enablePhysics;
+				holdOther = stabType.holdOther;
+				canHang = stabType.canHang;
+			} else
+			{
+				EnviroMine.logger.log(Level.WARNING, "Stability type '" + stability + "' not found.");
+				minFall = 99;
+				maxFall = 99;
+				supportDist = 9;
+				hasPhys = false;
+				holdOther = false;
+				canHang = true;
+			}
+			
+			BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
+			
+			if(metaData < 0)
+			{
+				EM_Settings.blockProperties.put("" + id, entry);
+			} else
+			{
+				EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
+			}
+			
+			//EnviroMine.logger.log(Level.INFO, "Loaded Custom Block: " + id + ":" + metaData);
+			
+		}//While iterator
 		
-		BlockProperties entry = new BlockProperties(id, metaData, hasPhys, minFall, maxFall, supportDist, dropID, dropMeta, dropNum, enableTemp, temperature, airQuality, sanity, holdOther, slides, canHang, wetSlides);
-		
-		if(metaData < 0)
-		{
-			EM_Settings.blockProperties.put("" + id, entry);
-		} else
-		{
-			EM_Settings.blockProperties.put("" + id + "," + metaData, entry);
-		}
 	}
 	
 	private static void LoadArmorProperty(Configuration config, String catagory)
 	{
 		config.addCustomCategoryComment(catagory, "");
-		int id = 					config.get(catagory, APName[0], 0).getInt(0);
-		float nightTemp = (float)	config.get(catagory, APName[1], 0.00).getDouble(0.00);
-		float shadeTemp = (float)	config.get(catagory, APName[2], 0.00).getDouble(0.00);
-		float sunTemp = (float)		config.get(catagory, APName[3], 0.00).getDouble(0.00);
-		float nightMult = (float)	config.get(catagory, APName[4], 1.00).getDouble(1.00);
-		float shadeMult = (float)	config.get(catagory, APName[5], 1.00).getDouble(1.00);
-		float sunMult = (float)		config.get(catagory, APName[6], 1.00).getDouble(1.00);
-		float sanity = (float)		config.get(catagory, APName[7], 0.00).getDouble(0.00);
-		float air = (float)			config.get(catagory, APName[8], 0.00).getDouble(0.00);
 		
-		ArmorProperties entry = new ArmorProperties(id, nightTemp, shadeTemp, sunTemp, nightMult, shadeMult, sunMult, sanity, air);
-		EM_Settings.armorProperties.put(id, entry);
+		String idString = config.get(catagory, APName[0], "0").getString();
+		
+		List<Integer> ids = getIDS(idString);
+		
+		Iterator<Integer> iterator = ids.iterator();
+		
+		while(iterator.hasNext())
+		{
+			int id = iterator.next();
+			
+			//int id = 					config.get(catagory, APName[0], 0).getInt(0);
+			float nightTemp = (float)config.get(catagory, APName[1], 0.00).getDouble(0.00);
+			float shadeTemp = (float)config.get(catagory, APName[2], 0.00).getDouble(0.00);
+			float sunTemp = (float)config.get(catagory, APName[3], 0.00).getDouble(0.00);
+			float nightMult = (float)config.get(catagory, APName[4], 1.00).getDouble(1.00);
+			float shadeMult = (float)config.get(catagory, APName[5], 1.00).getDouble(1.00);
+			float sunMult = (float)config.get(catagory, APName[6], 1.00).getDouble(1.00);
+			float sanity = (float)config.get(catagory, APName[7], 0.00).getDouble(0.00);
+			float air = (float)config.get(catagory, APName[8], 0.00).getDouble(0.00);
+			
+			ArmorProperties entry = new ArmorProperties(id, nightTemp, shadeTemp, sunTemp, nightMult, shadeMult, sunMult, sanity, air);
+			EM_Settings.armorProperties.put(id, entry);
+		}
+		
 	}
 	
 	private static void LoadLivingProperty(Configuration config, String catagory)
@@ -575,6 +694,55 @@ public class EM_ConfigHandler
 		EM_Settings.livingProperties.put(id, entry);
 	}
 	
+	private static void	LoadBiomeProperty(Configuration config, String category)
+	{
+		
+		System.out.println(category);
+		
+		//String catName = biomeCat + "." + category;
+		config.addCustomCategoryComment(category, "");
+		
+		int id = config.get(category, BOName[0], 0, "Make sure if you change this id you also change it here.").getInt(0);
+		boolean biomeOveride = config.get(category, BOName[1], false).getBoolean(false);
+		String waterQ = config.get(category, BOName[2], "clean", "Water Quality: dirty, salt, cold, clean").getString();
+		double ambTemp = config.get(category, BOName[3], 37.00, "In Celsius").getDouble(37.00);
+		double tempRate = config.get(category, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
+		double sanRate = config.get(category, BOName[5], 0.0).getDouble(0.0);
+		double dehyRate = config.get(category, BOName[6], 0.0).getDouble(0.0);
+			
+		BiomeProperties entry = new BiomeProperties(id, biomeOveride, waterQ, ambTemp, tempRate, sanRate, dehyRate);
+		EM_Settings.biomeProperties.put("" + id, entry);;
+
+	}
+	
+	private static void LoadDimensionProperty(Configuration config, String category)
+	{
+	
+		//String catName = dimensionCat + "." + category;
+		config.addCustomCategoryComment(category, "");
+
+		 int id = config.get(category, DMName[0], 0).getInt(0);
+		 boolean override = config.get(category, DMName[1], false).getBoolean(false);
+		 boolean sanity = config.get(category, DMName[2], true).getBoolean(true);
+		 boolean darkAffectSanity = config.get(category, DMName[3], true).getBoolean(true);
+		 double sanityMultiplyer = config.get(category, DMName[3], 1.0D).getDouble(1.0D);
+		 boolean air = config.get(category, DMName[5], true).getBoolean(true);
+		 double airMulti = config.get(category, DMName[4], 1.0D).getDouble(1.0D);
+		 boolean water = config.get(category, DMName[7], true).getBoolean(true);
+		 double waterMulti = config.get(category, DMName[8], 1.0D).getDouble(1.0D);
+		 boolean temp = config.get(category, DMName[9], true).getBoolean(true);
+		 double tempMulti = config.get(category, DMName[10], 1.0D).getDouble(1.0D);
+		 boolean dayNightTemp = config.get(category, DMName[11], true).getBoolean(true);
+		 boolean weatherAffectsTemp =config.get(category, DMName[12], true).getBoolean(true);
+		 boolean mineshaftGen = config.get(category, DMName[13], true).getBoolean(true);
+		 int sealevel = config.get(category, DMName[14], 65).getInt(65);
+		
+		DimensionProperties entry = new DimensionProperties(id, override, sanity,  darkAffectSanity, sanityMultiplyer, air, airMulti, water, waterMulti, temp, tempMulti, dayNightTemp, weatherAffectsTemp, mineshaftGen, sealevel);
+		EM_Settings.dimensionProperties.put("" + id, entry);
+	
+	}
+	
+	
 	// RIGHT NOW I AM JUST LOADING DEFAULT ARMOR INTO HASH MAPS
 	// IF SOME CUSTOMIZED ARMOR>> THAN IT OVERIDES THIS FUNCTION
 	public static void loadDefaultArmorProperties()
@@ -582,17 +750,15 @@ public class EM_ConfigHandler
 		File customFile = new File(customPath + "Defaults.cfg");
 		
 		Configuration custom;
-		try	
+		try
 		{
 			custom = new Configuration(customFile, true);
-		} 
-		catch(NullPointerException e)
+		} catch(NullPointerException e)
 		{
 			e.printStackTrace();
 			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD DEFAULTS!");
 			return;
-		} 
-		catch(StringIndexOutOfBoundsException e)	
+		} catch(StringIndexOutOfBoundsException e)
 		{
 			e.printStackTrace();
 			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD DEFAULTS!");
@@ -674,7 +840,8 @@ public class EM_ConfigHandler
 	
 	private static void ArmorDefaultSave(Configuration config, String catName, int id, double nightTemp, double shadeTemp, double sunTemp, double nightMult, double shadeMult, double sunMult, double sanity, double air)
 	{
-		config.get(catName, APName[0], id).getInt(id);
+		//config.get(catName, APName[0], id).getInt(id);
+		config.get(catName, APName[0], id).getString();
 		config.get(catName, APName[1], nightTemp).getDouble(nightTemp);
 		config.get(catName, APName[2], shadeTemp).getDouble(shadeTemp);
 		config.get(catName, APName[3], sunTemp).getDouble(sunTemp);
@@ -733,6 +900,262 @@ public class EM_ConfigHandler
 		
 		config.save();
 	}
+	
+	public static void SearchForDimensions()
+	{
+		Integer[] DimensionIds = DimensionManager.getStaticDimensionIDs();
+
+		if(EM_Settings.useDefaultConfig == true)
+		{
+			DimensionDefaultSave();
+		}
+		//Remove Vanilla Dimensions
+		
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, 0);
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, 1);
+		DimensionIds = ArrayUtils.removeElements(DimensionIds, -1);
+		
+		//DimensionIds.aslist
+		EnviroMine.logger.log(Level.INFO, "Found " + DimensionIds.length + " Mod Dimension");
+		
+		if(DimensionIds.length != 0 && DimensionIds != null)
+		{
+			DetectedDimension(DimensionIds);
+		}
+	}
+	
+	private static void DetectedDimension(Integer[] DimensionIds)
+	{
+		File dimensionFile = new File(customPath + "ModDimensions.cfg");
+		
+		if(!dimensionFile.exists())
+		{
+			try
+			{
+				dimensionFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		Configuration config = new Configuration(dimensionFile, true);
+		config.load();
+		String worldname = "";
+		
+		for(int p = 0; p <= DimensionIds.length - 1; p++)
+		{
+			WorldProvider dimension = WorldProvider.getProviderForDimension(DimensionIds[p]);
+			
+			String[] modname = dimension.getClass().getCanonicalName().toString().trim().toLowerCase().split("\\.");
+			String catName = dimensionCat + "." + modname[0] + " - " + dimension.getDimensionName().toLowerCase().trim();
+			config.addCustomCategoryComment(catName, "");
+			
+			// if our Dimension else.. default settings...
+			if(DimensionIds[p] == EM_Settings.caveDimID)
+			{
+				 config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
+				 config.get(catName, DMName[1], true).getBoolean(true);
+				 config.get(catName, DMName[2], true).getBoolean(true);
+				 config.get(catName, DMName[3], true).getBoolean(true);
+				 config.get(catName, DMName[3], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[5], true).getBoolean(true);
+				 config.get(catName, DMName[4], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[7], true).getBoolean(true);
+				 config.get(catName, DMName[8], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[9], true).getBoolean(true);
+				 config.get(catName, DMName[10], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[11], true).getBoolean(true);
+				 config.get(catName, DMName[12], true).getBoolean(true);
+				 config.get(catName, DMName[13], false).getBoolean(false);
+				 config.get(catName, DMName[14], 65).getInt(65);
+			} else
+			{
+				 config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
+				 config.get(catName, DMName[1], false).getBoolean(false);
+				 config.get(catName, DMName[2], true).getBoolean(true);
+				 config.get(catName, DMName[3], true).getBoolean(true);
+				 config.get(catName, DMName[3], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[5], true).getBoolean(true);
+				 config.get(catName, DMName[4], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[7], true).getBoolean(true);
+				 config.get(catName, DMName[8], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[9], true).getBoolean(true);
+				 config.get(catName, DMName[10], 1.0D).getDouble(1.0D);
+				 config.get(catName, DMName[11], true).getBoolean(true);
+				 config.get(catName, DMName[12], true).getBoolean(true);
+				 config.get(catName, DMName[13], false).getBoolean(false);
+				 config.get(catName, DMName[14], 65).getInt(65);
+			}
+		}
+		config.save();
+	}
+	
+	private static void DimensionDefaultSave()
+	{
+		File dimensionFile = new File(customPath + "Defaults.cfg");
+		
+		if(!dimensionFile.exists())
+		{
+			try
+			{
+				dimensionFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		// Vanilla Dimensions
+		int[] dimensionIds = {1, 0, -1};
+		
+		Configuration config = new Configuration(dimensionFile, true);
+		config.load();
+		String worldname = "";
+		for(int p = 0; p <= 2; p++)
+		{
+			WorldProvider dimension = WorldProvider.getProviderForDimension(dimensionIds[p]);
+			
+			String catName = dimensionCat + ".Vanilla - " + dimension.getDimensionName().toLowerCase().trim();
+			config.addCustomCategoryComment(catName, "");
+			
+			 config.get(catName, DMName[0], dimension.dimensionId).getInt(dimension.dimensionId);
+			 config.get(catName, DMName[1], false).getBoolean(false);
+			 config.get(catName, DMName[2], true).getBoolean(true);
+			 config.get(catName, DMName[3], true).getBoolean(true);
+			 config.get(catName, DMName[3], 1.0D).getDouble(1.0D);
+			 config.get(catName, DMName[5], true).getBoolean(true);
+			 config.get(catName, DMName[4], 1.0D).getDouble(1.0D);
+			 config.get(catName, DMName[7], true).getBoolean(true);
+			 config.get(catName, DMName[8], 1.0D).getDouble(1.0D);
+			 config.get(catName, DMName[9], true).getBoolean(true);
+			 config.get(catName, DMName[10], 1.0D).getDouble(1.0D);
+			 config.get(catName, DMName[11], true).getBoolean(true);
+			 config.get(catName, DMName[12], true).getBoolean(true);
+			 config.get(catName, DMName[13], false).getBoolean(false);
+			 config.get(catName, DMName[14], 65).getInt(65);
+		}
+		config.save();
+	}
+
+	public static void SearchForBiomes()
+	{
+		File biomesFile = new File(customPath + "ModBiomes.cfg");
+		
+		if(!biomesFile.exists())
+		{
+			try
+			{
+				biomesFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		Configuration config = new Configuration(biomesFile, true);
+		config.load();
+		
+		
+		for(int p = 23; p <= BiomeGenBase.biomeList.length - 1 && BiomeGenBase.biomeList[p] != null; p++)
+		{
+			
+			String catName = biomeCat + "." + BiomeGenBase.biomeList[p].biomeName;
+			config.addCustomCategoryComment(catName, "");
+			
+			config.get(catName, BOName[0], BiomeGenBase.biomeList[p].biomeID, "Make sure if you change this id you also change it here.").getInt(BiomeGenBase.biomeList[p].biomeID);
+			config.get(catName, BOName[1], false).getBoolean(false);
+			config.get(catName, BOName[2], getWater(BiomeGenBase.biomeList[p]), "Water Quality: dirty, salt, cold, clean").getString();
+			config.get(catName, BOName[3], getTemp(BiomeGenBase.biomeList[p]), "In Celsius").getDouble(37.00);
+			config.get(catName, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
+			config.get(catName, BOName[5], 0.0).getDouble(0.0);
+			config.get(catName, BOName[6], 0.0).getDouble(0.0);
+		}
+		
+		config.save();
+		
+		if(EM_Settings.useDefaultConfig == true)
+		{
+			BiomeDefaultSave();
+		}
+	}
+	
+	private static void BiomeDefaultSave()
+	{
+		File biomesFile = new File(customPath + "Defaults.cfg");
+		
+		if(!biomesFile.exists())
+		{
+			try
+			{
+				biomesFile.createNewFile();
+			} catch(IOException e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		Configuration config = new Configuration(biomesFile, true);
+		config.load();
+		
+		for(int p = 0; p <= 22 && BiomeGenBase.biomeList[p] != null; p++)
+		{
+			
+			String catName = biomeCat + "." + BiomeGenBase.biomeList[p].biomeName;
+			config.addCustomCategoryComment(catName, "");
+			
+			config.get(catName, BOName[0], BiomeGenBase.biomeList[p].biomeID, "Make sure if you change this id you also change it here.").getInt(BiomeGenBase.biomeList[p].biomeID);
+			config.get(catName, BOName[1], false).getBoolean(false);
+			config.get(catName, BOName[2], "clean", "Water Quality: dirty, salt, cold, clean").getString();
+			config.get(catName, BOName[3], getTemp(BiomeGenBase.biomeList[p]), "In Celsius").getDouble(37.00);
+			config.get(catName, BOName[4], 0.0, "Rates Happen each Game tick").getDouble(0.0);
+			config.get(catName, BOName[5], 0.0).getDouble(0.0);
+			config.get(catName, BOName[6], 0.0).getDouble(0.0);
+		}
+		
+		config.save();
+	}
+	
+	private static double getTemp(BiomeGenBase biome)
+	{
+		float bTemp = biome.temperature * 2.25F;
+		
+		if(bTemp > 1.5F)
+		{
+			bTemp = 30F + ((bTemp - 1F) * 10);
+		} else if(bTemp < -1.5F)
+		{
+			bTemp = -30F + ((bTemp + 1F) * 10);
+		} else
+		{
+			bTemp *= 20;
+		}
+		
+		return bTemp;
+		
+	}
+	
+	private static String getWater(BiomeGenBase biome)
+	{
+		if(biome.biomeName == BiomeGenBase.swampland.biomeName || biome.biomeName == BiomeGenBase.jungle.biomeName || biome.biomeName == BiomeGenBase.jungleHills.biomeName)
+		{
+			return "dirty";
+		} else if(biome.biomeName == BiomeGenBase.frozenOcean.biomeName || biome.biomeName == BiomeGenBase.ocean.biomeName || biome.biomeName == BiomeGenBase.beach.biomeName)
+		{
+			return "salt";
+		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName || biome.temperature < 0F)
+		{
+			return "cold";
+		} else
+		{
+			return "clean";
+		}
+	}
+	
 	
 	private static void ItemDefaultSave(Configuration config, String catName, int id, int meta, boolean enableAmbTemp, double ambTemp, double ambAir, double ambSanity, double effTemp, double effAir, double effSanity, double effHydration, double tempCap)
 	{
@@ -933,12 +1356,12 @@ public class EM_ConfigHandler
 		{
 			String currentCat = catagory.get(x);
 			
-			boolean physEnable = 	config.get(currentCat, SPName[0], true).getBoolean(true);
-			int supportDist = 		config.get(currentCat, SPName[1], 0).getInt(0);
-			int minFall = 			config.get(currentCat, SPName[2], -1).getInt(-1);
-			int maxFall = 			config.get(currentCat, SPName[3], -1).getInt(-1);
-			boolean canHang = 		config.get(currentCat, SPName[4], false).getBoolean(false);
-			boolean holdOther = 	config.get(currentCat, SPName[5], false).getBoolean(false);
+			boolean physEnable = config.get(currentCat, SPName[0], true).getBoolean(true);
+			int supportDist = config.get(currentCat, SPName[1], 0).getInt(0);
+			int minFall = config.get(currentCat, SPName[2], -1).getInt(-1);
+			int maxFall = config.get(currentCat, SPName[3], -1).getInt(-1);
+			boolean canHang = config.get(currentCat, SPName[4], false).getBoolean(false);
+			boolean holdOther = config.get(currentCat, SPName[5], false).getBoolean(false);
 			
 			EM_Settings.stabilityTypes.put(currentCat, new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		}
@@ -948,40 +1371,164 @@ public class EM_ConfigHandler
 	
 	public static void loadDefaultStabilityTypes(Configuration config)
 	{
-		boolean physEnable = 	config.get("sand-like", SPName[0], true).getBoolean(true);
-		int supportDist = 		config.get("sand-like", SPName[1], 0).getInt(0);
-		int minFall = 			config.get("sand-like", SPName[2], -1).getInt(-1);
-		int maxFall = 			config.get("sand-like", SPName[3], -1).getInt(-1);
-		boolean canHang = 		config.get("sand-like", SPName[4], false).getBoolean(false);
-		boolean holdOther = 	config.get("sand-like", SPName[5], false).getBoolean(false);
+		boolean physEnable = config.get("sand-like", SPName[0], true).getBoolean(true);
+		int supportDist = config.get("sand-like", SPName[1], 0).getInt(0);
+		int minFall = config.get("sand-like", SPName[2], -1).getInt(-1);
+		int maxFall = config.get("sand-like", SPName[3], -1).getInt(-1);
+		boolean canHang = config.get("sand-like", SPName[4], false).getBoolean(false);
+		boolean holdOther = config.get("sand-like", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("sand-like", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		
-		physEnable = 	config.get("loose", SPName[0], true).getBoolean(true);
-		supportDist = 	config.get("loose", SPName[1], 1).getInt(1);
-		minFall = 		config.get("loose", SPName[2], 10).getInt(10);
-		maxFall = 		config.get("loose", SPName[3], 15).getInt(15);
-		canHang = 		config.get("loose", SPName[4], false).getBoolean(false);
-		holdOther = 	config.get("loose", SPName[5], false).getBoolean(false);
+		physEnable = config.get("loose", SPName[0], true).getBoolean(true);
+		supportDist = config.get("loose", SPName[1], 1).getInt(1);
+		minFall = config.get("loose", SPName[2], 10).getInt(10);
+		maxFall = config.get("loose", SPName[3], 15).getInt(15);
+		canHang = config.get("loose", SPName[4], false).getBoolean(false);
+		holdOther = config.get("loose", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("loose", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		
-		physEnable = 	config.get("average", SPName[0], true).getBoolean(true);
-		supportDist = 	config.get("average", SPName[1], 2).getInt(2);
-		minFall = 		config.get("average", SPName[2], 15).getInt(15);
-		maxFall = 		config.get("average", SPName[3], 22).getInt(22);
-		canHang = 		config.get("average", SPName[4], false).getBoolean(false);
-		holdOther = 	config.get("average", SPName[5], false).getBoolean(false);
+		physEnable = config.get("average", SPName[0], true).getBoolean(true);
+		supportDist = config.get("average", SPName[1], 2).getInt(2);
+		minFall = config.get("average", SPName[2], 15).getInt(15);
+		maxFall = config.get("average", SPName[3], 22).getInt(22);
+		canHang = config.get("average", SPName[4], false).getBoolean(false);
+		holdOther = config.get("average", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("average", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 		
-		physEnable = 	config.get("strong", SPName[0], true).getBoolean(true);
-		supportDist = 	config.get("strong", SPName[1], 3).getInt(3);
-		minFall = 		config.get("strong", SPName[2], 22).getInt(22);
-		maxFall = 		config.get("strong", SPName[3], 25).getInt(25);
-		canHang = 		config.get("strong", SPName[4], true).getBoolean(true);
-		holdOther = 	config.get("strong", SPName[5], false).getBoolean(false);
+		physEnable = config.get("strong", SPName[0], true).getBoolean(true);
+		supportDist = config.get("strong", SPName[1], 3).getInt(3);
+		minFall = config.get("strong", SPName[2], 22).getInt(22);
+		maxFall = config.get("strong", SPName[3], 25).getInt(25);
+		canHang = config.get("strong", SPName[4], true).getBoolean(true);
+		holdOther = config.get("strong", SPName[5], false).getBoolean(false);
 		
 		EM_Settings.stabilityTypes.put("strong", new StabilityType(physEnable, supportDist, minFall, maxFall, canHang, holdOther));
 	}
+	
+	/** 
+	 * Pass a <String> of Id's and Returns an ArrayList of All Id's
+	 * 	
+	 */
+	public static List<Integer> getIDS(String idString)
+	{
+		boolean CommaSplit = false;
+		boolean ColonSplit = false;
+		List<String> CommaList = new ArrayList<String>();
+		List<String> ColonList = new ArrayList<String>();
+		List<Integer> ids = new ArrayList<Integer>();
+		String[] idSplitComma = null;
+		String[] idSplitColon = null;
+		
+		//System.out.println("checking number");
+		if(!((String)idString).isEmpty() && ((String)idString).contains(","))
+		{
+			idSplitComma = idString.split(",");
+			
+			for(int o = 0; o <= (idSplitComma.length - 1); ++o)
+			{
+				//System.out.println("Found ID "+ idSplitComma[o]);
+				idSplitComma[o] = idSplitComma[o].trim();
+				
+				if(idSplitComma[o].contains(":"))
+				{
+					ColonList.add(idSplitComma[o]);
+				} else
+				{
+					ids.add(Integer.parseInt(idSplitComma[o]));
+				}
+			}
+			
+			CommaSplit = true;
+		}
+		
+		if(!((String)idString).isEmpty() && ((String)idString).contains(":"))
+		{
+			
+			if(CommaSplit = false)
+			{
+				idSplitColon = idString.split(":");
+				idSplitColon[0] = idSplitColon[0].trim();
+				idSplitColon[1] = idSplitColon[1].trim();
+				ids = getRangeIDS(idSplitColon, ids);
+			}
+			
+			else
+			{
+				Iterator<String> iterator = ColonList.iterator();
+				while(iterator.hasNext())
+				{
+					idSplitColon = iterator.next().split(":");
+					idSplitColon[0] = idSplitColon[0].trim();
+					idSplitColon[1] = idSplitColon[1].trim();
+					ids = getRangeIDS(idSplitColon, ids);
+				}
+			}
+			
+			ColonSplit = true;
+		}
+		
+		if(CommaSplit == false && ColonSplit == false)
+		{
+			try
+			{
+				ids.add(Integer.parseInt(idString));
+			} catch(NullPointerException e)
+			{
+				e.printStackTrace();
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: " + idString);
+			} catch(StringIndexOutOfBoundsException e)
+			{
+				e.printStackTrace();
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: " + idString);
+			} catch(NumberFormatException e)
+			{
+				e.printStackTrace();
+				EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM ID: " + idString);
+			}
+		}
+		
+		return ids;
+	}
+	
+	// This arranges a range of IDS from small to large numbers 
+	private static List<Integer> getRangeIDS(String[] idSplitColon, List<Integer> ids)
+	{
+		//System.out.println("Found Colon");
+		
+		try
+		{
+			
+			int Min = Integer.parseInt(idSplitColon[0]);
+			int Max = Integer.parseInt(idSplitColon[1]);
+			
+			if(Max <= Min)
+			{
+				Min = Integer.parseInt(idSplitColon[1]);
+				Max = Integer.parseInt(idSplitColon[0]);
+			}
+			
+			for(int j = Min; j <= Max; ++j)
+			{
+				ids.add(j);
+			}
+			
+		} catch(NullPointerException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \"" + idSplitColon[0] + ":" + idSplitColon[1] + "\"");
+		} catch(StringIndexOutOfBoundsException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs: \"" + idSplitColon[0] + ":" + idSplitColon[1] + "\"");
+		} catch(NumberFormatException e)
+		{
+			e.printStackTrace();
+			EnviroMine.logger.log(Level.WARNING, "FAILED TO LOAD CUSTOM IDs:\"" + idSplitColon[0] + ":" + idSplitColon[1] + "\"");
+		}
+		return ids;
+	}
+
 } // End of Page

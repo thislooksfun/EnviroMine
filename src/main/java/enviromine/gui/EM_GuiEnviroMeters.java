@@ -13,17 +13,33 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
+=======
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+>>>>>>> Deathrow
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.ForgeSubscribe;
+import org.lwjgl.opengl.GL11;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import enviromine.EnviroUtils;
+import enviromine.core.EM_Settings;
+import enviromine.handlers.EM_StatusManager;
+import enviromine.handlers.ObjectHandler;
+import enviromine.trackers.EnviroDataTracker;
 
 public class EM_GuiEnviroMeters extends Gui
 {
 	public Minecraft mc;
 	
 	public static final String guiResource = "textures/gui/status_Gui.png";
+	public static final ResourceLocation gasMaskResource = new ResourceLocation("enviromine", "textures/misc/maskblur2.png");
+	public static final ResourceLocation breathMaskResource = new ResourceLocation("enviromine", "textures/misc/breath.png");
+	public static final ResourceLocation bloodshotResource = new ResourceLocation("enviromine", "textures/misc/bloodshot.png");
+	public static final ResourceLocation blurOverlayResource = new ResourceLocation("enviromine", "textures/misc/blur.png");
 	
 	public static final int meterWidth = 96;
 	public static final int meterHeight = 8;
@@ -46,7 +62,7 @@ public class EM_GuiEnviroMeters extends Gui
 	
 	@ForgeSubscribe
 	@SideOnly(Side.CLIENT)
-	public void onGuiRender(RenderGameOverlayEvent event)
+	public void onGuiRender(RenderGameOverlayEvent.Post event)
 	{
 		if(this.camShake == null)
 		{
@@ -60,6 +76,10 @@ public class EM_GuiEnviroMeters extends Gui
 		}
 		
 		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
+=======
+		
+		if(event.type != ElementType.HELMET || event.isCancelable())
+>>>>>>> Deathrow
 		{
 			return;
 		}
@@ -86,9 +106,28 @@ public class EM_GuiEnviroMeters extends Gui
 		
 		int xPos = 4;
 		int yPos = 4;
+		
 		ScaledResolution scaleRes = new ScaledResolution(Minecraft.getMinecraft().gameSettings, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-		int width = scaleRes.getScaledWidth();
-		int height = scaleRes.getScaledHeight();
+		int scaledwidth = scaleRes.getScaledWidth();
+		int scaledheight = scaleRes.getScaledHeight();
+		
+		// Rend Mask Overlays
+		RenderOverlays(scaledwidth, scaledheight);
+		
+		// GUI Scaling Code 
+		GL11.glPushMatrix(); // Isolate this GUI from the vanilla GUI
+		float scale = EM_Settings.guiScale;
+		
+		double translate = new BigDecimal(String.valueOf(1 / scale)).setScale(3, RoundingMode.HALF_UP).doubleValue();
+		
+		GL11.glScalef((float)scale, (float)scale, (float)scale);
+		
+		int width = MathHelper.ceiling_float_int((float)(scaledwidth * translate));
+		int height = MathHelper.ceiling_float_int((float)(scaledheight * translate));
+		
+		//		int width = MathHelper.ceiling_float_int((float)(scaleRes.getScaledWidth() * translate));
+		//		int height = MathHelper.ceiling_float_int((float)(scaleRes.getScaledHeight() * translate));
+		// End of scaling Code
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_LIGHTING);
@@ -113,7 +152,7 @@ public class EM_GuiEnviroMeters extends Gui
 			int airBar = MathHelper.ceiling_float_int((tracker.airQuality / 100) * barWidth);
 			
 			float dispHeat = new BigDecimal(String.valueOf(tracker.bodyTemp)).setScale(2, RoundingMode.DOWN).floatValue();
-			float FdispHeat = new BigDecimal(String.valueOf((tracker.bodyTemp * 1.8)+32)).setScale(2, RoundingMode.DOWN).floatValue();
+			float FdispHeat = new BigDecimal(String.valueOf((tracker.bodyTemp * 1.8) + 32)).setScale(2, RoundingMode.DOWN).floatValue();
 			float dispSanity = new BigDecimal(String.valueOf(tracker.sanity)).setScale(2, RoundingMode.DOWN).floatValue();
 			
 			if(waterBar > barWidth)
@@ -194,6 +233,8 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			int Bottom_Right_X = (width - xPos) - barWidth;
 			int Bottom_Right_Y = (height - yPos);
+			
+			//EM_Settings.ShowText = false;
 			
 			// Add Bars to String Array for looping
 			String[] barPos = new String[4];
@@ -432,7 +473,6 @@ public class EM_GuiEnviroMeters extends Gui
 				{
 					WAcurX = textPos;
 					WAcurY = curPosY;
-					
 					//water bar
 					this.drawTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight);
 					this.drawTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight);
@@ -440,6 +480,10 @@ public class EM_GuiEnviroMeters extends Gui
 					{
 						this.drawTexturedModalRect(curPosX + waterBar - 2, curPosY + 2, 16, 64, 4, 4);
 					}
+					
+					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 0, 0, barWidth, meterHeight, 1);
+					//EnviroUtils.scaledTexturedModalRect(curPosX, curPosY, 64, 0, waterBar, meterHeight, 1);
+					//EnviroUtils.scaledTexturedModalRect(curPosX + waterBar - 2, curPosY, 16, 64, 4, 4, 1);
 					
 					// water frame
 					
@@ -525,58 +569,23 @@ public class EM_GuiEnviroMeters extends Gui
 				if(EM_Settings.enableHydrate)
 				{
 					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
+					//this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
 					this.drawTexturedModalRect(WAcurX, WAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(tracker.hydration + "%", WAcurX, WAcurY, 16777215);
 				}
 				
 				if(EM_Settings.enableSanity)
 				{
+					
 					this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 					this.drawTexturedModalRect(SAcurX, SAcurY, 64, meterHeight * 4, 32, meterHeight);
 					Minecraft.getMinecraft().fontRenderer.drawString(dispSanity + "%", SAcurX, SAcurY, 16777215);
+					
+				}
 				}
 			}
 			
-			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
-			
-			if(tracker.bodyTemp >= 39)
-			{
-				int grad = 0;
-				if(tracker.bodyTemp >= 41F)
-				{
-					grad = 64;
-				} else
-				{
-					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39)) / 3)) * 96);
-				}
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, grad), EnviroUtils.getColorFromRGBA(255, 255, 255, grad));
-			}
-			
-			if(tracker.bodyTemp <= 35F)
-			{
-				int grad = 0;
-				if(tracker.bodyTemp <= 32F)
-				{
-					grad = 64;
-				} else
-				{
-					grad = (int)(((Math.abs(3 - (tracker.bodyTemp - 32)) / 3)) * 64);
-				}
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(125, 255, 255, grad), EnviroUtils.getColorFromRGBA(125, 255, 255, grad));
-			}
-			
-			if(tracker.airQuality < 50F)
-			{
-				int grad = (int)((50 - tracker.airQuality) / 50 * 64);
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(32, 96, 0, grad), EnviroUtils.getColorFromRGBA(32, 96, 0, grad));
-			}
-			
-			if(tracker.sanity < 50F)
-			{
-				int grad = (int)((50 - tracker.sanity) / 50 * 64);
-				this.drawGradientRect(0, 0, width, height, EnviroUtils.getColorFromRGBA(200, 0, 249, grad), EnviroUtils.getColorFromRGBA(200, 0, 249, grad));
-			}
-		}
+		GL11.glPopMatrix();
 		
 		ShowDebugText(event);
 	}
@@ -601,7 +610,7 @@ public class EM_GuiEnviroMeters extends Gui
 	@SideOnly(Side.CLIENT)
 	private void ShowDebugText(RenderGameOverlayEvent event)
 	{
-		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
+		if(event.type != ElementType.HELMET || event.isCancelable())
 		{
 			return;
 		}
@@ -619,7 +628,7 @@ public class EM_GuiEnviroMeters extends Gui
 			DB_sanityrate = new BigDecimal(String.valueOf(tracker.sanity - tracker.prevSanity)).setScale(3, RoundingMode.HALF_UP).floatValue();
 			DB_airquality = new BigDecimal(String.valueOf(tracker.airQuality - tracker.prevAirQuality)).setScale(3, RoundingMode.HALF_UP).floatValue();
 			DB_dehydrateRate = new BigDecimal(String.valueOf(tracker.hydration - tracker.prevHydration)).setScale(3, RoundingMode.HALF_UP).floatValue();
-		
+			
 			if(EM_Settings.useFarenheit == true)
 			{
 				Minecraft.getMinecraft().fontRenderer.drawString("Body Temp: " + ((tracker.bodyTemp * 1.8) + 32F) + "F", 10, 10, 16777215);
@@ -650,4 +659,181 @@ public class EM_GuiEnviroMeters extends Gui
 			Minecraft.getMinecraft().fontRenderer.drawString("No. Buffered Updates: " + DB_physBuffer, 10, 10 * 11, 16777215);
 		}
 	}
+	
+	public void RenderOverlays(int width, int height)
+	{
+		if(tracker != null)
+		{
+			this.mc.renderEngine.bindTexture(blurOverlayResource);
+			
+			if(tracker.bodyTemp >= 39)
+			{
+				int grad = 0;
+				if(tracker.bodyTemp >= 41F)
+				{
+					grad = 210;
+				} else
+				{
+					grad = (int)((1F - (Math.abs(3 - (tracker.bodyTemp - 39)) / 3)) * 96);
+				}
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, grad));
+				
+			} else if(tracker.bodyTemp <= 35)
+			{
+				int grad = 0;
+				if(tracker.bodyTemp <= 32F)
+				{
+					grad = 210;
+				} else
+				{
+					grad = (int)((Math.abs(3 - (tracker.bodyTemp - 32)))) * 64;
+				}
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(125, 255, 255, grad));
+			}
+			if(tracker.airQuality < 50F)
+			{
+				int grad = (int)((50 - tracker.airQuality) / 15 * 64);
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(32, 96, 0, grad));
+			}
+			if(tracker.sanity < 50F)
+			{
+				int grad = (int)((50 - tracker.sanity) / 15 * 64);
+				EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(200, 0, 249, grad));
+			}
+		}
+		
+		boolean infection = false;
+		if(infection && this.mc.gameSettings.thirdPersonView == 0)
+		{
+			int A = (int) RenderPulse();
+			EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(220, 3, 3, A));
+			
+			//this.mc.renderEngine.bindTexture(bloodshotResource);
+			//EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 100));
+		}
+		
+		ItemStack itemstack = this.mc.thePlayer.inventory.armorItemInSlot(3);
+		
+		if(itemstack != null && itemstack.getItem() != null)
+		{
+			if(itemstack.itemID == ObjectHandler.gasMask.itemID)
+			{
+				
+				Renderbreath(width, height, itemstack);
+				
+				if(this.mc.gameSettings.thirdPersonView == 0)
+				{
+					this.mc.renderEngine.bindTexture(gasMaskResource);
+					//Draw gasMask Overlay
+					EnviroUtils.drawScreenOverlay(width, height, EnviroUtils.getColorFromRGBA(255, 255, 255, 255));
+				}
+			}
+		}
+		
+	}
+	
+	
+	int pulseStart = 0;
+	boolean pulseDown = true;
+	float pulseAlpha = 0;
+	
+	
+	public float RenderPulse()
+	{
+		if(tracker == null)
+		{
+			return 0;
+		} else
+		{
+			if(pulseStart <= 100)
+			{
+				pulseStart++;
+				
+			} else if(pulseDown)
+			{
+				pulseAlpha += 2.5F;
+			} else
+				//Exhale
+			{
+				pulseAlpha -= 2.01F;
+			}
+		
+			if(pulseAlpha >= 250)
+			{
+				pulseDown = false;
+				pulseAlpha = 250;
+			} else if(pulseAlpha < 0F)
+			{
+				pulseStart = 0;
+				pulseDown = true;
+				pulseAlpha = 0F;
+			}
+	
+		}
+		return pulseAlpha;
+	}	
+	
+	
+	
+	
+	
+	
+	boolean exhale = false;
+	float alpha = 0;
+	boolean pause = false;
+	int pauseCnt = 0;
+	
+	public void Renderbreath(int k, int l, ItemStack itemstack)
+	{
+		
+		if(tracker == null)
+		{
+			return;
+		} else
+		{
+			
+			if(pause)
+			{
+				pauseCnt++;
+				if(pauseCnt >= EM_Settings.breathPause)
+				{
+					pauseCnt = 0;
+					pause = false;
+					
+					if(EM_Settings.breathSound == true)
+					{
+						EntityPlayer player = mc.thePlayer;
+						mc.sndManager.playSound("enviromine:gasmask", (float)player.posX, (float)player.posY, (float)player.posZ, EM_Settings.breathVolume, 1.0F);
+					}
+				}
+				return;
+			} else if(exhale)
+			{
+				alpha += 2.5F;
+			} else
+			//Exhale
+			{
+				alpha -= 2.01F;
+			}
+			
+			if(alpha >= 191)
+			{
+				exhale = false;
+				alpha = 191F;
+			} else if(alpha <= 0F)
+			{
+				pause = true;
+				exhale = true;
+				alpha = 0F;
+			}
+			
+			// If Item is Damaged Render Breath onscreen
+			if(itemstack.getItemDamage() >= itemstack.getMaxDamage() - 1 && this.mc.gameSettings.thirdPersonView == 0)
+			{
+				this.mc.renderEngine.bindTexture(breathMaskResource);
+				enviromine.EnviroUtils.drawScreenOverlay(k, l, EnviroUtils.getColorFromRGBA(255, 255, 255, (int)alpha));
+			}
+		}
+	}
+	
 }

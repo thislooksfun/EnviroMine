@@ -2,12 +2,7 @@ package enviromine.trackers;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import enviromine.EnviroDamageSource;
-import enviromine.EnviroPotion;
-import enviromine.core.EM_Settings;
-import enviromine.core.EnviroMine;
-import enviromine.handlers.EM_StatusManager;
-import enviromine.handlers.ObjectHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -21,6 +16,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MathHelper;
+import enviromine.EnviroDamageSource;
+import enviromine.EnviroPotion;
+import enviromine.core.EM_Settings;
+import enviromine.core.EnviroMine;
+import enviromine.handlers.EM_StatusManager;
+import enviromine.handlers.ObjectHandler;
 
 public class EnviroDataTracker
 {
@@ -42,7 +43,7 @@ public class EnviroDataTracker
 	
 	public float sanity;
 	
-	public int attackDelay = 0;
+	public int attackDelay = 1;
 	public int curAttackTime = 0;
 	public boolean isDisabled = false;
 	public int itemUse = 0;
@@ -59,6 +60,12 @@ public class EnviroDataTracker
 	public int timeBelow10 = 0;
 	
 	public int updateTimer = 0;
+	
+	public Minecraft mc = Minecraft.getMinecraft();
+	
+	//Sound Time
+	public long chillPrevTime = 0;
+	public long sizzlePrevTime = 0;
 	
 	public EnviroDataTracker(EntityLivingBase entity)
 	{
@@ -350,6 +357,9 @@ public class EnviroDataTracker
 			if(airQuality <= 0)
 			{
 				trackedEntity.attackEntityFrom(EnviroDamageSource.suffocate, 4.0F);
+				
+				trackedEntity.worldObj.playSoundAtEntity(trackedEntity, "enviromine:gag", 1f, 1f);
+				//mc.sndManager.playSound("enviromine:gag", (float)trackedEntity.posX, (float)trackedEntity.posY, (float)trackedEntity.posZ, EM_Settings.breathVolume, 1.0F);
 			}
 
 			if(airQuality <= 10F)
@@ -361,11 +371,35 @@ public class EnviroDataTracker
 				trackedEntity.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, 200, 0));
 				trackedEntity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, 200, 0));
 			}
-			
+
+			/* For sound Overheating
+			if(sizzlePrevTime == 0) 
+			{
+				sizzlePrevTime =  mc.getSystemTime() - 16001;
+			}*/
+		
 			if(!trackedEntity.isPotionActive(Potion.fireResistance))
 			{
 				if(bodyTemp >= 39F && enableHeat && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
 				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 2));
+				} else if(bodyTemp >= 41F)
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 1));
+					
+				} else
+				{
+					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 0));
+				}
+				
+
+				
+			}
+		
+			if(chillPrevTime == 0) 
+			{
+				chillPrevTime =  mc.getSystemTime() - 17001;
+
 					if(bodyTemp >= 43F)
 					{
 						trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 2));
@@ -376,23 +410,42 @@ public class EnviroDataTracker
 					{
 						trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.heatstroke.id, 200, 0));
 					}
-				}
-			} else if(trackedEntity.isPotionActive(EnviroPotion.heatstroke))
+					/* For Adding Sound for Overheating
+					System.out.println(mc.getSystemTime() +"-"+ sizzlePrevTime + "="+ (mc.getSystemTime() - sizzlePrevTime));
+					if ((mc.getSystemTime() - sizzlePrevTime) > 16000)
+					{
+						mc.sndManager.playSound("enviromine:sizzle", (float)trackedEntity.posX, (float)trackedEntity.posY, (float)trackedEntity.posZ, .5f, 1.0F);
+						sizzlePrevTime = mc.getSystemTime();
+					}
+					*/
+
+			}
+			else if(trackedEntity.isPotionActive(EnviroPotion.heatstroke))
 			{
 				trackedEntity.removePotionEffect(EnviroPotion.heatstroke.id);
 			}
-			
+		
 			if(bodyTemp <= 35F && enableFrostbite && (enviroData[6] == 1 || !(trackedEntity instanceof EntityAnimal)))
 			{
 				if(bodyTemp <= 30F)
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.hypothermia.id, 200, 2));
+
 				} else if(bodyTemp <= 32F)
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.hypothermia.id, 200, 1));
+
 				} else
 				{
 					trackedEntity.addPotionEffect(new PotionEffect(EnviroPotion.hypothermia.id, 200, 0));
+				}
+				
+				System.out.println("Check:" + mc.getSystemTime() +"-"+ chillPrevTime +"="+(mc.getSystemTime() - chillPrevTime));
+				
+				if ((mc.getSystemTime() - chillPrevTime) > 17000)
+				{
+					mc.sndManager.playSound("enviromine:chill", (float)trackedEntity.posX, (float)trackedEntity.posY, (float)trackedEntity.posZ, EM_Settings.breathVolume, 1.0F);
+					chillPrevTime = mc.getSystemTime();
 				}
 			}
 			
@@ -414,6 +467,12 @@ public class EnviroDataTracker
 					{
 						frostbiteLevel = 1;
 					}
+				}
+				
+				if ((mc.getSystemTime() - chillPrevTime) > 1700)
+				{
+					mc.sndManager.playSound("enviromine:chill", (float)trackedEntity.posX, (float)trackedEntity.posY, (float)trackedEntity.posZ, EM_Settings.breathVolume, 1.0F);
+					chillPrevTime = mc.getSystemTime();
 				}
 			}
 			
@@ -439,7 +498,7 @@ public class EnviroDataTracker
 			}
 			
 			curAttackTime = 0;
-		} else
+		}else
 		{
 			curAttackTime += 1;
 		}

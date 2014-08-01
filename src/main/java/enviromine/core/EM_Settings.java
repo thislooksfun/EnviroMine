@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.UUID;
 import enviromine.trackers.ArmorProperties;
+import enviromine.trackers.BiomeProperties;
 import enviromine.trackers.BlockProperties;
+import enviromine.trackers.DimensionProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
 import enviromine.trackers.RotProperties;
@@ -37,6 +39,8 @@ public class EM_Settings
 	
 	public static boolean ShowGuiIcons;
 	
+	public static float guiScale = 1f;
+	
 	public static boolean spreadIce = false;
 	
 	//Gui settings
@@ -52,10 +56,16 @@ public class EM_Settings
 	public static boolean ShowText;
 	public static boolean ShowDebug;
 	
+	public static boolean breathSound;
+	public static int breathPause;
+	public static float breathVolume;
+	
 	public static int dirtBottleID = 5001;
 	public static int saltBottleID = 5002;
 	public static int coldBottleID = 5003;
 	public static int camelPackID = 5004;
+
+
 	public static int gasMaskID = 5005;
 	public static int airFilterID = 5006;
 	public static int hardHatID = 5007;
@@ -86,6 +96,8 @@ public class EM_Settings
 	public static HashMap<String,BlockProperties> blockProperties = new HashMap<String,BlockProperties>();
 	public static HashMap<Integer,EntityProperties> livingProperties = new HashMap<Integer,EntityProperties>();
 	public static HashMap<String,ItemProperties> itemProperties = new HashMap<String,ItemProperties>();
+	public static HashMap<String,BiomeProperties> biomeProperties = new HashMap<String,BiomeProperties>();
+	public static HashMap<String,DimensionProperties> dimensionProperties = new HashMap<String,DimensionProperties>();
 	
 	public static HashMap<String,StabilityType> stabilityTypes = new HashMap<String,StabilityType>();
 	
@@ -112,6 +124,7 @@ public class EM_Settings
 	public static boolean minimalHud;
 	
 	public static int caveDimID = -3;
+	public static int caveBiomeID = 23;
 	
 	public static boolean foodSpoiling = true;
 	public static double foodRotTime = 10.0D;
