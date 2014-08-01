@@ -732,6 +732,11 @@ public class EM_EventManager
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
+			HandlingTheThing.stalkPlayer((EntityPlayer)event.entityLiving);
+			if(event.entityLiving.isDead)
+			{
+				return;
+			}
 			
 			ItemStack item = null;
 			int itemUse = 0;
