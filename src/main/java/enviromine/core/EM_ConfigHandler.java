@@ -15,11 +15,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.potion.Potion;
 import net.minecraftforge.common.Configuration;
+import enviromine.handlers.ObjectHandler;
 import enviromine.handlers.keybinds.AddRemoveCustom;
 import enviromine.trackers.ArmorProperties;
 import enviromine.trackers.BlockProperties;
 import enviromine.trackers.EntityProperties;
 import enviromine.trackers.ItemProperties;
+import enviromine.trackers.RotProperties;
 import enviromine.trackers.StabilityType;
 
 public class EM_ConfigHandler
@@ -33,6 +35,7 @@ public class EM_ConfigHandler
 	static String blockCat = "blocks";
 	static String entityCat = "entity";
 	static String itemsCat = "items";
+	static String rotCat = "spoiling";
 	
 	// Arrays for property names
 	static String[] APName;
@@ -40,6 +43,7 @@ public class EM_ConfigHandler
 	static String[] EPName;
 	static String[] IPName;
 	static String[] SPName;
+	static String[] RPName;
 	
 	public static int initConfig()
 	{
@@ -140,6 +144,13 @@ public class EM_ConfigHandler
 		SPName[3] = "04.Max Missing Blocks To Fall";
 		SPName[4] = "05.Can Hang";
 		SPName[5] = "06.Holds Others Up";
+		
+		RPName = new String[5];
+		RPName[0] = "01.ID";
+		RPName[1] = "02.Damage";
+		RPName[2] = "03.Rotten ID";
+		RPName[3] = "04.Rotten Damage";
+		RPName[4] = "05.Days To Rot";
 	}
 
 	public static void loadGeneralConfig(File file)
@@ -179,6 +190,8 @@ public class EM_ConfigHandler
 		EM_Settings.updateCheck = config.get(Configuration.CATEGORY_GENERAL, "Check For Updates", true).getBoolean(true);
 		EM_Settings.physBlockID = config.get(Configuration.CATEGORY_GENERAL, "EntityPhysicsBlock ID", EntityRegistry.findGlobalUniqueEntityId()).getInt(EntityRegistry.findGlobalUniqueEntityId());
 		EM_Settings.villageAssist = config.get(Configuration.CATEGORY_GENERAL, "Enable villager assistance", true).getBoolean(true);
+		EM_Settings.foodSpoiling = config.get(Configuration.CATEGORY_GENERAL, "Enable food spoiling", true).getBoolean(true);
+		EM_Settings.foodRotTime = config.get(Configuration.CATEGORY_GENERAL, "Default spoil time (days)", 10D).getDouble(10D);
 		
 		// Physics Settings
 		String PhySetCat = "Physics";
@@ -369,6 +382,7 @@ public class EM_ConfigHandler
 			config.addCustomCategoryComment(blockCat, "Custom block properties");
 			config.addCustomCategoryComment(entityCat, "Custom entity properties");
 			config.addCustomCategoryComment(itemsCat, "Custom item properties");
+			config.addCustomCategoryComment(rotCat, "Custom spoiling properties");
 			
 			// 	Grab all Categories in File
 			List<String> catagory = new ArrayList<String>();
@@ -403,6 +417,9 @@ public class EM_ConfigHandler
 					} else if(parent.equals(entityCat))
 					{
 						LoadLivingProperty(config, catagory.get(x));
+					} else if(parent.equals(rotCat))
+					{
+						LoadRotProperty(config, catagory.get(x));
 					} else
 					{
 						EnviroMine.logger.log(Level.WARNING, "Failed to load object " + CurCat);
@@ -415,9 +432,28 @@ public class EM_ConfigHandler
 		}
 	}
 	
+	private static void LoadRotProperty(Configuration config, String category)
+	{
+		config.addCustomCategoryComment(category, "");
+		int id =		config.get(category, RPName[0], 0).getInt(0);
+		int meta =		config.get(category, RPName[1], -1).getInt(-1);
+		int rotID =		config.get(category, RPName[2], 0).getInt(0);
+		int rotMeta =	config.get(category, RPName[3], 0).getInt(0);
+		double DTR =	config.get(category, RPName[4], 0.00).getDouble(0.00);
+		
+		RotProperties entry = new RotProperties(id, meta, rotID, rotMeta, DTR);
+		
+		if(meta < 0)
+		{
+			EM_Settings.rotProperties.put("" + id, entry);
+		} else
+		{
+			EM_Settings.rotProperties.put("" + id + "," + meta, entry);
+		}
+	}
+
 	private static void LoadItemProperty(Configuration config, String category)
 	{
-		
 		config.addCustomCategoryComment(category, "");
 		int id = 					config.get(category, IPName[0], 0).getInt(0);
 		int meta = 					config.get(category, IPName[1], 0).getInt(0);

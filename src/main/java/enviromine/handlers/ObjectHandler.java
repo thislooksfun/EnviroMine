@@ -21,6 +21,7 @@ import enviromine.items.EnviroArmor;
 import enviromine.items.EnviroItemBadWaterBottle;
 import enviromine.items.EnviroItemColdWaterBottle;
 import enviromine.items.EnviroItemSaltWaterBottle;
+import enviromine.items.RottenFood;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.EnumArmorMaterial;
@@ -41,6 +42,7 @@ public class ObjectHandler
 	public static Item airFilter;
 	public static Item davyLamp;
 	public static Item gasMeter;
+	public static Item rottenFood;
 	
 	public static ItemArmor camelPack;
 	public static ItemArmor gasMask;
@@ -59,6 +61,7 @@ public class ObjectHandler
 		saltWaterBottle = new EnviroItemSaltWaterBottle(EM_Settings.saltBottleID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.saltwater").setCreativeTab(EnviroMine.enviroTab);
 		coldWaterBottle = new EnviroItemColdWaterBottle(EM_Settings.coldBottleID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.coldwater").setCreativeTab(EnviroMine.enviroTab);
 		airFilter = new Item(EM_Settings.airFilterID).setMaxStackSize(1).setUnlocalizedName("enviromine.item.airfilter").setCreativeTab(EnviroMine.enviroTab).setTextureName("enviromine:air_filter");
+		rottenFood = new RottenFood(EM_Settings.rottenFoodID, 1).setMaxStackSize(64).setUnlocalizedName("enviromine.item.rottenfood").setCreativeTab(EnviroMine.enviroTab).setTextureName("enviromine:rot");
 		
 		camelPackMaterial = EnumHelper.addArmorMaterial("camelPack", 100, new int[]{1, 0, 0, 0}, 0);
 		
@@ -113,6 +116,11 @@ public class ObjectHandler
 		GameRegistry.addShapelessRecipe(new ItemStack(badWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.dirt, 1));
 		GameRegistry.addShapelessRecipe(new ItemStack(saltWaterBottle, 1, 0), new ItemStack(Item.potion, 1, 0), new ItemStack(Block.sand, 1));
 		
+		GameRegistry.addRecipe(new ItemStack(Item.slimeBall, 1, 0), " r ", "rwr", " r ", 'w', new ItemStack(Item.bucketWater, 1, 0), 'r', new ItemStack(rottenFood, 1));
+		GameRegistry.addRecipe(new ItemStack(Block.mycelium), "xyx", "yzy", "xyx", 'z', new ItemStack(Block.grass), 'x', new ItemStack(Block.mushroomBrown), 'y', new ItemStack(rottenFood, 1));
+		GameRegistry.addRecipe(new ItemStack(Block.mycelium), "xyx", "yzy", "xyx", 'z', new ItemStack(Block.grass), 'y', new ItemStack(Block.mushroomBrown), 'x', new ItemStack(rottenFood, 1));
+		GameRegistry.addRecipe(new ItemStack(Block.dirt, 1), "xxx", "xxx", "xxx", 'x', new ItemStack(rottenFood, 1));
+		
 		GameRegistry.addRecipe(new ItemStack(camelPack, 1, camelPack.getMaxDamage()), "xxx", "xyx", "xxx", 'x', new ItemStack(Item.leather), 'y', new ItemStack(Item.glassBottle));
 		GameRegistry.addRecipe(new ItemStack(airFilter, 1), "xyx", "xzx", "xyx", 'x', new ItemStack(Item.ingotIron), 'y', new ItemStack(Block.cloth), 'z', new ItemStack(Item.coal, 1, 1));
 		GameRegistry.addRecipe(new ItemStack(gasMask, 1), "xxx", "xzx", "yxy", 'x', new ItemStack(Item.ingotIron), 'y', new ItemStack(airFilter), 'z', new ItemStack(Block.thinGlass));
@@ -133,5 +141,6 @@ public class ObjectHandler
 		LanguageRegistry.addName(airFilter, "Air Filter");
 		LanguageRegistry.addName(elevatorTop, "Elevator Top");
 		LanguageRegistry.addName(elevatorBottom, "Elevator Bottom");
+		LanguageRegistry.addName(rottenFood, "Rotten Food");
 	}
 }

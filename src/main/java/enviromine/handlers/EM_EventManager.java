@@ -13,6 +13,7 @@ import enviromine.trackers.EntityProperties;
 import enviromine.trackers.EnviroDataTracker;
 import enviromine.trackers.Hallucination;
 import enviromine.trackers.ItemProperties;
+import enviromine.trackers.RotProperties;
 import enviromine.world.features.mineshaft.MineshaftBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -28,6 +29,7 @@ import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
@@ -36,6 +38,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityRecordPlayer;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.EnumChatFormatting;
@@ -54,6 +57,8 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
@@ -64,7 +69,6 @@ import net.minecraftforge.event.world.WorldEvent.Unload;
 
 public class EM_EventManager
 {
-	
 	@ForgeSubscribe
 	public void onEntityJoinWorld(EntityJoinWorldEvent event)
 	{
@@ -76,6 +80,25 @@ public class EM_EventManager
 			{
 				chunkPhys = (EM_PhysManager.chunkDelay.get("" + (MathHelper.floor_double(event.entity.posX) >> 4) + "," + (MathHelper.floor_double(event.entity.posZ) >> 4)) < event.world.getTotalWorldTime());
 			}
+		}
+		
+		if(event.entity instanceof EntityItem)
+		{
+			EntityItem item = (EntityItem)event.entity;
+			ItemStack rotStack = RotHandler.doRot(event.world, item.getEntityItem());
+			
+			if(item.getEntityItem() != rotStack)
+			{
+				item.setEntityItemStack(rotStack);
+			}
+		} else if(event.entity instanceof EntityPlayer)
+		{
+			IInventory invo = ((EntityPlayer)event.entity).inventory;
+			RotHandler.rotInvo(event.world, invo);
+		} else if(event.entity instanceof IInventory)
+		{
+			IInventory invo = (IInventory)event.entity;
+			RotHandler.rotInvo(event.world, invo);
 		}
 		
 		if(event.entity instanceof EntityLivingBase)
@@ -130,6 +153,28 @@ public class EM_EventManager
 			event.world.spawnEntityInWorld(newSand);
 			event.setCanceled(true);
 			event.entity.setDead();
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onItemTooltip(ItemTooltipEvent event)
+	{
+		if(event.itemStack != null && event.itemStack.getTagCompound() != null)
+		{
+			if(event.itemStack.getTagCompound().getLong("EM_ROT_DATE") > 0 && EM_Settings.foodSpoiling)
+			{
+				double rotDate = event.itemStack.getTagCompound().getLong("EM_ROT_DATE");
+				double rotTime = event.itemStack.getTagCompound().getLong("EM_ROT_TIME");
+				double curTime = event.entity.worldObj.getTotalWorldTime();
+				
+				if(curTime - rotDate <= 0)
+				{
+					event.toolTip.add("Rotten: 0%");
+				} else
+				{
+					event.toolTip.add("Rotten: " + MathHelper.floor_double((curTime - rotDate)/rotTime * 100D) + "%");
+				}
+			}
 		}
 	}
 	
@@ -235,6 +280,17 @@ public class EM_EventManager
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
 		ItemStack item = event.entityPlayer.getCurrentEquippedItem();
+		
+		if(event.action == Action.RIGHT_CLICK_BLOCK)
+		{
+			TileEntity tile = event.entityPlayer.worldObj.getBlockTileEntity(event.x, event.y, event.z);
+			
+			if(tile != null & tile instanceof IInventory)
+			{
+				RotHandler.rotInvo(event.entityPlayer.worldObj, (IInventory)tile);
+			}
+		}
+		
 		if(event.getResult() != Result.DENY && event.action == Action.RIGHT_CLICK_BLOCK && item != null)
 		{
 			if(item.getItem() instanceof ItemBlock && !event.entityPlayer.worldObj.isRemote)
@@ -269,6 +325,27 @@ public class EM_EventManager
 					fillBottle(event.entityPlayer.worldObj, event.entityPlayer, event.x, event.y, event.z, item, event);
 				}
 			}
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onEntityInteract(EntityInteractEvent event)
+	{
+		if(event.isCanceled() || event.entityPlayer.worldObj.isRemote)
+		{
+			return;
+		}
+		
+		if(!EM_Settings.foodSpoiling)
+		{
+			return;
+		}
+		
+		if(event.target != null && event.target instanceof IInventory)
+		{
+			IInventory chest = (IInventory)event.target;
+			
+			RotHandler.rotInvo(event.entityPlayer.worldObj, chest);
 		}
 	}
 	
@@ -618,6 +695,12 @@ public class EM_EventManager
 				Hallucination.update();
 			}
 			return;
+		}
+		
+		if(event.entityLiving instanceof EntityPlayer)
+		{
+			IInventory invo = (IInventory)((EntityPlayer)event.entityLiving).inventory;
+			RotHandler.rotInvo(event.entityLiving.worldObj, invo);
 		}
 		
 		EnviroDataTracker tracker = EM_StatusManager.lookupTracker(event.entityLiving);
