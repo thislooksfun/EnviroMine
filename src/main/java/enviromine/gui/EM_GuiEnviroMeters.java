@@ -13,23 +13,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
-=======
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
->>>>>>> Deathrow
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.ForgeSubscribe;
-import org.lwjgl.opengl.GL11;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import enviromine.EnviroUtils;
-import enviromine.core.EM_Settings;
-import enviromine.handlers.EM_StatusManager;
 import enviromine.handlers.ObjectHandler;
-import enviromine.trackers.EnviroDataTracker;
 
 public class EM_GuiEnviroMeters extends Gui
 {
@@ -75,11 +66,7 @@ public class EM_GuiEnviroMeters extends Gui
 			this.mc.entityRenderer = camShake;
 		}
 		
-		if((event.type != ElementType.EXPERIENCE && event.type != ElementType.JUMPBAR) || event.isCancelable())
-=======
-		
 		if(event.type != ElementType.HELMET || event.isCancelable())
->>>>>>> Deathrow
 		{
 			return;
 		}

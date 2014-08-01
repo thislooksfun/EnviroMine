@@ -1,7 +1,5 @@
 package enviromine.trackers;
 
-import net.minecraft.world.biome.BiomeGenBase;
-
 public class BiomeProperties
 {
 	public int id;

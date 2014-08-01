@@ -38,23 +38,23 @@ public class Earthquake
 	
 	public void markRavine()
 	{
-		float angle = world.rand.nextFloat()*4 - 2;
+		float angle = world.rand.nextFloat() * 4 - 2;
 		
-		for(int i = -length/2; i < length/2; i++)
+		for(int i = -length / 2; i < length / 2; i++)
 		{
-			int fx = MathHelper.floor_float(Math.abs(angle) > 1F? i*(angle > 0? angle - 1F : angle + 1F) : i);
-			int fz = MathHelper.floor_float(Math.abs(angle) > 1F? i : i*angle);
-			int widthFactor = MathHelper.ceiling_double_int(Math.cos(i/(length/3D))*width);
+			int fx = MathHelper.floor_float(Math.abs(angle) > 1F ? i * (angle > 0 ? angle - 1F : angle + 1F) : i);
+			int fz = MathHelper.floor_float(Math.abs(angle) > 1F ? i : i * angle);
+			int widthFactor = MathHelper.ceiling_double_int(Math.cos(i / (length / 3D)) * width);
 			
 			if(Math.abs(angle) <= 1F)
 			{
-				for(int z = fz - widthFactor/2; z < fz + widthFactor/2; z++)
+				for(int z = fz - widthFactor / 2; z < fz + widthFactor / 2; z++)
 				{
 					this.ravineMask.add(new int[]{fx + posX, 1, z + posZ});
 				}
 			} else
 			{
-				for(int x = fx - widthFactor/2; x < fx + widthFactor/2; x++)
+				for(int x = fx - widthFactor / 2; x < fx + widthFactor / 2; x++)
 				{
 					this.ravineMask.add(new int[]{x + posX, 1, fz + posZ});
 				}
@@ -94,8 +94,6 @@ public class Earthquake
 					{
 						world.setBlockToAir(x, y, z);
 						
-						if(EM_Settings.enablePhysics)
-=======
 						if(yy < 8)
 						{
 							world.setBlock(x, yy, z, Block.lavaMoving.blockID);
@@ -112,7 +110,6 @@ public class Earthquake
 								return true;
 							}
 						} else
->>>>>>> Earthquakes
 						{
 							world.setBlockToAir(x, yy, z);
 							//System.out.println("Placed air at (" + x + "," + yy + "," + z + ")");
@@ -156,7 +153,7 @@ public class Earthquake
 				
 				int x = pos[0];
 				int z = pos[2];
-
+				
 				if((world.getBlockMaterial(x, y, z) == Material.lava && y >= 8) || world.getBlockMaterial(x, y, z) == Material.water || world.getBlockMaterial(x, y, z) == Material.rock || world.getBlockMaterial(x, y, z) == Material.clay || world.getBlockMaterial(x, y, z) == Material.sand || world.getBlockMaterial(x, y, z) == Material.ground || world.getBlockMaterial(x, y, z) == Material.grass || (y < 8 && world.getBlockMaterial(x, y, z) == Material.air))
 				{
 					if(y < 8)

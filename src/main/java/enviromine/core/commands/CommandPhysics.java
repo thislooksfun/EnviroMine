@@ -1,7 +1,5 @@
 package enviromine.core.commands;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.core.EM_Settings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
