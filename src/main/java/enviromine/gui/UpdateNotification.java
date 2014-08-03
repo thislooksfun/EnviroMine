@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Level;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import cpw.mods.fml.common.IPlayerTracker;
@@ -16,6 +15,7 @@ public class UpdateNotification implements IPlayerTracker
 {
 	boolean hasChecked = false;
 	
+	@SuppressWarnings("unused")
 	@Override
 	public void onPlayerLogin(EntityPlayer player)
 	{
@@ -34,10 +34,9 @@ public class UpdateNotification implements IPlayerTracker
 		
 		// File link: http://bit.ly/1r4JJt3;
 		
-		String[] data;
 		try
 		{
-			data = getNotification("http://bit.ly/1r4JJt3", true);
+			String[] data = getNotification("http://bit.ly/1r4JJt3", true);
 			
 			if(!EM_Settings.updateCheck)
 			{
@@ -57,22 +56,17 @@ public class UpdateNotification implements IPlayerTracker
 			if(verStat == -1)
 			{
 				player.addChatMessage(EnumChatFormatting.RED + "Update " + version + " of EnviroMine is available");
-				player.addChatMessage(EnumChatFormatting.RESET + "Download:\n" + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + http);
+				player.addChatMessage(EnumChatFormatting.RESET + "Download & Changelog:");
+				player.addChatMessage("" + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + "https://github.com/Funwayguy/EnviroMine/wiki/Downloads");
 				for(int i = 2; i < data.length; i++)
 				{
 					if(i > 5)
 					{
 						player.addChatMessage("" + (data.length - 6) + " more...");
-						player.addChatMessage("Full Changelog:\n"+ EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + "https://drone.io/github.com/Funwayguy/EnviroMine/files/build/libs/version.txt");
 						break;
 					} else
 					{
 						player.addChatMessage(EnumChatFormatting.RESET + "" + data[i].trim());
-					}
-					
-					if(i == data.length - 1)
-					{
-						player.addChatMessage("Full Changelog:\n"+ EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + "https://drone.io/github.com/Funwayguy/EnviroMine/files/build/libs/version.txt");
 					}
 				}
 			} else if(verStat == 0)
