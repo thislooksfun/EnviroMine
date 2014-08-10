@@ -1310,7 +1310,7 @@ public class EM_StatusManager
 			
 			if(player != null)
 			{
-				if(!player.isDead)
+				if(player.isEntityAlive())
 				{
 					return player;
 				}

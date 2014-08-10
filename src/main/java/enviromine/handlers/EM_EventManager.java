@@ -110,6 +110,7 @@ public class EM_EventManager
 					if(oldTrack != null)
 					{
 						oldTrack.trackedEntity = (EntityLivingBase)event.entity;
+						oldTrack.loadNBTTags();
 						return;
 					}
 				}
@@ -150,17 +151,17 @@ public class EM_EventManager
 		{
 			if(event.entityLiving instanceof EntityPlayer && event.source == null)
 			{
-				/*EntityPlayer player = EM_StatusManager.findPlayer(((EntityPlayer)event.entityLiving).username);
+				EntityPlayer player = EM_StatusManager.findPlayer(((EntityPlayer)event.entityLiving).username);
 				
 				if(player != null)
 				{
-					tracker.resetData();
-					EM_StatusManager.saveAndRemoveTracker(tracker);
+					tracker.trackedEntity = player;
+					tracker.loadNBTTags();
 				} else
 				{
 					tracker.resetData();
 					EM_StatusManager.saveAndRemoveTracker(tracker);
-				}*/
+				}
 				return;
 			} else
 			{
