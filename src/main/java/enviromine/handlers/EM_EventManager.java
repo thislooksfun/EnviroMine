@@ -248,7 +248,10 @@ public class EM_EventManager
 	{
 		if(event.entity != null && event.entity.getEntityData().getBoolean("EM_Hallucination"))
 		{
-			Minecraft.getMinecraft().sndManager.playSound(event.name, (float)event.entity.posX, (float)event.entity.posY, (float)event.entity.posZ, 1.0F, (event.entity.worldObj.rand.nextFloat() - event.entity.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+			if(EnviroMine.proxy.isClient())
+			{
+				Minecraft.getMinecraft().sndManager.playSound(event.name, (float)event.entity.posX, (float)event.entity.posY, (float)event.entity.posZ, 1.0F, (event.entity.worldObj.rand.nextFloat() - event.entity.worldObj.rand.nextFloat()) * 0.2F + 1.0F);
+			}
 			event.setCanceled(true);
 		}
 	}

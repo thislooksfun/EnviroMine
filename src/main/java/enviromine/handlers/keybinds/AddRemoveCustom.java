@@ -107,7 +107,11 @@ public class AddRemoveCustom extends KeyHandler
 						
 						EnumMovingObjectType type = Minecraft.getMinecraft().objectMouseOver.typeOfHit;
 						
-						if(type.name() == "ENTITY")
+						if(type == null)
+						{
+							mc.thePlayer.addChatMessage("Look at a block, entity or hold an item to add it to the configs.");
+							return;
+						} else if(type.name() == "ENTITY")
 						{
 							Entity lookingAt = Minecraft.getMinecraft().objectMouseOver.entityHit;
 							int id = 0;
