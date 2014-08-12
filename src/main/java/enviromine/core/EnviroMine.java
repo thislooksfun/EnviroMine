@@ -97,8 +97,12 @@ public class EnviroMine
 	{
 		proxy.init(event);
 		
-		EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsEntity", EM_Settings.physBlockID, instance, 64, 1, true);
-		RenderingRegistry.registerEntityRenderingHandler(EntityPhysicsBlock.class, new RenderFallingSand());
+		//EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsEntity", EM_Settings.physBlockID, instance, 64, 1, true);
+		
+		if(proxy.isClient())
+		{
+			//RenderingRegistry.registerEntityRenderingHandler(EntityPhysicsBlock.class, new RenderFallingSand());
+		}
 		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");
