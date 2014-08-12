@@ -27,12 +27,14 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import enviromine.EM_VillageMineshaft;
+import enviromine.EntityPhysicsBlock;
 import enviromine.EnviroPotion;
 import enviromine.core.proxies.EM_CommonProxy;
 import enviromine.gui.UpdateNotification;
@@ -93,8 +95,8 @@ public class EnviroMine
 	{
 		proxy.init(event);
 		
-		//EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID);
-		//EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsBlock", EM_Settings.physBlockID, instance, 64, 1, true);
+		EntityRegistry.registerGlobalEntityID(EntityPhysicsBlock.class, "EnviroPhysicsEntity", EM_Settings.physBlockID);
+		EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsEntity", EM_Settings.physBlockID, instance, 64, 1, true);
 		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");

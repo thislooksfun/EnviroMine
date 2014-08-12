@@ -42,18 +42,21 @@ public class EntityPhysicsBlock extends EntityFallingSand
 		{
 			List<EntityPhysicsBlock> entityList = this.worldObj.getEntitiesWithinAABB(EntityPhysicsBlock.class, this.boundingBox.expand(8F, 8F, 8F));
 			
-			if(entityList.size() >= 512)
+			if(entityList.size() >= 1024)
 			{
 				if(EM_Settings.entityFailsafe == 1)
 				{
-					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1");
+					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated! Canceling new entities!");
 					EnviroMine.logger.log(Level.WARNING, "Location: " + this.posX + "," + this.posY + "," + this.posZ);
+					EnviroMine.logger.log(Level.WARNING, "No.: " + entityList.size());
+					EM_PhysManager.physSchedule.clear();
 					this.setDead();
 					return;
 				} else if(EM_Settings.entityFailsafe >= 2)
 				{
-					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2");
+					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated! Deleting excess entities!");
 					EnviroMine.logger.log(Level.SEVERE, "Location: " + this.posX + "," + this.posY + "," + this.posZ);
+					EnviroMine.logger.log(Level.SEVERE, "No.: " + entityList.size());
 					Iterator<EntityPhysicsBlock> iterator = entityList.iterator();
 					
 					while(iterator.hasNext())
@@ -93,14 +96,17 @@ public class EntityPhysicsBlock extends EntityFallingSand
 			{
 				if(EM_Settings.entityFailsafe == 1)
 				{
-					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated: Level 1");
+					EnviroMine.logger.log(Level.WARNING, "Entity fail safe activated! Canceling new entities!");
 					EnviroMine.logger.log(Level.WARNING, "Location: " + this.posX + "," + this.posY + "," + this.posZ);
+					EnviroMine.logger.log(Level.WARNING, "No.: " + entityList.size());
+					EM_PhysManager.physSchedule.clear();
 					this.setDead();
 					return;
 				} else if(EM_Settings.entityFailsafe >= 2)
 				{
-					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated: Level 2");
+					EnviroMine.logger.log(Level.SEVERE, "Entity fail safe activated! Deleting excess entities!");
 					EnviroMine.logger.log(Level.SEVERE, "Location: " + this.posX + "," + this.posY + "," + this.posZ);
+					EnviroMine.logger.log(Level.SEVERE, "No.: " + entityList.size());
 					Iterator<EntityPhysicsBlock> iterator = entityList.iterator();
 					
 					while(iterator.hasNext())
