@@ -1,10 +1,13 @@
 package enviromine.core.proxies;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.RenderFallingSand;
 import net.minecraftforge.common.MinecraftForge;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import enviromine.EntityPhysicsBlock;
 import enviromine.core.EnviroMine;
 import enviromine.gui.EM_GuiEnviroMeters;
 
@@ -19,13 +22,7 @@ public class EM_ClientProxy extends EM_CommonProxy
 	{
 		if(Minecraft.getMinecraft().isIntegratedServerRunning())
 		{
-			if(Minecraft.getMinecraft().getIntegratedServer().getPublic())
-			{
-				return true;
-			} else
-			{
-				return false;
-			}
+			return Minecraft.getMinecraft().getIntegratedServer().getPublic();
 		} else
 		{
 			return false;
@@ -52,6 +49,7 @@ public class EM_ClientProxy extends EM_CommonProxy
 	{
 		super.init(event);
 		EnviroMine.registerKeyBindings(event);
+		RenderingRegistry.registerEntityRenderingHandler(EntityPhysicsBlock.class, new RenderFallingSand());
 	}
 	
 	public void postInit(FMLPostInitializationEvent event)

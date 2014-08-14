@@ -6,7 +6,6 @@ import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.entity.RenderFallingSand;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumArmorMaterial;
@@ -19,7 +18,6 @@ import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.EnumHelper;
 import org.lwjgl.input.Keyboard;
 import cpw.mods.fml.client.registry.KeyBindingRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -97,12 +95,7 @@ public class EnviroMine
 	{
 		proxy.init(event);
 		
-		//EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsEntity", EM_Settings.physBlockID, instance, 64, 1, true);
-		
-		if(proxy.isClient())
-		{
-			//RenderingRegistry.registerEntityRenderingHandler(EntityPhysicsBlock.class, new RenderFallingSand());
-		}
+		EntityRegistry.registerModEntity(EntityPhysicsBlock.class, "EnviroPhysicsEntity", EM_Settings.physBlockID, instance, 64, 1, true);
 		
 		LanguageRegistry.addName(badWaterBottle, "Dirty Water Bottle");
 		LanguageRegistry.addName(saltWaterBottle, "Salt Water Bottle");

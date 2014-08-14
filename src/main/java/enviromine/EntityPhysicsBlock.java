@@ -1,9 +1,13 @@
 package enviromine;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 import enviromine.core.EM_Settings;
 import enviromine.core.EnviroMine;
 import enviromine.handlers.EM_PhysManager;
@@ -14,15 +18,17 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingSand;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-public class EntityPhysicsBlock extends EntityFallingSand
+public class EntityPhysicsBlock extends EntityFallingSand implements IEntityAdditionalSpawnData
 {
 	
 	public boolean isAnvil2 = true;
@@ -345,7 +351,7 @@ public class EntityPhysicsBlock extends EntityFallingSand
      */
     protected void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
     {
-    	super.writeEntityToNBT(par1NBTTagCompound);
+    	super.readEntityFromNBT(par1NBTTagCompound);
         if (par1NBTTagCompound.hasKey("HurtEntities2"))
         {
             this.isAnvil2 = par1NBTTagCompound.getBoolean("HurtEntities2");
@@ -363,4 +369,36 @@ public class EntityPhysicsBlock extends EntityFallingSand
         	this.setDead();
         }
     }
+
+	@Override
+	public void writeSpawnData(ByteArrayDataOutput data)
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		this.writeEntityToNBT(tags);
+		
+		try
+		{
+	        byte[] abyte = CompressedStreamTools.compress(tags);
+			data.writeShort((short)abyte.length);
+			data.write(abyte);
+		} catch(IOException e)
+		{
+			EnviroMine.logger.log(Level.WARNING, "An error occured while writing physics entity properites!");
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void readSpawnData(ByteArrayDataInput data)
+	{
+		try
+		{
+			NBTTagCompound tags = Packet.readNBTTagCompound(data);
+			this.readEntityFromNBT(tags);
+		} catch(IOException e)
+		{
+			EnviroMine.logger.log(Level.WARNING, "An error occured while reading physics entity properites!");
+			e.printStackTrace();
+		}
+	}
 }

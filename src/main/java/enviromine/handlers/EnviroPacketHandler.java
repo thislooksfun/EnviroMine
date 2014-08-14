@@ -30,7 +30,6 @@ public class EnviroPacketHandler implements IPacketHandler
 		try
 		{
 			String[] data;
-			EnviroDataTracker tracker;
 			
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			DataOutputStream outputStream = new DataOutputStream(bos);
@@ -71,11 +70,19 @@ public class EnviroPacketHandler implements IPacketHandler
 		
 		if(tracker != null)
 		{
+			tracker.prevAirQuality = tracker.airQuality;
+			tracker.prevBodyTemp = tracker.bodyTemp;
+			tracker.prevHydration = tracker.hydration;
+			tracker.prevSanity = tracker.sanity;
 			tracker.airQuality = Float.valueOf(data[2]);
 			tracker.bodyTemp = Float.valueOf(data[3]);
 			tracker.hydration = Float.valueOf(data[4]);
 			tracker.sanity = Float.valueOf(data[5]);
 			tracker.airTemp = Float.valueOf(data[6]);
+		} else
+		{
+			EnviroMine.logger.log(Level.WARNING, "Failed to sync tracker for " + data[1].trim());
+			EnviroMine.logger.log(Level.WARNING, "Stats may be inaccurate!");
 		}
 	}
 	
