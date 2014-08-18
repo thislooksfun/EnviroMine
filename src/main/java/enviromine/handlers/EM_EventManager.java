@@ -34,7 +34,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EnumStatus;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGlassBottle;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -116,6 +115,7 @@ public class EM_EventManager
 					if(oldTrack != null)
 					{
 						oldTrack.trackedEntity = (EntityLivingBase)event.entity;
+						oldTrack.isDisabled = false;
 						oldTrack.loadNBTTags();
 						return;
 					}
@@ -162,6 +162,7 @@ public class EM_EventManager
 				if(player != null)
 				{
 					tracker.trackedEntity = player;
+					tracker.isDisabled = false;
 					tracker.loadNBTTags();
 				} else
 				{
@@ -728,7 +729,23 @@ public class EM_EventManager
 		
 		if(tracker == null)
 		{
-			return;
+			if((!EnviroMine.proxy.isClient() || EnviroMine.proxy.isOpenToLAN()) && (EM_Settings.enableAirQ || EM_Settings.enableBodyTemp || EM_Settings.enableHydrate || EM_Settings.enableSanity))
+			{
+				if(event.entityLiving instanceof EntityPlayer || (EM_Settings.trackNonPlayer && EnviroDataTracker.isLegalType(event.entityLiving)))
+				{
+					EnviroMine.logger.log(Level.WARNING, "Server lost track of player! Attempting to re-sync...");
+					EnviroDataTracker emTrack = new EnviroDataTracker((EntityLivingBase)event.entity);
+					EM_StatusManager.addToManager(emTrack);
+					emTrack.loadNBTTags();
+					EM_StatusManager.syncMultiplayerTracker(emTrack);
+				} else
+				{
+					return;
+				}
+			} else
+			{
+				return;
+			}
 		}
 		
 		EM_StatusManager.updateTracker(tracker);

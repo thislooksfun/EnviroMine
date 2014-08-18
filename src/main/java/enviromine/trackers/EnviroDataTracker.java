@@ -75,7 +75,7 @@ public class EnviroDataTracker
 		
 		updateTimer = 0;
 		
-		if(trackedEntity == null)
+		if(trackedEntity == null || isDisabled)
 		{
 			EM_StatusManager.removeTracker(this);
 			return;
@@ -94,6 +94,7 @@ public class EnviroDataTracker
 				} else
 				{
 					trackedEntity = player;
+					this.isDisabled = false;
 					this.loadNBTTags();
 				}
 			} else

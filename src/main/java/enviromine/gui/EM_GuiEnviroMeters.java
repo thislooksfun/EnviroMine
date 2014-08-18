@@ -79,13 +79,14 @@ public class EM_GuiEnviroMeters extends Gui
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glDisable(GL11.GL_LIGHTING);
 		
-		if(tracker != null && (tracker.trackedEntity.isDead || tracker.trackedEntity.getHealth() <= 0F))
+		if(tracker != null && (tracker.trackedEntity == null || tracker.trackedEntity.isDead || tracker.trackedEntity.getHealth() <= 0F) && !tracker.isDisabled)
 		{
 			EntityPlayer player = EM_StatusManager.findPlayer(this.mc.thePlayer.username);
 			
 			if(player != null)
 			{
 				tracker.trackedEntity = player;
+				tracker.isDisabled = false;
 				tracker.loadNBTTags();
 			} else
 			{
@@ -102,7 +103,7 @@ public class EM_GuiEnviroMeters extends Gui
 				Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
 				tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
 			}
-		} else if(tracker.isDisabled)
+		} else if(tracker.isDisabled || !EM_StatusManager.trackerList.containsValue(tracker))
 		{
 			tracker = null;
 		} else
@@ -539,7 +540,7 @@ public class EM_GuiEnviroMeters extends Gui
 				}
 			}
 			
-			this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
+			//this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 			
 			if(tracker.bodyTemp >= 39)
 			{

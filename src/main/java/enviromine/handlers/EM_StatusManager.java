@@ -95,6 +95,7 @@ public class EM_StatusManager
 	
 	public static void syncMultiplayerTracker(EnviroDataTracker tracker)
 	{
+		tracker.fixFloatinfPointErrors();
 		String dataString = "";
 		if(tracker.trackedEntity instanceof EntityPlayer)
 		{
@@ -103,6 +104,11 @@ public class EM_StatusManager
 		{
 			return;
 			//dataString = ("ID:0," + tracker.trackedEntity.entityId + "," + tracker.airQuality + "," + tracker.bodyTemp + "," + tracker.hydration + "," + tracker.sanity);
+		}
+		
+		if(dataString.length() >= 2048)
+		{
+			EnviroMine.logger.log(Level.WARNING, "Tracker Sync data too long! Problems may occur client side while parsing!");
 		}
 		
 		try
