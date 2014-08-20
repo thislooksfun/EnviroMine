@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+##############################################################################
+##
+##  Changelog creation script for use with Git Shell & Drone.io
+##  Created by Funwayguy for EnviroMine 1.1.x
+##
+##############################################################################
+
+# Create document for update notice
+echo $ver_num > version.txt
+echo "https://github.com/Funwayguy/EnviroMine/wiki/Downloads" >> version.txt
+git log -1 --pretty=format:"%B" >> version.txt
+
+echo "--- Full Changelogs ---" > full_changelogs.txt
+echo "" >> full_changelogs.txt
+
+echo $ver_num >> full_changelogs.txt
+git log -1 --pretty=format:"%B" >> full_changelogs.txt
+
+for i in `seq 1 $DRONE_BUILD_NUMBER`;
+do
+  iver = $ver_num - $i
+  echo "" >> full_changelog.txt
+  echo $iver >> full_changelog.txt
+  echo git log -1 --skip=$i --pretty=format:"$B" >> full_changelogs.txt
+done
