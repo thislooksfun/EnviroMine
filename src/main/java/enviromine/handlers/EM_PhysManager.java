@@ -731,6 +731,11 @@ public class EM_PhysManager
 
 	public static boolean hasSupports(World world, int x, int y, int z, int dist)
 	{
+		if(dist <= 0)
+		{
+			return false;
+		}
+		
 		boolean isLeaves = world.getBlockMaterial(x, y, z) == Material.leaves;
 		
 		for(int i = x - 1; i <= x + 1; i++)

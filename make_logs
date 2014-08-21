@@ -18,7 +18,7 @@ git log -1 --pretty=format:"%B" >> version.txt
 
 # Write Full Changelog
 echo "----- Full EnviroMine Changelog (1.6.4) -----" > full_changelog.txt
-echo "NOTE: Full changlog does not account for failed builds!" >> full_changelog.txt
+echo "NOTE: Changlog does not account for failed builds!" >> full_changelog.txt
 echo "Version numbers may be inaccurate where builds have failed." >> full_changelog.txt
 echo "" >> full_changelog.txt
 
