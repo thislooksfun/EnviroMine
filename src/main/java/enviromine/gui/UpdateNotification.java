@@ -43,11 +43,6 @@ public class UpdateNotification implements IPlayerTracker
 				return;
 			}
 			
-			for(int i = 0; i < data.length; i++)
-			{
-				player.addChatMessage(EnumChatFormatting.RESET + "" + data[i].trim());
-			}
-			
 			String version = data[0].trim();
 			String http = data[1].trim();
 			
