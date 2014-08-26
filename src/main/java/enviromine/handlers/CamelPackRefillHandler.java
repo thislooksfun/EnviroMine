@@ -55,12 +55,24 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 				}
 			} else if(item.itemID == Item.potion.itemID && item.getItemDamage() == 0)
 			{
-				fillBottle = false;
-				bottles.add(item);
+				if(bottles.size() > 0 && fillBottle)
+				{
+					return false;
+				} else
+				{
+					fillBottle = false;
+					bottles.add(item);
+				}
 			} else if(item.itemID == Item.glassBottle.itemID && bottles.size() == 0)
 			{
-				fillBottle = true;
-				bottles.add(item);
+				if(bottles.size() > 0 && !fillBottle)
+				{
+					return false;
+				} else
+				{
+					fillBottle = true;
+					bottles.add(item);
+				}
 			} else if(item != null)
 			{
 				return false;
@@ -130,7 +142,7 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 	@Override
 	public void onCrafting(EntityPlayer player, ItemStack item, IInventory craftMatrix)
 	{
-		if(!craftMatrix.getInvName().equals("container.crafting"))
+		if(!craftMatrix.getInvName().equals("container.crafting") || !fillBottle)
 		{
 			return;
 		} else if(item.itemID == Item.potion.itemID && item.getItemDamage() == 0)
