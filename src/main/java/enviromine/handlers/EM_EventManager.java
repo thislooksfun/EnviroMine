@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -51,7 +53,9 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -568,7 +572,7 @@ public class EM_EventManager
 							tracker.hydrate(10F);
 						}
 						
-						if(isValidCauldron)
+						if(isValidCauldron && EM_Settings.limitCauldron)
 						{
 							entityPlayer.worldObj.setBlockMetadataWithNotify(i, j, k, entityPlayer.worldObj.getBlockMetadata(i, j, k) - 1, 2);
 						}
@@ -588,6 +592,7 @@ public class EM_EventManager
 	public static int getWaterType(World world, int x, int y, int z)
 	{
 		BiomeGenBase biome = world.getBiomeGenForCoords(x, z);
+		ArrayList<Type> bTypeList = new ArrayList<Type>(Arrays.asList(BiomeDictionary.getTypesForBiome(biome)));
 		
 		if(biome == null)
 		{
@@ -608,13 +613,13 @@ public class EM_EventManager
 			}
 		}
 		
-		if(biome.biomeName == BiomeGenBase.swampland.biomeName || biome.biomeName == BiomeGenBase.jungle.biomeName || biome.biomeName == BiomeGenBase.jungleHills.biomeName || y < 48 || looksBad)
+		if(bTypeList.contains(Type.SWAMP) || bTypeList.contains(Type.JUNGLE) || y < 48 || looksBad)
 		{
 			return 1;
 		} else if(biome.biomeName == BiomeGenBase.frozenOcean.biomeName || biome.biomeName == BiomeGenBase.ocean.biomeName || biome.biomeName == BiomeGenBase.beach.biomeName)
 		{
 			return 2;
-		} else if(biome.biomeName == BiomeGenBase.icePlains.biomeName || biome.biomeName == BiomeGenBase.taiga.biomeName || biome.biomeName == BiomeGenBase.taigaHills.biomeName || biome.temperature < 0F || y > 127)
+		} else if(bTypeList.contains(Type.FROZEN) || biome.temperature < 0F || y > 96)
 		{
 			return 3;
 		} else

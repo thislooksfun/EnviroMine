@@ -1,10 +1,9 @@
 package enviromine.handlers;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import cpw.mods.fml.common.ICraftingHandler;
 import enviromine.core.EnviroMine;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -109,17 +108,6 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 	@Override
 	public ItemStack getRecipeOutput()
 	{
-		if(!fillBottle)
-		{
-			Iterator<ItemStack> iterator = bottles.iterator();
-			
-			while(iterator.hasNext())
-			{
-				ItemStack bottle = iterator.next();
-				bottle.getItem().setContainerItem(Item.glassBottle);
-			}
-		}
-		
 		if(fillBottle)
 		{
 			ItemStack newItem = new ItemStack(Item.potion);
@@ -142,9 +130,34 @@ public class CamelPackRefillHandler implements IRecipe, ICraftingHandler
 	@Override
 	public void onCrafting(EntityPlayer player, ItemStack item, IInventory craftMatrix)
 	{
-		if(!craftMatrix.getInvName().equals("container.crafting") || !fillBottle)
+		if(!craftMatrix.getInvName().equals("container.crafting"))
 		{
 			return;
+		} else if(item.itemID == EnviroMine.camelPack.itemID)
+		{
+			int bottleCount = 0;
+			
+			for(int i = craftMatrix.getSizeInventory() - 1; i >= 0; i--)
+			{
+				ItemStack slot = craftMatrix.getStackInSlot(i);
+				
+				if(slot == null)
+				{
+					continue;
+				} else if(slot.getItem() == Item.potion && slot.getItemDamage() == 0)
+				{
+					bottleCount++;
+				}
+			}
+			
+			if(bottleCount > 0)
+			{
+				if(!player.inventory.addItemStackToInventory(new ItemStack(Item.glassBottle, bottleCount)))
+				{
+					EntityItem itemDrop = player.dropPlayerItem(new ItemStack(Item.glassBottle, bottleCount));
+					itemDrop.delayBeforeCanPickup = 0;
+				}
+			}
 		} else if(item.itemID == Item.potion.itemID && item.getItemDamage() == 0)
 		{
 			for(int i = craftMatrix.getSizeInventory() - 1; i >= 0; i--)
