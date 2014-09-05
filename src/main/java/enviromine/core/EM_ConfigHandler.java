@@ -206,6 +206,7 @@ public class EM_ConfigHandler
 		EM_Settings.ShowDebug = config.get(GuiSetCat, "Show Gui Debugging Info", false, "Show Hide Gui Text Display and Icons").getBoolean(false);
 		EM_Settings.ShowText = config.get(GuiSetCat, "Show Gui Status Text", true).getBoolean(true);
 		EM_Settings.ShowGuiIcons = config.get(GuiSetCat, "Show Gui Icons", true).getBoolean(true);
+		EM_Settings.allowTinting = config.get(GuiSetCat, "Do Screen Tinting", true, "Disable this if you experience a 'blackout' with low status values").getBoolean(true);
 		
 		// Config Item ID's
 		EM_Settings.dirtBottleID = config.get(Configuration.CATEGORY_ITEM, "Dirty Water Bottle", 5001).getInt(5001);

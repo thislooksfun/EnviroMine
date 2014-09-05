@@ -2,6 +2,7 @@ package enviromine.gui;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.logging.Level;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -97,11 +98,25 @@ public class EM_GuiEnviroMeters extends Gui
 			}
 		}
 		
+		if(EM_Settings.enableAirQ == false && EM_Settings.enableBodyTemp == false && EM_Settings.enableHydrate == false && EM_Settings.enableSanity == false)
+		{
+			tracker = null;
+		} else if(ticktimer == 1)
+		{
+			tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
+			
+			if(tracker == null)
+			{
+				EnviroMine.logger.log(Level.WARNING, "Unable to get EnviroTracker for GUI!");
+				EnviroMine.logger.log(Level.WARNING, "Please report this to the mod developers!");
+			}
+		}
+		
 		if(tracker == null)
 		{
+			Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
 			if(!(EM_Settings.enableAirQ == false && EM_Settings.enableBodyTemp == false && EM_Settings.enableHydrate == false && EM_Settings.enableSanity == false))
 			{
-				Minecraft.getMinecraft().fontRenderer.drawStringWithShadow("NO ENVIRONMENT DATA", xPos, (height - yPos) - 8, 16777215);
 				tracker = EM_StatusManager.lookupTrackerFromUsername(this.mc.thePlayer.username);
 			}
 		} else if(tracker.isDisabled || !EM_StatusManager.trackerList.containsValue(tracker))
@@ -543,7 +558,7 @@ public class EM_GuiEnviroMeters extends Gui
 			
 			//this.mc.renderEngine.bindTexture(new ResourceLocation("enviromine", guiResource));
 			
-			if(!tracker.trackedEntity.isEntityInsideOpaqueBlock() && !tracker.trackedEntity.isInsideOfMaterial(Material.water))
+			if(!tracker.trackedEntity.isEntityInsideOpaqueBlock() && !tracker.trackedEntity.isInsideOfMaterial(Material.water) && EM_Settings.allowTinting)
 			{
 				if(tracker.bodyTemp >= 39)
 				{

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
@@ -82,7 +84,29 @@ public class EnviroPacketHandler implements IPacketHandler
 		} else
 		{
 			EnviroMine.logger.log(Level.WARNING, "Failed to sync tracker for " + data[1].trim());
-			EnviroMine.logger.log(Level.WARNING, "Stats may be inaccurate!");
+			
+			if(!(EM_Settings.enableAirQ || EM_Settings.enableBodyTemp || EM_Settings.enableHydrate || EM_Settings.enableSanity))
+			{
+				EnviroMine.logger.log(Level.WARNING, "Please change your settings to enable one or more status types");
+			} else
+			{
+				if(EnviroMine.proxy.isClient() && Minecraft.getMinecraft().thePlayer.equals(data[1].trim()))
+				{
+					EnviroMine.logger.log(Level.WARNING, "Attempting to create tracker for player...");
+					EnviroDataTracker emTrack = new EnviroDataTracker(Minecraft.getMinecraft().thePlayer);
+					EM_StatusManager.addToManager(emTrack);
+					
+					emTrack.airQuality = Float.valueOf(data[2]);
+					emTrack.bodyTemp = Float.valueOf(data[3]);
+					emTrack.hydration = Float.valueOf(data[4]);
+					emTrack.sanity = Float.valueOf(data[5]);
+					emTrack.airTemp = Float.valueOf(data[6]);
+					emTrack.prevAirQuality = emTrack.airQuality;
+					emTrack.prevBodyTemp = emTrack.bodyTemp;
+					emTrack.prevHydration = emTrack.hydration;
+					emTrack.prevSanity = emTrack.sanity;
+				}
+			}
 		}
 	}
 	
