@@ -4,12 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.server.MinecraftServer;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import enviromine.core.EM_Settings;
@@ -90,10 +87,12 @@ public class EnviroPacketHandler implements IPacketHandler
 				EnviroMine.logger.log(Level.WARNING, "Please change your settings to enable one or more status types");
 			} else
 			{
-				if(EnviroMine.proxy.isClient() && Minecraft.getMinecraft().thePlayer.equals(data[1].trim()))
+				EntityPlayer player = EM_StatusManager.findPlayer(data[1].trim());
+				
+				if(EnviroMine.proxy.isClient() && player != null)
 				{
 					EnviroMine.logger.log(Level.WARNING, "Attempting to create tracker for player...");
-					EnviroDataTracker emTrack = new EnviroDataTracker(Minecraft.getMinecraft().thePlayer);
+					EnviroDataTracker emTrack = new EnviroDataTracker(player);
 					EM_StatusManager.addToManager(emTrack);
 					
 					emTrack.airQuality = Float.valueOf(data[2]);
