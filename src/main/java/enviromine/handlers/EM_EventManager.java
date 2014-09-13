@@ -743,6 +743,7 @@ public class EM_EventManager
 					EM_StatusManager.addToManager(emTrack);
 					emTrack.loadNBTTags();
 					EM_StatusManager.syncMultiplayerTracker(emTrack);
+					tracker = emTrack;
 				} else
 				{
 					return;
@@ -853,6 +854,28 @@ public class EM_EventManager
 			if(attribute.getModifier(EM_FROST3_ID) != null && tracker.frostbiteLevel < 2)
 			{
 				attribute.removeModifier(attribute.getModifier(EM_FROST3_ID));
+			}
+		}
+		
+		if(event.entityLiving.isPotionActive(EnviroPotion.frostbite) && event.entityLiving.getActivePotionEffect(EnviroPotion.frostbite).getAmplifier() > 0 && event.entityLiving.isRiding())
+		{
+			event.entityLiving.setSprinting(false);
+			event.entityLiving.setJumping(false);
+			
+			if((event.entityLiving.lastTickPosY < event.entityLiving.posY || event.entityLiving.prevPosY < event.entityLiving.posY || event.entityLiving.motionY > 0) && event.entityLiving.isInWater())
+			{
+				double sinkSp = 0.2D;
+				Vec3 srcVec = Vec3.createVectorHelper(event.entityLiving.posX, event.entityLiving.lastTickPosY, event.entityLiving.posZ);
+				Vec3 desVec = srcVec.addVector(0D, -sinkSp, 0D);
+				MovingObjectPosition mop = event.entityLiving.worldObj.clip(srcVec, desVec);
+				
+				if(mop == null)
+				{
+					event.entityLiving.lastTickPosY -= sinkSp;
+				}
+				
+				event.entityLiving.setPositionAndUpdate(event.entityLiving.posX, event.entityLiving.lastTickPosY, event.entityLiving.posZ);
+				event.entityLiving.motionY = -sinkSp;
 			}
 		}
 		
