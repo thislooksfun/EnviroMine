@@ -126,7 +126,7 @@ public class EM_StatusManager
 			packet.channel = EM_Settings.Channel;
 			packet.data = bos.toByteArray();
 			packet.length = bos.size();
-			PacketDispatcher.sendPacketToAllPlayers(packet);
+			PacketDispatcher.sendPacketToAllAround(tracker.trackedEntity.posX, tracker.trackedEntity.posY, tracker.trackedEntity.posZ, 128, tracker.trackedEntity.dimension, packet);
 			
 			outputStream.close();
 			bos.close();
