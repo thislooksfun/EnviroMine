@@ -2,6 +2,12 @@ EnviroMine
 ==========
 For information, please check [the wiki](https://github.com/Funwayguy/EnviroMine/wiki)
 
+
+This version is outdated and unsupported!
+=========================================
+Enviromine _has_ been [ported to 1.7](https://github.com/EnviroMine/EnviroMine-1.7).
+
+
 Licence
 =======
 CC BY-NC-SA 4.0  
